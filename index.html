@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#faf3f1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1117" media="(prefers-color-scheme: dark)">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mi Espacio">
@@ -162,6 +164,11 @@ main{padding:20px 16px 120px;max-width:1120px;margin:0 auto;outline:0}
 .mnav{display:flex;align-items:center;gap:10px}
 .mnav b{font-family:var(--f-display);font-size:1.2rem;font-weight:600;text-transform:capitalize;min-width:9ch;text-align:center}
 .note{font-size:.9rem;color:var(--muted)}
+.kv{display:flex;gap:14px;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:0}
+.kv .k{color:var(--muted);font-weight:600;flex:none}
+.kv .v{font-weight:600;text-align:right;overflow-wrap:anywhere;white-space:pre-wrap;min-width:0}
+.lk{color:var(--brand-t);font-weight:700;text-decoration:underline;text-underline-offset:3px}
 /* calendario */
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
 .cal .wd{font-size:.78rem;font-weight:700;color:var(--muted);padding:4px 0}
@@ -266,11 +273,42 @@ textarea{min-height:90px;resize:vertical}
 <script>
 /* ============ Datos ============ */
 const KEY='miespacio.v1';
-const DEF={events:[],tx:[],shop:[],clients:[],tasks:[],ideas:[],posts:[],favs:[],del:{},set:{name:'',budget:0,alertPct:80,leadDays:'3,1,0',u:0}};
+const DEF={events:[],tx:[],shop:[],clients:[],tasks:[],ideas:[],posts:[],favs:[],del:{},set:{name:'',budget:0,alertPct:80,leadDays:'3,1,0',u:0,seeded:false}};
 const COLL=['events','tx','shop','clients','tasks','ideas','posts'];
 let S;
-try{S=Object.assign(structuredClone(DEF),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){S=structuredClone(DEF)}
-S.set=Object.assign(structuredClone(DEF.set),S.set);
+/* Todo dato que viene de fuera (almacenamiento, respaldo importado, GitHub) se limpia antes de usarse */
+const SAFE=/^[\w-]{1,64}$/,isD=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v),isT=v=>typeof v==='string'&&/^\d{2}:\d{2}$/.test(v);
+const TEXTF=['title','name','note','desc','caption','tags','feedback','link','handle','contact','notes','qty','cat','project','clientId','format','status','important','web','instagram','tiktok','facebook','linkedin','youtube','otras'];
+function cleanRec(c,r){
+  if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.id!=='string'||!SAFE.test(r.id))return null;
+  const o={...r};
+  TEXTF.forEach(k=>{if(k in o&&typeof o[k]!=='string')o[k]=o[k]==null||typeof o[k]==='object'?'':String(o[k])});
+  ['date','due'].forEach(k=>{if(k in o&&o[k]!==''&&!isD(o[k]))o[k]=''});
+  if('time' in o&&o.time!==''&&!isT(o.time))o.time='';
+  if('u' in o&&!Number.isFinite(o.u))delete o.u;
+  if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
+  if(c==='tx'){o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
+  if(c==='shop'||c==='tasks')o.done=!!o.done;
+  if(c==='ideas')o.fav=!!o.fav;
+  if(c==='posts'){if(!['Pendiente','En revisión','Aprobado','Por subir','Por cambiar','Publicado'].includes(o.status))o.status='Pendiente';o.imgs=Array.isArray(o.imgs)?o.imgs.filter(i=>typeof i==='string'&&SAFE.test(i)):[]}
+  return o;
+}
+function ymd0(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
+function cleanSet(x){
+  const o=structuredClone(DEF.set);if(!x||typeof x!=='object')return o;
+  if(typeof x.name==='string')o.name=x.name;
+  ['budget','alertPct','u'].forEach(k=>{if(Number.isFinite(+x[k]))o[k]=+x[k]});
+  if(typeof x.leadDays==='string')o.leadDays=x.leadDays.replace(/[^0-9,]/g,'')||'3,1,0';
+  o.seeded=!!x.seeded;return o;
+}
+function cleanState(d){
+  const o=structuredClone(DEF);if(!d||typeof d!=='object'||Array.isArray(d))return o;
+  COLL.forEach(c=>{if(Array.isArray(d[c]))o[c]=d[c].map(r=>cleanRec(c,r)).filter(Boolean)});
+  if(Array.isArray(d.favs))o.favs=d.favs.filter(f=>f&&typeof f.name==='string').slice(0,40).map(f=>({name:f.name,cat:typeof f.cat==='string'?f.cat:'Otros'}));
+  if(d.del&&typeof d.del==='object')Object.entries(d.del).forEach(([k,v])=>{if(SAFE.test(k)&&Number.isFinite(+v))o.del[k]=+v});
+  o.set=cleanSet(d.set);return o;
+}
+try{S=cleanState(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){S=structuredClone(DEF)}
 S.ideas.forEach(i=>{if(i.project==='Personal')i.project='General'});
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('No se pudo guardar en este dispositivo')}};
 /* cada registro lleva "u" (última modificación) para combinar cambios entre dispositivos sin pisarlos */
@@ -288,10 +326,12 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 
 /* ============ Constantes ============ */
-const PROJ=['Nexia','Identidad Prestada'];
-const KIND={Personal:'info',Nexia:'accent','Identidad Prestada':'brand',Finanzas:'warn',Salud:'ok',Casa:'mute',Otros:'mute',General:'mute'};
-const ECATS=['Personal','Nexia','Identidad Prestada','Finanzas','Salud','Casa','Otros'];
-const TXCATS={ingreso:['Nexia','Identidad Prestada','Otros ingresos'],
+/* Los "proyectos" son tus clientes: estas listas se rellenan solas desde S.clients */
+const PROJ=[],ECATS=[];
+const KIND={Personal:'info',Finanzas:'warn',Salud:'ok',Casa:'mute',Otros:'mute',General:'mute'};
+const KINDS=['accent','brand','info','warn','ok'];
+const chash=n=>[...String(n)].reduce((a,ch)=>(a*31+ch.charCodeAt(0))>>>0,7);
+const TXCATS={ingreso:['Otros ingresos'],
   gasto:['Casa','Super','Transporte','Salud','Ocio','Servicios','Belleza y ropa','Trabajo','Otros'],
   ahorro:['Ahorro','Emergencia','Metas']};
 const SHOPCATS=['Frutas y verduras','Carnes y pescado','Lácteos y huevos','Despensa','Limpieza','Higiene y belleza','Otros'];
@@ -343,7 +383,22 @@ const when=(d,t=today())=>{const n=diffDays(t,d);return n<0?`hace ${-n} día${n<
 
 /* ============ Estado de UI ============ */
 const nowYM=today().slice(0,7);
-const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'Nexia',wtab:'panorama',fclient:'',fstatus:'Todos'};
+const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'',wtab:'panorama',fstatus:'Todos'};
+function syncProj(){
+  PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
+  ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
+  TXCATS.ingreso=[...PROJ,'Otros ingresos'];
+  PROJ.forEach(n=>{if(!Object.hasOwn(KIND,n))KIND[n]=KINDS[chash(n)%KINDS.length]});
+  if(!PROJ.includes(ui.proj))ui.proj=PROJ[0]||'';
+  if(!['panorama','contenido','datos','ideas'].includes(ui.wtab))ui.wtab='panorama';
+}
+/* primera vez: Nexia e Identidad Prestada aparecen como clientes (se pueden editar o borrar) */
+S.clients.forEach(c=>{if(c.handle&&!c.instagram)c.instagram=c.handle});
+if(!S.set.seeded){
+  [['c-nexia','Nexia'],['c-identidad','Identidad Prestada']].forEach(([id,name])=>{if(!S.clients.some(c=>c.name===name))S.clients.push({id,name,status:'Activo'})});
+  S.set.seeded=true;S.set.u=Date.now();stamp();persist();
+}
+syncProj();
 
 /* ============ Lógica ============ */
 function occurs(ev,d){
@@ -357,6 +412,7 @@ function occurs(ev,d){
   return false;
 }
 const clientName=id=>{const c=S.clients.find(c=>c.id===id);return c?c.name:''};
+const clientOf=p=>S.clients.find(c=>c.name===p);
 function itemsOn(d){
   const L=[];
   S.events.filter(e=>occurs(e,d)).forEach(e=>L.push({kind:'ev',id:e.id,title:e.title,time:e.time||'',cat:e.cat,done:!!(e.doneOn&&e.doneOn[d]),d,rep:e.repeat&&e.repeat!=='ninguna',imp:e.important==='Sí'}));
@@ -422,7 +478,7 @@ function vHome(){
   const proj=p=>{
     const open=S.tasks.filter(x=>x.project===p&&!x.done).length,por=S.posts.filter(x=>x.project===p&&x.status!=='Publicado').length;
     const nx=importantDates(p,30)[0];
-    return `<section class="card" aria-label="${p}"><div class="card-h"><h2>${p}</h2><button class="link" type="button" data-act="goto-proj" data-id="${p}">Abrir</button></div>
+    return `<section class="card" aria-label="${esc(p)}"><div class="card-h"><h2>${esc(p)}</h2><button class="link" type="button" data-act="goto-proj" data-id="${esc(p)}">Abrir</button></div>
       <div class="stats"><div class="stat"><span>Tareas</span><b>${open}</b></div><div class="stat"><span>Posts por salir</span><b>${por}</b></div></div>
       <p class="note" style="margin-top:10px">${nx?`Próxima fecha: <b>${esc(nx.title)}</b>, ${when(nx.d)}`:'Sin fechas próximas'}</p></section>`;
   };
@@ -458,23 +514,30 @@ function vAgenda(){
 }
 
 /* ---- Trabajo ---- */
+const ICOS={web:['Página web',''],instagram:['Instagram','https://www.instagram.com/'],tiktok:['TikTok','https://www.tiktok.com/@'],facebook:['Facebook','https://www.facebook.com/'],linkedin:['LinkedIn','https://www.linkedin.com/company/'],youtube:['YouTube','https://www.youtube.com/@']};
+function safeHref(v,base){
+  v=String(v||'').trim();if(!v)return null;
+  try{const u=/^https?:\/\//i.test(v)?new URL(v):base?new URL(base+encodeURIComponent(v.replace(/^@/,''))):new URL('https://'+v);
+    return /^https?:$/.test(u.protocol)?u.href:null}catch(e){return null}
+}
 function vWork(){
-  const p=ui.proj;
-  const tabs=[['panorama','Panorama'],['contenido','Contenido'],['clientes','Clientes'],['ideas','Ideas']];
-  const act={panorama:addBtn('Tarea','add-task',p),contenido:addBtn('Publicación','add-post'),clientes:addBtn('Cliente','add-client'),ideas:addBtn('Idea','add-idea')}[ui.wtab];
-  return page('Trabajo','Mis proyectos',act)+
-   `<div class="seg" role="group" aria-label="Proyecto">${PROJ.map(x=>`<button type="button" aria-pressed="${x===p}" data-act="proj" data-id="${x}">${x}</button>`).join('')}</div>
+  const p=ui.proj,c=clientOf(p);
+  const tabs=[['panorama','Panorama'],['contenido','Contenido'],['datos','Datos y redes'],['ideas','Ideas']];
+  if(!c)return page('Trabajo','Mis clientes',addBtn('Cliente','add-client'))+`<div class="card">${empty('Agrega a tu primer cliente.')}</div>`;
+  const act={panorama:addBtn('Tarea','add-task',p),contenido:addBtn('Publicación','add-post'),datos:`<button class="btn sm" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`,ideas:addBtn('Idea','add-idea')}[ui.wtab];
+  return page('Trabajo','Mis clientes',act+addBtn('Cliente','add-client'))+
+   `<div class="chips" role="group" aria-label="Cliente">${PROJ.map(x=>`<button class="chip" type="button" aria-pressed="${x===p}" data-act="proj" data-id="${esc(x)}">${esc(x)}</button>`).join('')}</div>
    <div class="subtabs" role="tablist" aria-label="Secciones de ${esc(p)}">${tabs.map(([k,l])=>`<button type="button" role="tab" aria-selected="${k===ui.wtab}" data-act="wtab" data-id="${k}">${l}</button>`).join('')}</div>`+
-   ({panorama:wPanorama,contenido:wContenido,clientes:wClientes,ideas:wIdeas}[ui.wtab])(p);
+   ({panorama:wPanorama,contenido:wContenido,datos:wDatos,ideas:wIdeas}[ui.wtab])(p);
 }
 function wPanorama(p){
-  const cl=S.clients.filter(c=>c.project===p),tasks=S.tasks.filter(t=>t.project===p);
+  const cli=clientOf(p),tasks=S.tasks.filter(t=>t.project===p);
   const cobrado=S.tx.filter(t=>t.date.startsWith(nowYM)&&t.type==='ingreso'&&t.cat===p).reduce((a,t)=>a+t.amount,0);
   const pend=tasks.filter(t=>!t.done).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'));
   const dates=importantDates(p,30);
   const por=S.posts.filter(x=>x.project===p&&x.status!=='Publicado').length;
   const trow=t=>`<li class="row ${t.done?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${t.done}" aria-label="${t.done?'Desmarcar':'Marcar como hecha'}: ${esc(t.title)}" data-act="toggle" data-kind="task" data-id="${t.id}">${t.done?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-task" data-id="${t.id}"><span class="t">${esc(t.title)}</span><span class="s">${[clientName(t.clientId),t.due?longDate(t.due):'sin fecha'].filter(Boolean).map(esc).join(' · ')}</span></button></li>`;
-  return `<div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Clientes activos</span><b>${cl.filter(c=>c.status==='Activo').length}</b></div><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Posts por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div></div>
+  return `<div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Estado</span><b>${esc(cli?cli.status||'Activo':'')}</b></div><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Posts por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div></div>
   <div class="grid"><section class="card" aria-labelledby="h-fi"><div class="card-h"><h2 id="h-fi">Fechas importantes</h2>${addBtn('Fecha','add-ev-imp',p)}</div>
     <p class="note" style="margin-bottom:8px">Próximos 30 días. Recibes aviso por WhatsApp antes de cada una.</p>
     ${dates.length?`<ul class="list">${dates.map(x=>`<li class="row"><button class="row-main" type="button" data-act="${x.act}" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${longDate(x.d)} · ${x.sub}</span></button>${pill(when(x.d),diffDays(today(),x.d)<=1?'bad':'info')}</li>`).join('')}</ul>`:empty('No hay fechas próximas.')}</section>
@@ -482,9 +545,7 @@ function wPanorama(p){
     ${tasks.some(t=>t.done)?`<details style="margin-top:10px"><summary class="link">Completadas (${tasks.filter(t=>t.done).length})</summary><ul class="list">${tasks.filter(t=>t.done).map(trow).join('')}</ul></details>`:''}</section></div>`;
 }
 function wContenido(p){
-  const clients=S.clients.filter(c=>c.project===p);
-  if(ui.fclient&&!clients.some(c=>c.id===ui.fclient))ui.fclient='';
-  const base=S.posts.filter(x=>x.project===p&&(!ui.fclient||x.clientId===ui.fclient));
+  const base=S.posts.filter(x=>x.project===p);
   const cnt=s=>base.filter(x=>x.status===s).length;
   const key=x=>x.date?x.date+(x.time||'00:00'):'9999';
   const row=x=>{const cover=x.imgs&&x.imgs[0]&&IMG[x.imgs[0]];
@@ -492,13 +553,24 @@ function wContenido(p){
     <button class="row-main" type="button" data-act="edit-post" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${[x.format,clientName(x.clientId),x.date?shortDate(x.date)+(x.time?' '+x.time:''):'sin fecha'].filter(Boolean).map(esc).join(' · ')}</span>${x.status==='Por cambiar'&&x.feedback?`<span class="s">Cambios: ${esc(x.feedback.slice(0,60))}</span>`:''}</button>
     ${NEXT[x.status]?`<button class="btn ghost sm" type="button" data-act="adv" data-id="${x.id}" aria-label="Pasar «${esc(x.title)}» a ${NEXT[x.status]}">${NEXT[x.status]} ${ic('right')}</button>`:''}</li>`};
   const groups=PST.filter(s=>ui.fstatus==='Todos'||ui.fstatus===s).map(s=>({s,list:base.filter(x=>x.status===s).sort((a,b)=>key(a).localeCompare(key(b)))})).filter(g=>g.list.length);
-  return `<div class="chips" role="group" aria-label="Filtrar por cliente"><button class="chip" type="button" aria-pressed="${!ui.fclient}" data-act="fclient" data-id="">Todos los clientes</button>${clients.map(c=>`<button class="chip" type="button" aria-pressed="${c.id===ui.fclient}" data-act="fclient" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>
-  <div class="chips" role="group" aria-label="Filtrar por estado"><button class="chip" type="button" aria-pressed="${ui.fstatus==='Todos'}" data-act="fstatus" data-id="Todos">Todos los estados</button>${PST.map(s=>`<button class="chip" type="button" aria-pressed="${ui.fstatus===s}" data-act="fstatus" data-id="${s}">${s} (${cnt(s)})</button>`).join('')}</div>
+  return `<div class="chips" role="group" aria-label="Filtrar por estado"><button class="chip" type="button" aria-pressed="${ui.fstatus==='Todos'}" data-act="fstatus" data-id="Todos">Todos los estados</button>${PST.map(s=>`<button class="chip" type="button" aria-pressed="${ui.fstatus===s}" data-act="fstatus" data-id="${s}">${s} (${cnt(s)})</button>`).join('')}</div>
   ${groups.length?`<div class="board">${groups.map(g=>`<section class="col" aria-label="${g.s}"><h3>${pill(g.s,SKIND[g.s])}<span class="note">${g.list.length}</span></h3><ul>${g.list.map(row).join('')}</ul></section>`).join('')}</div>`:`<div class="card">${empty('Aún no hay publicaciones aquí.')}</div>`}`;
 }
-function wClientes(p){
-  const cl=S.clients.filter(c=>c.project===p);
-  return `<section class="card" aria-label="Clientes">${cl.length?`<ul class="list">${cl.map(c=>`<li class="row"><span class="dot" aria-hidden="true">${esc(c.name[0]||'?')}</span><button class="row-main" type="button" data-act="edit-client" data-id="${c.id}"><span class="t">${esc(c.name)}</span><span class="s">${[c.handle,c.fee?money(c.fee):'',c.contact].filter(Boolean).map(esc).join(' · ')}</span></button>${pill(c.status,SKIND_CLIENT[c.status])}</li>`).join('')}</ul>`:empty('Agrega tu primer cliente.')}</section>`;
+function wDatos(p){
+  const c=clientOf(p);if(!c)return '';
+  const kv=(k,v)=>`<li class="kv"><span class="k">${k}</span><span class="v">${v}</span></li>`;
+  let rows='';
+  Object.entries(ICOS).forEach(([key,[lab,base]])=>{
+    if(!c[key])return;const href=safeHref(c[key],base);
+    rows+=kv(lab,href?`<a class="lk" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(c[key])}</a>`:esc(c[key]));
+  });
+  if(c.otras)rows+=kv('Otras redes',esc(c.otras));
+  if(c.contact)rows+=kv('Contacto',esc(c.contact));
+  if(c.fee)rows+=kv('Cobro acordado',money(num(c.fee)));
+  if(c.notes)rows+=kv('Notas',esc(c.notes));
+  return `<section class="card" aria-label="Datos de ${esc(p)}"><div class="card-h"><h2>${esc(p)}</h2>${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}</div>
+   ${rows?`<ul class="list">${rows}</ul>`:empty('Aún no hay datos. Toca «Editar» para agregar su página web y redes.')}</section>
+  <div class="actions" style="margin-top:14px"><button class="btn ghost" type="button" data-act="edit-client" data-id="${c.id}">Editar datos</button><button class="btn danger" type="button" data-act="del-client" data-id="${c.id}">Eliminar cliente</button></div>`;
 }
 function wIdeas(p){
   const list=S.ideas.filter(i=>i.project===p||i.project==='General').sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||b.id.localeCompare(a.id));
@@ -574,7 +646,7 @@ function vShop(){
 
 const TABS=[['home','Inicio','home',vHome],['agenda','Agenda','calendar',vAgenda],['work','Trabajo','briefcase',vWork],['money','Finanzas','chart',vMoney],['shop','Súper','cart',vShop]];
 function render(focus){
-  const y=scrollY;
+  const y=scrollY;syncProj();
   $('#main').innerHTML=TABS.find(t=>t[0]===ui.tab)[3]();
   const nb=alerts().filter(a=>a.lvl>=1).length;
   const btn=t=>`<button type="button" data-act="goto-tab" data-id="${t[0]}" ${t[0]===ui.tab?'aria-current="page"':''}>${ic(t[2])}<span>${t[1]}</span>${t[0]==='home'&&nb?`<i class="badge" aria-label="${nb} alertas">${nb}</i>`:''}</button>`;
@@ -596,6 +668,7 @@ function sheet(o){
   if(!lastFocus)lastFocus=document.activeElement;
   const fields=o.fields.map(x=>{
     const v=d[x.k]??x.def??'';let inp;
+    if(x.t==='select'&&v!==''&&!x.o.some(op=>String(Array.isArray(op)?op[0]:op)===String(v)))x={...x,o:[...x.o,v]};
     if(x.t==='select')inp=`<select name="${x.k}">${x.o.map(op=>{const [val,lab]=Array.isArray(op)?op:[op,op];return `<option value="${esc(val)}" ${String(val)===String(v)?'selected':''}>${esc(lab)}</option>`}).join('')}</select>`;
     else if(x.t==='textarea')inp=`<textarea name="${x.k}" placeholder="${esc(x.ph||'')}">${esc(v)}</textarea>`;
     else inp=`<input name="${x.k}" type="${x.t==='number'?'text':(x.t||'text')}" ${x.t==='number'?'inputmode="decimal"':''} value="${esc(v)}" placeholder="${esc(x.ph||'')}" autocomplete="off">`;
@@ -603,7 +676,7 @@ function sheet(o){
   }).join('');
   const el=$('#sheet');
   el.innerHTML=`<div class="back" data-act="close"></div><form class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetT"><h2 id="sheetT" tabindex="-1">${o.title}</h2>${o.pre||''}${fields}
-   <div class="btns"><button class="btn" type="submit">Guardar</button><button class="btn ghost" type="button" data-act="close">Cancelar</button>
+   <div class="btns">${o.noSave?'':'<button class="btn" type="submit">Guardar</button>'}<button class="btn ghost" type="button" data-act="close">Cancelar</button>
    ${(o.extra||[]).map((e,i)=>`<button class="btn ghost" type="button" data-x="${i}">${e.label}</button>`).join('')}
    ${o.onDelete?`<button class="btn danger" type="button" data-del="1">Eliminar</button>`:''}</div></form>`;
   el.classList.add('open');
@@ -636,7 +709,6 @@ document.addEventListener('keydown',e=>{
 });
 const upsert=(arr,item)=>{const i=arr.findIndex(x=>x.id===item.id);i>=0?arr[i]={...arr[i],...item}:arr.unshift(item)};
 const remove=(arr,id)=>{const i=arr.findIndex(x=>x.id===id);if(i>=0)arr.splice(i,1)};
-const clientOpts=()=>[['','Sin cliente'],...S.clients.map(c=>[c.id,`${c.name} · ${c.project}`])];
 
 /* ---- formularios ---- */
 function evSheet(id,date,imp){
@@ -648,9 +720,10 @@ function evSheet(id,date,imp){
     onSave:v=>upsert(S.events,{...v,id:e?e.id:uid(),doneOn:e?e.doneOn:{}}),onDelete:e?()=>remove(S.events,e.id):null});
 }
 function taskSheet(id,project,due){
+  if(!PROJ.length){toast('Primero agrega un cliente');return}
   const t=S.tasks.find(x=>x.id===id);
   sheet({title:t?'Editar tarea':'Nueva tarea',required:'title',data:t||{project:PROJ.includes(project)?project:ui.proj,due:due||''},
-    fields:[{k:'title',l:'Tarea',ph:'¿Qué hay que hacer?'},{k:'project',l:'Proyecto',t:'select',o:PROJ},{k:'clientId',l:'Cliente (opcional)',t:'select',o:clientOpts()},{k:'due',l:'Fecha límite',t:'date'}],
+    fields:[{k:'title',l:'Tarea',ph:'¿Qué hay que hacer?'},{k:'project',l:'Cliente',t:'select',o:PROJ},{k:'due',l:'Fecha límite',t:'date'}],
     onSave:v=>upsert(S.tasks,{...v,id:t?t.id:uid(),done:t?t.done:false}),onDelete:t?()=>remove(S.tasks,t.id):null});
 }
 function txSheet(id,type){
@@ -668,17 +741,38 @@ function shopSheet(id){
 function amountSheet(title,def,cb){
   sheet({title,data:{amount:def||''},fields:[{k:'amount',l:'Monto',t:'number',ph:'0.00'}],onSave:v=>cb(v.amount)});
 }
+function delClient(c){
+  S.posts.filter(x=>x.project===c.name).forEach(x=>(x.imgs||[]).forEach(delImg));
+  S.tasks=S.tasks.filter(x=>x.project!==c.name);S.posts=S.posts.filter(x=>x.project!==c.name);S.ideas=S.ideas.filter(x=>x.project!==c.name);
+  remove(S.clients,c.id);
+}
+function delClientSheet(id){
+  const c=S.clients.find(x=>x.id===id);if(!c)return;
+  sheet({title:`Eliminar a ${c.name}`,noSave:true,fields:[],pre:'<p class="note" style="margin-bottom:14px">Se borrarán también sus tareas, publicaciones e ideas. Los ingresos que ya registraste en Finanzas se quedan.</p>',
+    onDelete:()=>{delClient(c);toast('Cliente eliminado')}});
+}
 function clientSheet(id){
   const c=S.clients.find(x=>x.id===id);
-  sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',data:c||{project:ui.proj,status:'Activo'},
-    fields:[{k:'name',l:'Nombre'},{k:'project',l:'Proyecto',t:'select',o:PROJ},{k:'status',l:'Estado',t:'select',o:STATUS},
-      {k:'handle',l:'Usuario de Instagram',ph:'@marca'},{k:'contact',l:'Contacto',ph:'Teléfono o correo'},{k:'fee',l:'Cobro mensual o por proyecto',t:'number',ph:'0.00'},{k:'notes',l:'Notas',t:'textarea'}],
-    extra:c?[{label:'Registrar cobro',fn:form=>{
-      const proj=form.elements.project.value;closeSheet();
+  sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',data:c||{status:'Activo'},
+    fields:[{k:'name',l:'Nombre'},{k:'status',l:'Estado',t:'select',o:STATUS},
+      {k:'web',l:'Página web',ph:'www.sucliente.com'},{k:'instagram',l:'Instagram',ph:'@usuario'},{k:'tiktok',l:'TikTok',ph:'@usuario'},{k:'facebook',l:'Facebook',ph:'usuario o enlace'},
+      {k:'linkedin',l:'LinkedIn',ph:'empresa o enlace'},{k:'youtube',l:'YouTube',ph:'@canal'},{k:'otras',l:'Otras redes o enlaces',t:'textarea',ph:'Pinterest, Linktree, Drive'},
+      {k:'contact',l:'Contacto',ph:'Teléfono o correo'},{k:'fee',l:'Cobro mensual o por proyecto',t:'number',ph:'0.00'},{k:'notes',l:'Notas',t:'textarea'}],
+    extra:c?[{label:'Registrar cobro',fn:()=>{
+      closeSheet();
       amountSheet(`Cobro a ${c.name}`,c.fee,n=>{if(!n)return false;
-        S.tx.unshift({id:uid(),type:'ingreso',amount:n,cat:proj,desc:`Cobro: ${c.name}`,date:today()});toast('Cobro registrado')})}}]:[],
-    onSave:v=>upsert(S.clients,{...v,id:c?c.id:uid()}),
-    onDelete:c?()=>{remove(S.clients,c.id);S.tasks.forEach(t=>{if(t.clientId===c.id)t.clientId=''})}:null});
+        S.tx.unshift({id:uid(),type:'ingreso',amount:n,cat:c.name,desc:`Cobro: ${c.name}`,date:today()});toast('Cobro registrado')})}}]:[],
+    onSave:v=>{
+      if(v.name==='Personal'||v.name==='General'||S.clients.some(x=>x.id!==(c&&c.id)&&x.name.toLowerCase()===v.name.toLowerCase())){toast('Ya existe un cliente con ese nombre');return false}
+      if(c&&c.name!==v.name){
+        ['tasks','posts','ideas'].forEach(k=>S[k].forEach(r=>{if(r.project===c.name)r.project=v.name}));
+        S.events.forEach(r=>{if(r.cat===c.name)r.cat=v.name});S.tx.forEach(t=>{if(t.type==='ingreso'&&t.cat===c.name)t.cat=v.name});
+        if(ui.proj===c.name)ui.proj=v.name;
+      }
+      upsert(S.clients,{...v,id:c?c.id:uid()});
+      if(!c)ui.proj=v.name;
+    },
+    onDelete:c?()=>{delClient(c)}:null});
 }
 function ideaSheet(id){
   const i=S.ideas.find(x=>x.id===id);
@@ -693,13 +787,14 @@ async function shrink(file,max=1080){
     im.onerror=()=>res(null);im.src=u});
 }
 function postSheet(id){
+  if(!PROJ.length){toast('Primero agrega un cliente');return}
   const p=S.posts.find(x=>x.id===id);
   let imgs=[...(p?p.imgs||[]:[])],added=[];
   const draw=()=>{const st=$('#strip');if(st)st.innerHTML=imgs.map((i,n)=>`<div style="position:relative"><button type="button" class="th" aria-pressed="${n===0}" aria-label="Imagen ${n+1}${n===0?' (portada)':'. Tocar para usar de portada'}" data-cover="${i}" style="background-image:url('${IMG[i]||''}')"></button><button type="button" class="rm" aria-label="Quitar imagen ${n+1}" data-rm="${i}">×</button></div>`).join('')||'<p class="note">Sin imágenes todavía</p>'};
   sheet({title:p?'Editar publicación':'Nueva publicación',required:'title',
-    data:p||{project:ui.proj,clientId:ui.fclient||'',format:'Post',status:'Pendiente',date:today()},
+    data:p||{project:ui.proj,format:'Post',status:'Pendiente',date:today()},
     pre:`<div class="strip" id="strip"></div><p class="note" style="margin-bottom:8px">La primera imagen es la portada. Toca una para cambiarla.</p><label class="btn ghost sm" style="margin-bottom:14px">Agregar imágenes<input type="file" id="pimg" accept="image/*" multiple class="sr"></label>`,
-    fields:[{k:'title',l:'Título interno',ph:'Ej. Reel lanzamiento'},{k:'status',l:'Estado',t:'select',o:PST},{k:'project',l:'Proyecto',t:'select',o:PROJ},{k:'clientId',l:'Cliente',t:'select',o:clientOpts()},
+    fields:[{k:'title',l:'Título interno',ph:'Ej. Reel lanzamiento'},{k:'status',l:'Estado',t:'select',o:PST},{k:'project',l:'Cliente',t:'select',o:PROJ},
       {k:'format',l:'Formato',t:'select',o:FMT},{k:'date',l:'Fecha de publicación',t:'date'},{k:'time',l:'Hora',t:'time'},
       {k:'caption',l:'Copy o caption',t:'textarea'},{k:'tags',l:'Hashtags',ph:'#marketing #marca'},{k:'feedback',l:'Cambios pedidos o comentarios del cliente',t:'textarea'},{k:'link',l:'Link (Drive, Canva)',ph:'https://'}],
     setup(){
@@ -715,13 +810,14 @@ function postSheet(id){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
+const APP_V='2026-10-07.5 clientes';
 function settingsSheet(){
-  sheet({title:'Ajustes',data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'auto'},
+  sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'auto'},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
       {k:'alertPct',l:'Avisarme cuando use este % del presupuesto',t:'number',ph:'80'},
       {k:'leadDays',l:'Avisar fechas importantes con estos días de anticipación',ph:'3,1,0'},
       {k:'theme',l:'Apariencia',t:'select',o:[['auto','Automática'],['light','Clara'],['dark','Oscura']]}],
-    extra:[{label:'Sincronización',fn:()=>{closeSheet();syncSheet()}},{label:'Avisos en este aparato',fn:enableNotif},{label:'Exportar respaldo',fn:exportData},{label:'Importar respaldo',fn:()=>$('#file').click()}],
+    extra:[{label:'Actualizar la app',fn:hardRefresh},{label:'Sincronización',fn:()=>{closeSheet();syncSheet()}},{label:'Avisos en este aparato',fn:enableNotif},{label:'Exportar respaldo',fn:exportData},{label:'Importar respaldo',fn:()=>$('#file').click()}],
     onSave:v=>{const th=v.theme;delete v.theme;
       v.alertPct=Math.min(100,Math.max(1,v.alertPct||80));v.leadDays=(v.leadDays||'3,1,0').replace(/[^0-9,]/g,'')||'3,1,0';
       S.set={...S.set,...v,u:Date.now()};applyTheme(th)}});
@@ -741,7 +837,7 @@ $('#file').onchange=e=>{
   r.onload=()=>{let d;try{d=JSON.parse(r.result)}catch(x){toast('Archivo no válido');return}
     closeSheet();
     sheet({title:'Importar respaldo',pre:'<p class="note" style="margin-bottom:14px">Esto reemplaza todos tus datos actuales por los del archivo.</p>',fields:[],
-      onSave:()=>{const im=d._imgs||{};delete d._imgs;S=Object.assign(structuredClone(DEF),d);S.set=Object.assign(structuredClone(DEF.set),S.set);Object.entries(im).forEach(([k,v])=>putImg(k,v));rebuildSnap();toast('Datos importados')}})};
+      onSave:()=>{const im=d&&typeof d._imgs==='object'&&d._imgs||{};S=cleanState(d);Object.entries(im).forEach(([k,v])=>{if(SAFE.test(k))putImg(k,v)});rebuildSnap();toast('Datos importados')}})};
   r.readAsText(f);e.target.value='';
 };
 
@@ -751,9 +847,10 @@ const idbOpen=()=>new Promise(res=>{try{const r=indexedDB.open('miespacio',1);r.
 const idbDo=(mode,fn)=>new Promise(res=>{if(!idb)return res();try{const tx=idb.transaction('img',mode),rq=fn(tx.objectStore('img'));tx.oncomplete=()=>res(rq&&rq.result);tx.onerror=()=>res()}catch(e){res()}});
 async function loadImgs(){
   idb=await idbOpen();if(!idb)return;
-  await new Promise(res=>{const tx=idb.transaction('img'),rq=tx.objectStore('img').openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){IMG[c.key]=c.value;c.continue()}};tx.oncomplete=res;tx.onerror=res});
+  await new Promise(res=>{const tx=idb.transaction('img'),rq=tx.objectStore('img').openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){if(okImg(c.value))IMG[c.key]=c.value;c.continue()}};tx.oncomplete=res;tx.onerror=res});
 }
-const putImg=(id,v)=>{IMG[id]=v;return idbDo('readwrite',st=>st.put(v,id))};
+const okImg=v=>typeof v==='string'&&v.length<8e6&&/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(v);
+const putImg=(id,v)=>{if(!okImg(v))return Promise.resolve();IMG[id]=v;return idbDo('readwrite',st=>st.put(v,id))};
 const delImg=id=>{delete IMG[id];return idbDo('readwrite',st=>st.delete(id))};
 
 /* ============ Sincronización con GitHub ============ */
@@ -765,17 +862,19 @@ const unb64=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,''))));
 const hs=t=>{let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return h};
 let syncing=false,syT;
 const autoSync=()=>{if(SY.repo&&SY.token){clearTimeout(syT);syT=setTimeout(()=>sync(false),3000)}};
-const ghUrl=(p)=>`https://api.github.com/repos/${SY.repo}/contents/${p||SY.path||'data/state.json'}`;
+const REPO_OK=/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/,PATH_OK=/^(?!.*\.\.)[A-Za-z0-9_.\/-]+$/;
+const ghUrl=(p)=>{const path=p||SY.path||'data/state.json';if(!REPO_OK.test(SY.repo||'')||!PATH_OK.test(path))throw new Error('Repositorio o archivo con formato no válido');return `https://api.github.com/repos/${SY.repo}/contents/${path}`};
 const ghHead=()=>({Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json'});
 const imgPath=id=>(SY.path||'data/state.json').replace(/[^/]+$/,'')+`img/${id}.txt`;
 function merge(R){
+  R=cleanState(R);
   const del={...S.del};Object.entries(R.del||{}).forEach(([k,v])=>del[k]=Math.max(del[k]||0,v));
   COLL.forEach(c=>{
     const m=new Map(S[c].map(r=>[r.id,r]));
     (R[c]||[]).forEach(r=>{if(!r.id)return;r.u=r.u||Date.now();const l=m.get(r.id);if(!l||(l.u||0)<r.u)m.set(r.id,r)});
     S[c]=[...m.values()].filter(r=>!(del[r.id]>=(r.u||0)));
   });
-  if(R.set&&(R.set.u||0)>(S.set.u||0))S.set={...S.set,...R.set};
+  if((R.set.u||0)>(S.set.u||0))S.set={...S.set,...R.set,seeded:S.set.seeded};
   S.del=del;rebuildSnap();
 }
 async function syncImgs(){
@@ -884,14 +983,14 @@ document.addEventListener('click',e=>{
     case 'shop-expense':
       amountSheet('¿Cuánto gastaste en el súper?','',n=>{if(!n)return false;
         S.tx.unshift({id:uid(),type:'gasto',amount:n,cat:'Super',desc:'Compra del súper',date:today()});toast('Gasto registrado')});break;
-    case 'proj':ui.proj=id;ui.fclient='';render();break;
+    case 'proj':ui.proj=id;render();break;
+    case 'del-client':delClientSheet(id);break;
     case 'wtab':ui.wtab=id;render();break;
     case 'add-client':clientSheet();break;
     case 'edit-client':clientSheet(id);break;
     case 'add-post':postSheet();break;
     case 'edit-post':postSheet(id);break;
     case 'adv':{const x=S.posts.find(x=>x.id===id);x.status=NEXT[x.status];save();render();toast(`Ahora está en «${x.status}»`);break}
-    case 'fclient':ui.fclient=id;render();break;
     case 'fstatus':ui.fstatus=id;render();break;
     case 'add-idea':ideaSheet();break;
     case 'edit-idea':ideaSheet(id);break;
@@ -913,7 +1012,18 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync(false
 addEventListener('online',()=>sync(false));
 addEventListener('offline',()=>{SYS='offline';renderSync()});
 setInterval(()=>{if(!document.hidden)sync(false);else renderSync()},60000);
-if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if('serviceWorker' in navigator){
+  const had=!!navigator.serviceWorker.controller;let reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!reloaded){reloaded=true;location.reload()}});
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{
+    r.update().catch(()=>{});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})});
+  }).catch(()=>{}));
+}
+async function hardRefresh(){
+  try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()));const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}
+  location.replace(location.pathname+'?v='+Date.now());
+}
 </script>
 </body>
 </html>
