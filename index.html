@@ -810,7 +810,7 @@ function postSheet(id){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-07.5 clientes';
+const APP_V='2026-10-07.6 sincronización';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'auto'},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
@@ -860,7 +860,8 @@ const saveSY=()=>{try{localStorage.setItem(SYNC_KEY,JSON.stringify(SY))}catch(e)
 const b64=s=>btoa(unescape(encodeURIComponent(s)));
 const unb64=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,''))));
 const hs=t=>{let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return h};
-let syncing=false,syT;
+let syncing=false,syT,syncStart=0;
+const fetchT=(u,o={},ms=25000)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return fetch(u,{...o,signal:c.signal}).finally(()=>clearTimeout(t))};
 const autoSync=()=>{if(SY.repo&&SY.token){clearTimeout(syT);syT=setTimeout(()=>sync(false),3000)}};
 const REPO_OK=/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/,PATH_OK=/^(?!.*\.\.)[A-Za-z0-9_.\/-]+$/;
 const ghUrl=(p)=>{const path=p||SY.path||'data/state.json';if(!REPO_OK.test(SY.repo||'')||!PATH_OK.test(path))throw new Error('Repositorio o archivo con formato no válido');return `https://api.github.com/repos/${SY.repo}/contents/${path}`};
@@ -878,44 +879,46 @@ function merge(R){
   S.del=del;rebuildSnap();
 }
 async function syncImgs(){
-  const br=SY.branch||'main',up=new Set(SY.up||[]);let n=0;
+  const br=SY.branch||'main',up=new Set(SY.up||[]),limit=Date.now()+40000;let n=0;
   for(const id of Object.keys(IMG)){
-    if(up.has(id)||n>=6)continue;
-    const r=await fetch(ghUrl(imgPath(id)),{method:'PUT',headers:ghHead(),body:JSON.stringify({message:'imagen',content:b64(IMG[id]),branch:br})});
+    if(up.has(id)||n>=6||Date.now()>limit)continue;
+    const r=await fetchT(ghUrl(imgPath(id)),{method:'PUT',headers:ghHead(),body:JSON.stringify({message:'imagen',content:b64(IMG[id]),branch:br})});
     if(r.status===200||r.status===201||r.status===422){up.add(id);n++}else break;
   }
   SY.up=[...up];
   const need=[...new Set(S.posts.flatMap(p=>p.imgs||[]))].filter(id=>!IMG[id]).slice(0,6);
   for(const id of need){
-    const r=await fetch(ghUrl(imgPath(id))+'?ref='+encodeURIComponent(br),{headers:ghHead(),cache:'no-store'});
+    if(Date.now()>limit)break;
+    const r=await fetchT(ghUrl(imgPath(id))+'?ref='+encodeURIComponent(br),{headers:ghHead(),cache:'no-store'});
     if(r.status===200){const j=await r.json();await putImg(id,atob(j.content.replace(/\n/g,'')))}
   }
   saveSY();
 }
 let SYS=SY.token?(SY.err?'err':'ok'):'off';
 async function sync(manual){
-  if(!SY.repo||!SY.token){if(manual)syncSheet();return}
+  if(!SY.repo||!SY.token){SYS='off';renderSync();if(manual)syncSheet();return}
   if(!navigator.onLine){SYS='offline';renderSync();if(manual)toast('Sin conexión: se sincroniza al volver');return}
-  if(syncing)return;syncing=true;SYS='busy';renderSync();
+  if(syncing&&Date.now()-syncStart<90000)return;
+  syncing=true;syncStart=Date.now();SYS='busy';renderSync();
   try{
     for(let tries=0;tries<2;tries++){
       const br=SY.branch||'main';let sha;
-      const g=await fetch(ghUrl()+'?ref='+encodeURIComponent(br),{headers:ghHead(),cache:'no-store'});
+      const g=await fetchT(ghUrl()+'?ref='+encodeURIComponent(br),{headers:ghHead(),cache:'no-store'});
       if(g.status===200){const j=await g.json();sha=j.sha;merge(JSON.parse(unb64(j.content)))}
       else if(g.status!==404)throw new Error(g.status===401?'El token no es válido o venció':g.status===403?'GitHub negó el acceso o hay demasiadas consultas':`GitHub respondió ${g.status}`);
       stamp();persist();
       const body=JSON.stringify({v:2,events:S.events,tx:S.tx,shop:S.shop,clients:S.clients,tasks:S.tasks,ideas:S.ideas,posts:S.posts,set:{name:S.set.name,budget:S.set.budget,alertPct:S.set.alertPct,leadDays:S.set.leadDays,u:S.set.u},del:S.del},null,1);
       const h=hs(body);
       if(sha&&SY.sha===sha&&SY.h===h){SY.err='';break}
-      const pr=await fetch(ghUrl(),{method:'PUT',headers:ghHead(),body:JSON.stringify({message:'sync: datos de Mi Espacio',content:b64(body),branch:br,...(sha?{sha}:{})})});
+      const pr=await fetchT(ghUrl(),{method:'PUT',headers:ghHead(),body:JSON.stringify({message:'sync: datos de Mi Espacio',content:b64(body),branch:br,...(sha?{sha}:{})})});
       if(pr.status===200||pr.status===201){const j=await pr.json();SY.sha=j.content.sha;SY.h=h;SY.err='';break}
       if((pr.status===409||pr.status===422)&&tries===0)continue;
       throw new Error(pr.status===404?'No encuentro el repositorio o la rama':pr.status===403?'El token no tiene permiso de escritura':`No se pudo guardar (${pr.status})`);
     }
     try{await syncImgs()}catch(e){}
     SY.last=new Date().toISOString();SY.err='';saveSY();SYS='ok';render();if(manual)toast('Sincronizado');
-  }catch(e){SY.err=String(e.message||e);saveSY();SYS='err';renderSync();if(manual)toast(SY.err)}
-  finally{syncing=false}
+  }catch(e){SY.err=e&&e.name==='AbortError'?'La conexión tardó demasiado. Toca para reintentar.':String(e.message||e);saveSY();SYS='err';renderSync();if(manual)toast(SY.err)}
+  finally{syncing=false;if(SYS==='busy'){SYS='err';renderSync()}}
 }
 const ago=iso=>{if(!iso)return '';const m=Math.round((Date.now()-new Date(iso))/60000);return m<1?'ahora':m<60?`hace ${m} min`:m<1440?`hace ${Math.round(m/60)} h`:`hace ${Math.round(m/1440)} d`};
 function renderSync(){
@@ -927,7 +930,9 @@ function syncSheet(){
   sheet({title:'Sincronización',data:{repo:'panamanexia-spec/mi-primer-proyecto',branch:'main',path:'data/state.json',...SY},
     pre:`<p class="note" style="margin-bottom:14px">Guarda tus datos en tu repositorio privado de GitHub para verlos igual en el celular y la computadora, y para que los avisos por WhatsApp sepan tus fechas y tu presupuesto. Necesitas un token de GitHub (Fine-grained, solo ese repositorio, permiso Contents en Read and write). Se guarda solo en este aparato. ${st}</p>`,
     fields:[{k:'repo',l:'Repositorio',ph:'usuario/repositorio'},{k:'branch',l:'Rama',ph:'main'},{k:'token',l:'Token de GitHub',t:'password',ph:'github_pat_…'},{k:'path',l:'Archivo de datos',ph:'data/state.json'}],
-    onSave:v=>{SY={...SY,...v};if(!SY.branch)SY.branch='main';if(!SY.path)SY.path='data/state.json';SY.sha='';SYS='busy';saveSY();setTimeout(()=>sync(true),50)}});
+    onSave:v=>{SY={...SY,...v};if(!SY.branch)SY.branch='main';if(!SY.path)SY.path='data/state.json';SY.sha='';saveSY();
+      if(!SY.repo||!SY.token){SYS='off';toast('Falta el token de GitHub: sin él no se puede sincronizar');renderSync();return false}
+      SYS='busy';setTimeout(()=>sync(true),50)}});
 }
 async function enableNotif(){
   if(!('Notification' in window)){toast('Este navegador no permite avisos');return}
