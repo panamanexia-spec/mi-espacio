@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d0a0f">
+<meta name="theme-color" content="#0b0a0c">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,16 +22,16 @@
    Tipografía: Cormorant Garamond (títulos, elegante) + Manrope (texto y números). */
 :root{
   color-scheme:dark;
-  --bg:#0d0a0f; --surface:#171219; --surface2:#211a24; --ink:#f7f0f4; --muted:#b9acb7; --line:#32293a;
-  --brand:#c23f8c; --brand-ink:#ffffff; --brand-soft:#3a1730; --brand-t:#f59ac9;
-  --accent:#b7a0f5; --accent-soft:#2a2142; --accent-t:#cdbcff;
-  --ok:#5ed1b0; --ok-soft:#10332a; --ok-t:#7be0c2;
-  --warn:#e9c46a; --warn-soft:#3a2f0e; --warn-t:#f0d58a;
-  --bad:#ff8c94; --bad-soft:#431a20; --bad-t:#ffa3aa;
-  --info:#7fc4f0; --info-soft:#13324a; --info-t:#9fd3f5;
-  --mute:#b9acb7; --mute-soft:#2a2230; --mute-t:#cfc3cd;
-  --c-in:#5ed1b0; --c-out:#ff8b7a;
-  --s-home:#e070ae; --i-home:#2a0b1d; --s-agenda:#6fb8f2; --i-agenda:#06223a; --s-work:#e7c15c; --i-work:#2b2100; --s-money:#4fd1a9; --i-money:#05271d; --s-shop:#ff8b7a; --i-shop:#330c06;
+  --bg:#0b0a0c; --surface:#151317; --surface2:#1f1b21; --ink:#f8f3f5; --muted:#b9aeb6; --line:#2e282f;
+  --brand:#d63f93; --brand-ink:#ffffff; --brand-soft:#3b1429; --brand-t:#ff8ec4;
+  --accent:#a29dff; --accent-soft:#24224c; --accent-t:#c0bdff;
+  --ok:#4cc3ff; --ok-soft:#0f2b41; --ok-t:#8bd6ff;
+  --warn:#ff9f43; --warn-soft:#402409; --warn-t:#ffbb7a;
+  --bad:#ff5468; --bad-soft:#45151d; --bad-t:#ff8b9a;
+  --info:#6f9bff; --info-soft:#16264f; --info-t:#a0bcff;
+  --mute:#b9aeb6; --mute-soft:#29232b; --mute-t:#cfc5cc;
+  --c-in:#4cc3ff; --c-out:#ff5468;
+  --s-home:#f46bb1; --i-home:#2a0b1d; --s-agenda:#4cc3ff; --i-agenda:#05263a; --s-work:#ff9f43; --i-work:#2e1700; --s-money:#ff5468; --i-money:#3a0710; --s-shop:#a29dff; --i-shop:#14134a;
   --shadow:0 1px 0 rgba(255,255,255,.05) inset,0 16px 32px -20px rgba(0,0,0,.9);
   --focus:#ffd479;
   --r:20px; --r-sm:14px;
@@ -41,33 +41,33 @@
 }
 :root[data-theme="light"]{
   color-scheme:light;
-  --bg:#faf6f2; --surface:#ffffff; --surface2:#f4ece8; --ink:#1b1420; --muted:#665a66; --line:#e6dbd6;
-  --brand:#b3306f; --brand-ink:#ffffff; --brand-soft:#fbe3ee; --brand-t:#8f2057;
-  --accent:#5d44b0; --accent-soft:#ece6fb; --accent-t:#473492;
-  --ok:#12795b; --ok-soft:#d9f1e8; --ok-t:#0e5a43;
-  --warn:#8a6200; --warn-soft:#faecc6; --warn-t:#6b4b00;
-  --bad:#b3263e; --bad-soft:#fbdde2; --bad-t:#8a1a2d;
-  --info:#1d6fb0; --info-soft:#d8ebf7; --info-t:#134c70;
-  --mute:#665a66; --mute-soft:#eee5e1; --mute-t:#52474f;
-  --c-in:#12795b; --c-out:#c0432f;
-  --s-home:#b3306f; --i-home:#ffffff; --s-agenda:#1d6fb0; --i-agenda:#ffffff; --s-work:#8a6200; --i-work:#ffffff; --s-money:#12795b; --i-money:#ffffff; --s-shop:#c0432f; --i-shop:#ffffff;
-  --shadow:0 1px 2px rgba(27,20,32,.06),0 12px 28px -16px rgba(27,20,32,.28);
+  --bg:#fbf7f6; --surface:#ffffff; --surface2:#f5eeec; --ink:#1a1318; --muted:#675b64; --line:#e8dcd9;
+  --brand:#c2297e; --brand-ink:#ffffff; --brand-soft:#fde3ef; --brand-t:#9b1d62;
+  --accent:#5b57d6; --accent-soft:#e9e8fb; --accent-t:#46429f;
+  --ok:#0b78b8; --ok-soft:#d8ecf8; --ok-t:#095d8f;
+  --warn:#b85a00; --warn-soft:#fbe8d2; --warn-t:#8a4300;
+  --bad:#c4193a; --bad-soft:#fbdde2; --bad-t:#9a1230;
+  --info:#2955c9; --info-soft:#dde5fa; --info-t:#1f449f;
+  --mute:#675b64; --mute-soft:#efe6e3; --mute-t:#52474f;
+  --c-in:#0b78b8; --c-out:#c4193a;
+  --s-home:#c2297e; --i-home:#ffffff; --s-agenda:#0b78b8; --i-agenda:#ffffff; --s-work:#b85a00; --i-work:#ffffff; --s-money:#c4193a; --i-money:#ffffff; --s-shop:#5b57d6; --i-shop:#ffffff;
+  --shadow:0 1px 2px rgba(26,19,24,.06),0 12px 28px -16px rgba(26,19,24,.28);
   --focus:#3b2bd6;
 }
 @media (prefers-color-scheme: light){
   :root[data-theme="auto"]{
   color-scheme:light;
-  --bg:#faf6f2; --surface:#ffffff; --surface2:#f4ece8; --ink:#1b1420; --muted:#665a66; --line:#e6dbd6;
-  --brand:#b3306f; --brand-ink:#ffffff; --brand-soft:#fbe3ee; --brand-t:#8f2057;
-  --accent:#5d44b0; --accent-soft:#ece6fb; --accent-t:#473492;
-  --ok:#12795b; --ok-soft:#d9f1e8; --ok-t:#0e5a43;
-  --warn:#8a6200; --warn-soft:#faecc6; --warn-t:#6b4b00;
-  --bad:#b3263e; --bad-soft:#fbdde2; --bad-t:#8a1a2d;
-  --info:#1d6fb0; --info-soft:#d8ebf7; --info-t:#134c70;
-  --mute:#665a66; --mute-soft:#eee5e1; --mute-t:#52474f;
-  --c-in:#12795b; --c-out:#c0432f;
-  --s-home:#b3306f; --i-home:#ffffff; --s-agenda:#1d6fb0; --i-agenda:#ffffff; --s-work:#8a6200; --i-work:#ffffff; --s-money:#12795b; --i-money:#ffffff; --s-shop:#c0432f; --i-shop:#ffffff;
-  --shadow:0 1px 2px rgba(27,20,32,.06),0 12px 28px -16px rgba(27,20,32,.28);
+  --bg:#fbf7f6; --surface:#ffffff; --surface2:#f5eeec; --ink:#1a1318; --muted:#675b64; --line:#e8dcd9;
+  --brand:#c2297e; --brand-ink:#ffffff; --brand-soft:#fde3ef; --brand-t:#9b1d62;
+  --accent:#5b57d6; --accent-soft:#e9e8fb; --accent-t:#46429f;
+  --ok:#0b78b8; --ok-soft:#d8ecf8; --ok-t:#095d8f;
+  --warn:#b85a00; --warn-soft:#fbe8d2; --warn-t:#8a4300;
+  --bad:#c4193a; --bad-soft:#fbdde2; --bad-t:#9a1230;
+  --info:#2955c9; --info-soft:#dde5fa; --info-t:#1f449f;
+  --mute:#675b64; --mute-soft:#efe6e3; --mute-t:#52474f;
+  --c-in:#0b78b8; --c-out:#c4193a;
+  --s-home:#c2297e; --i-home:#ffffff; --s-agenda:#0b78b8; --i-agenda:#ffffff; --s-work:#b85a00; --i-work:#ffffff; --s-money:#c4193a; --i-money:#ffffff; --s-shop:#5b57d6; --i-shop:#ffffff;
+  --shadow:0 1px 2px rgba(26,19,24,.06),0 12px 28px -16px rgba(26,19,24,.28);
   --focus:#3b2bd6;
   }
 }
@@ -200,7 +200,7 @@ main{padding:20px 16px 120px;max-width:1120px;margin:0 auto;outline:0}
 .day[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
 .dots{display:flex;gap:3px;height:6px}
 .dots i{width:6px;height:6px;border-radius:50%;background:var(--brand)}
-.dots .d-accent{background:var(--accent)}.dots .d-ok{background:var(--ok)}.dots .d-warn{background:var(--warn)}.dots .d-info{background:var(--info)}.dots .d-mute{background:var(--mute)}
+.dots .d-accent{background:var(--accent)}.dots .d-ok{background:var(--ok)}.dots .d-bad{background:var(--bad)}.dots .d-warn{background:var(--warn)}.dots .d-info{background:var(--info)}.dots .d-mute{background:var(--mute)}
 .day[aria-pressed="true"] .dots i{background:var(--brand-ink)}
 .split{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
 @media (min-width:900px){.split{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:start}}
@@ -314,13 +314,27 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:.005em}
 .panel h2{font-size:1.9rem}
 input,select,textarea{background:var(--surface2);border-color:var(--line)}
 input:focus,select:focus,textarea:focus{border-color:var(--sec)}
+/* buscador, PIN, calendario */
+#sres{margin-top:6px}
+#lock{position:fixed;inset:0;z-index:200;background:radial-gradient(700px 420px at 50% 0%,color-mix(in srgb,var(--brand) 22%,transparent),transparent 70%),var(--bg);display:grid;place-items:center;padding:24px}
+#lock[hidden]{display:none}
+.lock-in{width:min(100%,320px);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.lock-in svg.logo{width:64px;height:64px}
+.lock-in h2{font-size:2rem}
+.lockdots{display:flex;gap:14px;min-height:20px}
+.lockdots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted)}
+.lockdots i.on{background:var(--brand);border-color:var(--brand)}
+.keypad{display:grid;grid-template-columns:repeat(3,76px);gap:14px;justify-content:center;margin:6px 0}
+.keypad button{width:76px;height:76px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:1.6rem;font-weight:700;font-family:var(--f-body)}
+.keypad button:active{background:var(--brand);color:#fff}
+@media (max-width:460px){.bar .syncbtn{width:44px;height:44px;padding:0;justify-content:center}.bar .syncbtn span{display:none}}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
-<linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f58ac4"/><stop offset="1" stop-color="#e9c46a"/></linearGradient>
+<linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6fb5"/><stop offset="1" stop-color="#ff9f43"/></linearGradient>
 <mask id="lm"><rect width="100" height="100" fill="#fff"/><circle cx="64" cy="40" r="27" fill="#000"/></mask>
-<symbol id="logo" viewBox="0 0 100 100"><circle cx="50" cy="54" r="31" fill="url(#lg)" mask="url(#lm)"/><path d="M71 22l2.3 8.2 8.2 2.3-8.2 2.3L71 43l-2.3-8.2-8.2-2.3 8.2-2.3z" fill="#f3d98b"/></symbol>
+<symbol id="logo" viewBox="0 0 100 100"><circle cx="50" cy="54" r="31" fill="url(#lg)" mask="url(#lm)"/><path d="M71 22l2.3 8.2 8.2 2.3-8.2 2.3L71 43l-2.3-8.2-8.2-2.3 8.2-2.3z" fill="#ffd2a0"/></symbol>
 </defs></svg>
 <a class="skip" href="#main">Saltar al contenido</a>
 <aside class="side" aria-label="Menú principal">
@@ -328,6 +342,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--sec)}
   <nav id="sidenav" aria-label="Secciones"></nav>
   <div class="foot">
     <button class="syncbtn" data-act="sync" type="button"></button>
+    <button class="btn ghost" data-act="search" type="button"><span id="srch1"></span>Buscar</button>
     <button class="btn ghost" data-act="settings" type="button"><span id="gear1"></span>Ajustes</button>
   </div>
 </aside>
@@ -336,6 +351,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--sec)}
     <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Mi Espacio</div>
     <div class="actions" style="flex-wrap:nowrap">
       <button class="syncbtn" data-act="sync" type="button"></button>
+      <button class="iconbtn" data-act="search" type="button" aria-label="Buscar" id="srch2"></button>
       <button class="iconbtn" data-act="settings" type="button" aria-label="Ajustes" id="gear2"></button>
     </div>
   </header>
@@ -343,14 +359,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--sec)}
 </div>
 <nav class="tabs" id="tabs" aria-label="Secciones"></nav>
 <div id="sheet"></div>
+<div id="lock" hidden role="dialog" aria-modal="true" aria-labelledby="lockT">
+  <div class="lock-in"><svg class="logo big" aria-hidden="true"><use href="#logo"/></svg><h2 id="lockT">Mi Espacio</h2><p class="note" id="lockMsg">Escribe tu PIN</p><div id="lockDots" class="lockdots" aria-hidden="true"></div>
+  <div class="keypad" id="keypad"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><span></span><button type="button" data-k="0">0</button><button type="button" data-k="del" aria-label="Borrar">⌫</button></div>
+  <button class="link" type="button" data-act="pin-forgot">Olvidé mi PIN</button></div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="file" accept="application/json" hidden>
 
 <script>
 /* ============ Datos ============ */
 const KEY='miespacio.v1';
-const DEF={events:[],tx:[],shop:[],clients:[],tasks:[],ideas:[],posts:[],favs:[],del:{},set:{name:'',budget:0,alertPct:80,leadDays:'3,1,0',u:0,seeded:false}};
-const COLL=['events','tx','shop','clients','tasks','ideas','posts'];
+const DEF={events:[],tx:[],shop:[],clients:[],tasks:[],ideas:[],posts:[],goals:[],favs:[],del:{},set:{name:'',budget:0,alertPct:80,leadDays:'3,1,0',u:0,seeded:false}};
+const COLL=['events','tx','shop','clients','tasks','ideas','posts','goals'];
 let S;
 /* Todo dato que viene de fuera (almacenamiento, respaldo importado, GitHub) se limpia antes de usarse */
 const SAFE=/^[\w-]{1,64}$/,isD=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v),isT=v=>typeof v==='string'&&/^\d{2}:\d{2}$/.test(v);
@@ -363,9 +384,11 @@ function cleanRec(c,r){
   if('time' in o&&o.time!==''&&!isT(o.time))o.time='';
   if('u' in o&&!Number.isFinite(o.u))delete o.u;
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
-  if(c==='tx'){o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
+  if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0}
+  if(c==='clients'&&!(Number.isInteger(+o.payDay)&&+o.payDay>=1&&+o.payDay<=31))delete o.payDay;
+  if(c==='tx'){if(o.repeat!=='mensual')o.repeat='';if(typeof o.from!=='string'||!SAFE.test(o.from))delete o.from;o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
   if(c==='shop'||c==='tasks')o.done=!!o.done;
-  if(c==='clients'&&!['accent','brand','info','warn','ok'].includes(o.kind))delete o.kind;
+  if(c==='clients'&&!['brand','info','warn','bad','accent'].includes(o.kind))delete o.kind;
   if(c==='ideas')o.fav=!!o.fav;
   if(c==='posts'){if(!['Pendiente','En revisión','Aprobado','Por subir','Por cambiar','Publicado'].includes(o.status))o.status='Pendiente';o.imgs=Array.isArray(o.imgs)?o.imgs.filter(i=>typeof i==='string'&&SAFE.test(i)):[]}
   return o;
@@ -406,7 +429,7 @@ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}ca
 /* Los "proyectos" son tus clientes: estas listas se rellenan solas desde S.clients */
 const PROJ=[],ECATS=[];
 const KIND={Personal:'info',Finanzas:'warn',Salud:'ok',Casa:'mute',Otros:'mute',General:'mute'};
-const KINDS=['accent','brand','info','warn','ok'];
+const KINDS=['brand','info','warn','bad','accent'];
 const nextKind=()=>{const n=Object.fromEntries(KINDS.map(k=>[k,0]));S.clients.forEach(c=>{if(KINDS.includes(c.kind))n[c.kind]++});return KINDS.reduce((a,k)=>n[k]<n[a]?k:a,KINDS[0])};
 const TXCATS={ingreso:['Otros ingresos'],
   gasto:['Casa','Super','Transporte','Salud','Ocio','Servicios','Belleza y ropa','Trabajo','Otros'],
@@ -428,6 +451,7 @@ const IC={
  chart:'<path d="M3 20h18M6 16v-5M11 16V6M16 16v-8"/>',
  cart:'<path d="M3 4h2l2.5 11h10L20 7H6"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
  check:'<path d="M5 12l5 5L20 7"/>',
  refresh:'<path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/>',
  left:'<path d="M15 6l-6 6 6 6"/>',right:'<path d="M9 6l6 6-6 6"/>',
@@ -460,11 +484,12 @@ const when=(d,t=today())=>{const n=diffDays(t,d);return n<0?`hace ${-n} día${n<
 
 /* ============ Estado de UI ============ */
 const nowYM=today().slice(0,7);
-const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'',open:''};
+const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',pubcal:false,pcal:nowYM,psel:today()};
 function syncProj(){
   PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
   ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
   TXCATS.ingreso=[...PROJ,'Otros ingresos'];
+  TXCATS.ahorro=['Ahorro','Emergencia','Metas',...S.goals.map(g=>g.name).filter(n=>n&&!['Ahorro','Emergencia','Metas'].includes(n))];
   let changed=false;
   S.clients.forEach(c=>{if(!KINDS.includes(c.kind)){c.kind=nextKind();changed=true}});
   PROJ.forEach(n=>{const c=S.clients.find(x=>x.name===n);if(c)KIND[n]=c.kind});
@@ -516,11 +541,15 @@ function alerts(){
   const rev=S.posts.filter(p=>p.status==='En revisión').length;
   if(rev)A.push({lvl:0,ic:'bell',tx:`${rev} publicación${rev>1?'es':''} en revisión del cliente`,act:'goto-work',id:'contenido'});
   S.tasks.filter(x=>!x.done&&x.due&&x.due<=t).forEach(x=>A.push({lvl:x.due<t?3:1,ic:'check',tx:`${x.due<t?'Tarea vencida':'Tarea de hoy'}: ${x.title}`,act:'edit-task',id:x.id}));
+  const dn=+t.slice(8);
+  S.clients.filter(c=>c.status==='Activo').forEach(c=>{const k=cobro(c),pd=+c.payDay||1;
+    if(k.pend>0&&dn>=pd)A.push({lvl:dn>=pd+5?3:2,ic:'chart',tx:`Falta cobrar ${money(k.pend)} a ${c.name}`,act:'go-client',id:c.name})});
   const bs=budgetState();
   if(bs.lvl==='warn')A.push({lvl:2,ic:'chart',tx:`Presupuesto: llevas ${Math.round(bs.pct)}% del mes`,act:'goto-tab',id:'money'});
   if(bs.lvl==='bad')A.push({lvl:3,ic:'chart',tx:`Presupuesto agotado (${Math.round(bs.pct)}%)`,act:'goto-tab',id:'money'});
   return A.sort((a,b)=>b.lvl-a.lvl);
 }
+const cobro=c=>{const fee=num(c.fee),paid=S.tx.filter(t=>t.type==='ingreso'&&t.cat===c.name&&t.date.startsWith(nowYM)).reduce((a,t)=>a+t.amount,0);return {fee,paid,pend:fee>0?Math.max(0,fee-paid):0}};
 function importantDates(p,days=30){
   const t=today(),L=[];
   for(let i=0;i<=days;i++){const d=addDays(t,i);
@@ -562,7 +591,9 @@ function vHome(){
       <div class="stats"><div class="stat"><span>Tareas</span><b>${open}</b></div><div class="stat"><span>Posts por salir</span><b>${por}</b></div></div>
       <p class="note" style="margin-top:10px">${nx?`Próxima fecha: <b>${esc(nx.title)}</b>, ${when(nx.d)}`:'Sin fechas próximas'}</p></section>`;
   };
-  const setup=(!SY.token)?`<section class="card span2" aria-labelledby="h-sync"><h2 id="h-sync">Conecta tu sincronización</h2><p class="note" style="margin-bottom:12px">Así verás lo mismo en tu celular y en tu computadora, y podrás recibir avisos por WhatsApp.</p><button class="btn" type="button" data-act="sync">Configurar ahora</button></section>`:'';
+  const porCobrar=S.clients.filter(c=>c.status==='Activo'&&cobro(c).pend>0);
+  const cobrarCard=porCobrar.length?`<section class="card" aria-labelledby="h-cb"><div class="card-h"><h2 id="h-cb">Por cobrar este mes</h2></div><ul class="list">${porCobrar.map(c=>{const k=cobro(c);return `<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${k.paid?'Ya pagó '+money(k.paid)+' · ':''}falta ${money(k.pend)}</span></button><button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}">Cobrar</button></li>`}).join('')}</ul></section>`:'';
+  const setup=(!SY.token)?`<section class="card span2" aria-labelledby="h-sync"><h2 id="h-sync">Conecta tu sincronización</h2><p class="note" style="margin-bottom:12px">Así verás lo mismo en tu celular y en tu computadora, y tus datos quedan respaldados.</p><button class="btn" type="button" data-act="sync">Configurar ahora</button></section>`:'';
   return page(`${hi}${S.set.name?', '+S.set.name:''}`,longDate(t),addBtn('Evento','add-ev',t)+addBtn('Gasto','add-tx','gasto')+addBtn('Tarea','add-task','')) +
   `<div class="grid">${setup}
   ${A.length?`<section class="card span2" aria-labelledby="h-al"><h2 id="h-al">Alertas</h2><ul class="list">${A.slice(0,6).map(a=>`<li><button class="al l${a.lvl}" type="button" data-act="${a.act}" data-id="${a.id}">${ic(a.ic)}<span class="tx">${esc(a.tx)}</span></button></li>`).join('')}</ul>${A.length>6?`<p class="note">y ${A.length-6} más</p>`:''}</section>`:''}
@@ -571,6 +602,7 @@ function vHome(){
   <section class="card" aria-labelledby="h-mes"><div class="card-h"><h2 id="h-mes">Mi mes, ${MESES[+nowYM.slice(5)-1]}</h2><button class="link" type="button" data-act="goto-tab" data-id="money">Finanzas</button></div>
    <div class="stats"><div class="stat"><span>Ingresos</span><b>${money(tt.ingreso)}</b></div><div class="stat"><span>Gastos</span><b>${money(tt.gasto)}</b></div><div class="stat"><span>Ahorro</span><b>${money(tt.ahorro)}</b></div><div class="stat"><span>Disponible</span><b class="${tt.libre<0?'neg':''}">${money(tt.libre)}</b></div></div>
    ${bs.b?`<div style="margin-top:14px">${meter(bs)}</div>`:`<p class="note" style="margin-top:12px">Define tu presupuesto mensual en Ajustes para recibir avisos.</p>`}</section>
+  ${cobrarCard}
   ${PROJ.map(proj).join('')}
   <section class="card" aria-labelledby="h-prox"><h2 id="h-prox">Próximos 7 días</h2>
    ${up.length?`<ul class="list">${up.slice(0,6).map(i=>`<li class="row"><button class="row-main" type="button" data-act="${editAct(i.kind)}" data-id="${i.id}"><span class="t">${esc(i.title)}</span><span class="s">${longDate(i.d)}${i.time?' · '+i.time:''}</span></button>${pill(i.cat,KIND[i.cat]||'mute')}</li>`).join('')}</ul>`:empty('Nada programado.')}</section>
@@ -601,7 +633,25 @@ function safeHref(v,base){
     return /^https?:$/.test(u.protocol)?u.href:null}catch(e){return null}
 }
 /* ---- Trabajo: lista de clientes y una pantalla por cliente ---- */
-function vWork(){return ui.open&&clientOf(ui.open)?vClient(clientOf(ui.open)):vClients()}
+function vWork(){return ui.pubcal?vPubCal():ui.open&&clientOf(ui.open)?vClient(clientOf(ui.open)):vClients()}
+function vPubCal(){
+  const [y,m]=ui.pcal.split('-').map(Number);
+  const first=new Date(y,m-1,1),off=(first.getDay()+6)%7,dim=new Date(y,m,0).getDate();
+  let cells=['L','M','M','J','V','S','D'].map(w=>`<div class="wd" aria-hidden="true">${w}</div>`).join('');
+  for(let i=0;i<off;i++)cells+='<div class="day out"></div>';
+  for(let d=1;d<=dim;d++){
+    const k=`${ui.pcal}-${pad(d)}`,ps=S.posts.filter(x=>x.date===k);
+    cells+=`<button class="day ${k===today()?'today':''}" type="button" aria-pressed="${k===ui.psel}" aria-label="${longDate(k)}${ps.length?', '+ps.length+' publicación'+(ps.length>1?'es':''):''}" data-act="pc-day" data-id="${k}">${d}<span class="dots" aria-hidden="true">${ps.slice(0,3).map(x=>`<i class="d-${KIND[x.project]||'mute'}"></i>`).join('')}</span></button>`;
+  }
+  const its=S.posts.filter(x=>x.date===ui.psel).sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'));
+  const sin=S.posts.filter(x=>!x.date&&x.status!=='Publicado').length;
+  return `<button class="link back" type="button" data-act="close-pubcal">${ic('left')}Todos los clientes</button>`+
+  page('Calendario','Publicaciones de todos tus clientes',addBtn('Publicación','add-post','',`data-date="${ui.psel}"`))+
+  `<div class="split"><section class="card" aria-label="Calendario de publicaciones"><div class="card-h"><div class="mnav"><button class="iconbtn" type="button" data-act="pc-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ui.pcal)}</b><button class="iconbtn" type="button" data-act="pc-next" aria-label="Mes siguiente">${ic('right')}</button></div></div><div class="cal">${cells}</div>
+   <div class="chips" style="margin:14px 0 0">${S.clients.map(c=>`<span class="pill k-${KIND[c.name]||'mute'}">${esc(c.name)}</span>`).join('')}</div></section>
+  <section class="card" aria-labelledby="h-pd"><h2 id="h-pd" style="text-transform:capitalize">${longDate(ui.psel)}</h2>${its.length?`<ul class="list">${its.map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-post" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${[x.project,x.format,x.time].filter(Boolean).map(esc).join(' · ')}</span></button>${pill(x.status,SKIND[x.status])}</li>`).join('')}</ul>`:empty('No hay publicaciones este día.')}
+   ${sin?`<p class="note" style="margin-top:10px">${sin} publicación${sin===1?'':'es'} sin fecha por programar.</p>`:''}</section></div>`;
+}
 function vClients(){
   const cards=S.clients.map(c=>{
     const n=S.tasks.filter(x=>x.project===c.name&&!x.done).length,po=S.posts.filter(x=>x.project===c.name&&x.status!=='Publicado').length;
@@ -609,10 +659,13 @@ function vClients(){
     const bits=[`${n} tarea${n===1?'':'s'}`,po+(po===1?' publicación':' publicaciones')+' por salir'];
     return `<li><button class="cli" type="button" data-act="open-client" data-id="${esc(c.name)}"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span>
       <span class="row-main"><span class="t">${esc(c.name)}</span><span class="s">${bits.join(' · ')}</span>${nx?`<span class="s">Próxima fecha: ${esc(nx.title)}, ${when(nx.d)}</span>`:''}</span>${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}${ic('right')}</button></li>`}).join('');
+  const gen=S.ideas.filter(i=>i.project==='General');
+  const genCard=gen.length?`<section class="card" aria-labelledby="h-ig" style="margin-top:16px"><div class="card-h"><h2 id="h-ig">Ideas generales</h2>${addBtn('Idea','add-idea','General')}</div><ul class="list">${gen.map(i=>`<li class="row"><button class="row-main" type="button" data-act="edit-idea" data-id="${i.id}"><span class="t">${i.fav?'★ ':''}${esc(i.title)}</span>${i.note?`<span class="s">${esc(i.note.slice(0,90))}</span>`:''}</button></li>`).join('')}</ul></section>`:'';
   return page('Trabajo','Mis clientes')+
    `<button class="btn big" type="button" data-act="add-client">${ic('plus')}Agregar cliente</button>`+
+   `<div class="actions" style="margin-bottom:16px"><button class="btn ghost" type="button" data-act="open-pubcal">${ic('calendar')}Calendario de publicaciones</button></div>`+
    (S.clients.length?`<ul class="list clist" aria-label="Clientes">${cards}</ul><p class="note" style="margin-top:14px">Toca un cliente para ver todo lo suyo: datos, tareas, publicaciones e ideas.</p>`
-     :`<div class="card">${empty('Todavía no tienes clientes. Toca «Agregar cliente» para empezar.')}</div>`);
+     :`<div class="card">${empty('Todavía no tienes clientes. Toca «Agregar cliente» para empezar.')}</div>`)+genCard;
 }
 function vClient(c){
   const p=c.name,tasks=S.tasks.filter(t=>t.project===p),pend=tasks.filter(t=>!t.done).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9')),done=tasks.filter(t=>t.done);
@@ -630,8 +683,8 @@ function vClient(c){
     ${NEXT[x.status]?`<button class="btn ghost sm" type="button" data-act="adv" data-id="${x.id}" aria-label="Pasar «${esc(x.title)}» a ${NEXT[x.status]}">${NEXT[x.status]} ${ic('right')}</button>`:''}</li>`};
   const sec=(id,title,btn,body)=>`<section class="card cs" aria-labelledby="${id}"><div class="card-h"><h2 id="${id}">${title}</h2>${btn}</div>${body}</section>`;
   return `<button class="link back" type="button" data-act="back-clients">${ic('left')}Todos los clientes</button>`+
-  page(p,'Cliente',`<button class="btn sm" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`)+
-  `<p style="margin:-6px 0 16px">${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}</p>
+  page(p,'Cliente',`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}">Registrar cobro</button><button class="btn ghost sm" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`)+
+  `<p style="margin:-6px 0 16px">${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')} ${(()=>{const k=cobro(c);return k.fee?pill(k.pend>0?'Falta cobrar '+money(k.pend):'Cobro del mes al día',k.pend>0?'warn':'ok'):''})()}</p>
   <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Publicaciones por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div></div>
   ${sec('h-d','Datos y redes',`<button class="link" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`,
     (links?`<div class="actions" style="margin-bottom:12px">${links}</div>`:'')+(info.length?`<ul class="list">${info.map(([k,v])=>`<li class="kv"><span class="k">${k}</span><span class="v">${esc(v)}</span></li>`).join('')}</ul>`:'')+((!links&&!info.length)?empty('Aún no hay datos. Toca «Editar» para agregar su página web, redes y contacto.'):''))}
@@ -639,7 +692,7 @@ function vClient(c){
     ${pend.length?`<ul class="list">${pend.map(trow).join('')}</ul>`:empty('No hay tareas pendientes.')}
     ${done.length?`<details style="margin-top:10px"><summary class="link">Completadas (${done.length})</summary><ul class="list">${done.map(trow).join('')}</ul></details>`:''}`)}
   ${sec('h-p','Publicaciones',addBtn('Publicación','add-post'),posts.length?`<ul class="list">${posts.map(prow).join('')}</ul>`:empty('Aún no hay publicaciones. Toca «Publicación» para crear la primera.'))}
-  ${sec('h-f','Fechas importantes',addBtn('Fecha','add-ev-imp',p),`<p class="note" style="margin-bottom:8px">Próximos 30 días. Recibes aviso antes de cada una.</p>${dates.length?`<ul class="list">${dates.map(x=>`<li class="row"><button class="row-main" type="button" data-act="${x.act}" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${longDate(x.d)} · ${x.sub}</span></button>${pill(when(x.d),diffDays(today(),x.d)<=1?'bad':'info')}</li>`).join('')}</ul>`:empty('No hay fechas próximas.')}`)}
+  ${sec('h-f','Fechas importantes',addBtn('Fecha','add-ev-imp',p),`<p class="note" style="margin-bottom:8px">Próximos 30 días.</p>${dates.length?`<ul class="list">${dates.map(x=>`<li class="row"><button class="row-main" type="button" data-act="${x.act}" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${longDate(x.d)} · ${x.sub}</span></button>${pill(when(x.d),diffDays(today(),x.d)<=1?'bad':'info')}</li>`).join('')}</ul>`:empty('No hay fechas próximas.')}`)}
   ${sec('h-i','Ideas',addBtn('Idea','add-idea'),ideas.length?`<ul class="list">${ideas.map(i=>`<li class="row"><button class="row-main" type="button" data-act="edit-idea" data-id="${i.id}"><span class="t">${i.fav?'★ ':''}${esc(i.title)}</span>${i.note?`<span class="s">${esc(i.note.slice(0,90))}</span>`:''}</button>${pill(i.status||'Idea',i.status==='Hecha'?'ok':i.status==='En marcha'?'info':'warn')}</li>`).join('')}</ul>`:empty('Aquí van tus ideas para este cliente.'))}
   <div class="actions" style="margin-top:18px"><button class="btn danger" type="button" data-act="del-client" data-id="${c.id}">Eliminar cliente</button></div>`;
 }
@@ -671,6 +724,20 @@ function breakdown(list,type){
   const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),max=rows.length?rows[0][1]:1;
   return rows.map(([c,v])=>`<div class="b"><div><span>${esc(c)}</span><span class="amt">${money(v)}</span></div><div class="track"><i style="width:${v/max*100}%"></i></div></div>`).join('');
 }
+const goalsCard=()=>`<section class="card bars span2" aria-labelledby="h-me"><div class="card-h"><h2 id="h-me">Metas de ahorro</h2>${addBtn('Meta','add-goal')}</div>${S.goals.length?S.goals.map(g=>{const saved=S.tx.filter(t=>t.type==='ahorro'&&t.cat===g.name).reduce((a,t)=>a+t.amount,0),pct=g.target>0?Math.min(100,saved/g.target*100):0;
+  return `<div class="b"><div><span>${esc(g.name)}</span><span class="amt">${money(saved)} de ${money(g.target||0)}</span></div><div class="track" role="meter" aria-label="Avance de ${esc(g.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
+  <div class="actions" style="margin-top:8px"><button class="btn sm" type="button" data-act="goal-add" data-id="${g.id}">Aportar</button><button class="btn ghost sm" type="button" data-act="edit-goal" data-id="${g.id}">Editar</button>${(g.due||pct>=100)?`<span class="note" style="align-self:center">${g.due?'Para '+longDate(g.due):''}${pct>=100?' ¡Lograda!':''}</span>`:''}</div></div>`}).join(''):empty('Crea una meta, por ejemplo «Viaje» o «Fondo de emergencia», y ve cuánto llevas.')}</section>`;
+function goalSheet(id){
+  const g=S.goals.find(x=>x.id===id);
+  sheet({title:g?'Editar meta':'Nueva meta',required:'name',data:g||{},
+    fields:[{k:'name',l:'¿Para qué ahorras?',ph:'Viaje, fondo de emergencia'},{k:'target',l:'Monto que quieres juntar',t:'number',ph:'0.00'},{k:'due',l:'Fecha objetivo (opcional)',t:'date'}],
+    onSave:v=>{
+      if(!(v.target>0)){toast('Pon cuánto quieres juntar');return false}
+      if(['Ahorro','Emergencia','Metas'].includes(v.name)||S.goals.some(x=>x.id!==(g&&g.id)&&x.name.toLowerCase()===v.name.toLowerCase())){toast('Ya existe una meta con ese nombre');return false}
+      if(g&&g.name!==v.name)S.tx.forEach(t=>{if(t.type==='ahorro'&&t.cat===g.name)t.cat=v.name});
+      upsert(S.goals,{...v,id:g?g.id:uid()})},
+    onDelete:g?()=>remove(S.goals,g.id):null});
+}
 function vMoney(){
   const ym=ui.month,list=S.tx.filter(t=>t.date.startsWith(ym)).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
   const tt=totals(ym),bs=budgetState();
@@ -678,7 +745,7 @@ function vMoney(){
   list.forEach(t=>{
     if(t.date!==last){rows+=`<li class="gh" style="text-transform:capitalize">${longDate(t.date)}</li>`;last=t.date}
     const sign=t.type==='ingreso'?'+':t.type==='gasto'?'−':'';
-    rows+=`<li class="row"><span class="dot" aria-hidden="true">${esc(t.cat[0])}</span><button class="row-main" type="button" data-act="edit-tx" data-id="${t.id}"><span class="t">${esc(t.desc||t.cat)}</span><span class="s">${esc(t.cat)} · ${t.type}</span></button><span class="amt ${t.type==='ingreso'?'pos':t.type==='gasto'?'neg':''}">${sign}${money(t.amount)}</span></li>`;
+    rows+=`<li class="row"><span class="dot" aria-hidden="true">${esc(t.cat[0])}</span><button class="row-main" type="button" data-act="edit-tx" data-id="${t.id}"><span class="t">${esc(t.desc||t.cat)}</span><span class="s">${esc(t.cat)} · ${t.type}${t.repeat==='mensual'?' · se repite cada mes':''}${t.from?' · automático':''}</span></button><span class="amt ${t.type==='ingreso'?'pos':t.type==='gasto'?'neg':''}">${sign}${money(t.amount)}</span></li>`;
   });
   const year=ym.slice(0,4);let yr='';
   for(let i=1;i<=12;i++){const k=`${year}-${pad(i)}`,t=totals(k);if(!t.ingreso&&!t.gasto&&!t.ahorro)continue;
@@ -687,6 +754,7 @@ function vMoney(){
   `<div class="mnav" style="margin-bottom:16px"><button class="iconbtn" type="button" data-act="m-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ym)}</b><button class="iconbtn" type="button" data-act="m-next" aria-label="Mes siguiente">${ic('right')}</button></div>
   <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Ingresos</span><b>${money(tt.ingreso)}</b></div><div class="stat card"><span>Gastos</span><b>${money(tt.gasto)}</b></div><div class="stat card"><span>Ahorro</span><b>${money(tt.ahorro)}</b></div><div class="stat card"><span>Disponible</span><b class="${tt.libre<0?'neg':''}">${money(tt.libre)}</b></div></div>
   <div class="grid">
+  ${goalsCard()}
   <section class="card" aria-labelledby="h-pr"><div class="card-h"><h2 id="h-pr">Presupuesto</h2><button class="link" type="button" data-act="budget">${S.set.budget?'Cambiar':'Definir'}</button></div>
    ${bs.b?(ym===nowYM?meter(bs):`<p class="note">El presupuesto se mide en el mes actual.</p>`):`<p class="note">Define cuánto quieres gastar al mes y te aviso cuando se esté acabando.</p>`}</section>
   <section class="card" aria-labelledby="h-gr"><h2 id="h-gr">Últimos 6 meses</h2>${chartMonths(ym)}</section>
@@ -712,13 +780,26 @@ function vShop(){
 }
 
 const TABS=[['home','Inicio','home',vHome],['agenda','Agenda','calendar',vAgenda],['work','Trabajo','briefcase',vWork],['money','Finanzas','chart',vMoney],['shop','Súper','cart',vShop]];
+function applyRecurring(){
+  let n=0;const cur=nowYM;
+  S.tx.filter(t=>t.repeat==='mensual'&&isD(t.date)).forEach(t=>{
+    const [y0,m0,d0]=t.date.split('-').map(Number);let y=y0,m=m0;
+    for(let k=0;k<36;k++){
+      m++;if(m>12){m=1;y++}
+      const ym=`${y}-${pad(m)}`;if(ym>cur)break;
+      const id=`${t.id}-${ym}`;if(id.length>64||S.tx.some(x=>x.id===id)||S.del[id])continue;
+      const c={...t,id,date:`${ym}-${pad(Math.min(d0,new Date(y,m,0).getDate()))}`,repeat:'',from:t.id};delete c.u;S.tx.push(c);n++;
+    }
+  });
+  if(n){stamp();persist();autoSync()}
+}
 function render(focus){
-  const y=scrollY;syncProj();document.body.dataset.tab=ui.tab;
+  const y=scrollY;syncProj();applyRecurring();document.body.dataset.tab=ui.tab;
   $('#main').innerHTML=TABS.find(t=>t[0]===ui.tab)[3]();
   const nb=alerts().filter(a=>a.lvl>=1).length;
   const btn=t=>`<button type="button" data-act="goto-tab" data-id="${t[0]}" ${t[0]===ui.tab?'aria-current="page"':''}>${ic(t[2])}<span>${t[1]}</span>${t[0]==='home'&&nb?`<i class="badge" aria-label="${nb} alertas">${nb}</i>`:''}</button>`;
   $('#tabs').innerHTML=TABS.map(btn).join('');$('#sidenav').innerHTML=TABS.map(btn).join('');
-  $('#gear1').innerHTML=ic('sliders');$('#gear2').innerHTML=ic('sliders');
+  $('#gear1').innerHTML=ic('sliders');$('#gear2').innerHTML=ic('sliders');$('#srch1').innerHTML=ic('search');$('#srch2').innerHTML=ic('search');
   renderSync();
   if(focus){$('#main').focus({preventScroll:true});scrollTo(0,0)}else scrollTo(0,y);
 }
@@ -784,7 +865,7 @@ function evSheet(id,date,imp){
   const e=S.events.find(x=>x.id===id);
   sheet({title:e?'Editar evento':imp?'Nueva fecha importante':'Nuevo evento',required:'title',data:e||{date:date||today(),cat:imp&&PROJ.includes(imp)?imp:'Personal',important:imp?'Sí':'No'},
     fields:[{k:'title',l:'¿Qué es?',ph:'Cita, entrega, reunión, cumpleaños'},{k:'date',l:'Fecha',t:'date'},{k:'time',l:'Hora (opcional)',t:'time'},
-      {k:'cat',l:'Categoría o proyecto',t:'select',o:ECATS},{k:'important',l:'¿Es una fecha importante? (avisa por WhatsApp)',t:'select',o:['No','Sí']},
+      {k:'cat',l:'Categoría o proyecto',t:'select',o:ECATS},{k:'important',l:'¿Es una fecha importante? (se destaca en el cliente)',t:'select',o:['No','Sí']},
       {k:'repeat',l:'Repetir',t:'select',o:['ninguna','diaria','semanal','mensual','anual'],def:'ninguna'},{k:'note',l:'Nota',t:'textarea'}],
     onSave:v=>upsert(S.events,{...v,id:e?e.id:uid(),doneOn:e?e.doneOn:{}}),onDelete:e?()=>remove(S.events,e.id):null});
 }
@@ -798,7 +879,7 @@ function taskSheet(id,project,due){
 function txSheet(id,type){
   const t=S.tx.find(x=>x.id===id);type=t?t.type:type;
   sheet({title:t?`Editar ${type}`:`Nuevo ${type}`,required:'amount',data:t||{date:today(),cat:TXCATS[type][0]},
-    fields:[{k:'amount',l:'Monto',t:'number',ph:'0.00'},{k:'cat',l:'Categoría',t:'select',o:TXCATS[type]},{k:'desc',l:'Descripción',ph:'Opcional'},{k:'date',l:'Fecha',t:'date'}],
+    fields:[{k:'amount',l:'Monto',t:'number',ph:'0.00'},{k:'cat',l:'Categoría',t:'select',o:TXCATS[type]},{k:'desc',l:'Descripción',ph:'Opcional'},{k:'date',l:'Fecha',t:'date'},{k:'repeat',l:'¿Se repite?',t:'select',o:[['','No, solo esta vez'],['mensual','Sí, cada mes (se crea sola)']]}],
     onSave:v=>{if(!v.amount){toast('Pon un monto');return false}upsert(S.tx,{...v,id:t?t.id:uid(),type});if(v.date)ui.month=v.date.slice(0,7)},
     onDelete:t?()=>remove(S.tx,t.id):null});
 }
@@ -825,10 +906,10 @@ function clientSheet(id){
   sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',data:c||{status:'Activo',kind:nextKind()},
     moreFrom:2,
     fields:[{k:'name',l:'Nombre del cliente'},{k:'status',l:'Estado',t:'select',o:STATUS},
-      {k:'kind',l:'Color del cliente',t:'select',o:[['brand','Orquídea'],['accent','Lila'],['info','Azul'],['warn','Dorado'],['ok','Menta']]},
+      {k:'kind',l:'Color del cliente',t:'select',o:[['brand','Rosa'],['info','Azul'],['warn','Anaranjado'],['bad','Rojo'],['accent','Violeta']]},
       {k:'web',l:'Página web',ph:'www.sucliente.com'},{k:'instagram',l:'Instagram',ph:'@usuario'},{k:'tiktok',l:'TikTok',ph:'@usuario'},{k:'facebook',l:'Facebook',ph:'usuario o enlace'},
       {k:'linkedin',l:'LinkedIn',ph:'empresa o enlace'},{k:'youtube',l:'YouTube',ph:'@canal'},{k:'otras',l:'Otras redes o enlaces',t:'textarea',ph:'Pinterest, Linktree, Drive'},
-      {k:'contact',l:'Contacto',ph:'Teléfono o correo'},{k:'fee',l:'Cobro mensual o por proyecto',t:'number',ph:'0.00'},{k:'notes',l:'Notas',t:'textarea'}],
+      {k:'contact',l:'Contacto',ph:'Teléfono o correo'},{k:'fee',l:'Cobro mensual o por proyecto',t:'number',ph:'0.00'},{k:'payDay',l:'Día del mes en que cobras',t:'number',ph:'Ej. 15'},{k:'notes',l:'Notas',t:'textarea'}],
     extra:c?[{label:'Registrar cobro',fn:()=>{
       closeSheet();
       amountSheet(`Cobro a ${c.name}`,c.fee,n=>{if(!n)return false;
@@ -840,14 +921,15 @@ function clientSheet(id){
         S.events.forEach(r=>{if(r.cat===c.name)r.cat=v.name});S.tx.forEach(t=>{if(t.type==='ingreso'&&t.cat===c.name)t.cat=v.name});
         if(ui.proj===c.name)ui.proj=v.name;if(ui.open===c.name)ui.open=v.name;
       }
+      v.payDay=(v.payDay>=1&&v.payDay<=31)?Math.round(v.payDay):'';
       upsert(S.clients,{...v,id:c?c.id:uid()});
       if(!c){ui.proj=v.name;ui.open=v.name}
     },
     onDelete:c?()=>{delClient(c)}:null});
 }
-function ideaSheet(id){
+function ideaSheet(id,project){
   const i=S.ideas.find(x=>x.id===id);
-  sheet({title:i?'Editar idea':'Nueva idea',required:'title',data:i||{project:ui.proj,status:'Idea'},
+  sheet({title:i?'Editar idea':'Nueva idea',required:'title',data:i||{project:project||ui.proj||'General',status:'Idea'},
     fields:[{k:'title',l:'Idea',ph:'Resúmela en pocas palabras'},{k:'project',l:'Para',t:'select',o:[...PROJ,'General']},{k:'status',l:'Estado',t:'select',o:['Idea','En marcha','Hecha']},{k:'note',l:'Detalles',t:'textarea'}],
     onSave:v=>upsert(S.ideas,{...v,id:i?i.id:uid(),fav:i?i.fav:false}),onDelete:i?()=>remove(S.ideas,i.id):null});
 }
@@ -857,13 +939,13 @@ async function shrink(file,max=1080){
       c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.82))};
     im.onerror=()=>res(null);im.src=u});
 }
-function postSheet(id){
+function postSheet(id,date){
   if(!PROJ.length){toast('Primero agrega un cliente');return}
   const p=S.posts.find(x=>x.id===id);
   let imgs=[...(p?p.imgs||[]:[])],added=[];
   const draw=()=>{const st=$('#strip');if(st)st.innerHTML=imgs.map((i,n)=>`<div style="position:relative"><button type="button" class="th" aria-pressed="${n===0}" aria-label="Imagen ${n+1}${n===0?' (portada)':'. Tocar para usar de portada'}" data-cover="${i}" style="background-image:url('${IMG[i]||''}')"></button><button type="button" class="rm" aria-label="Quitar imagen ${n+1}" data-rm="${i}">×</button></div>`).join('')||'<p class="note">Sin imágenes todavía</p>'};
   sheet({title:p?'Editar publicación':'Nueva publicación',required:'title',
-    data:p||{project:ui.proj,format:'Post',status:'Pendiente',date:today()},
+    data:p||{project:ui.proj,format:'Post',status:'Pendiente',date:date||today()},
     pre:`<div class="strip" id="strip"></div><p class="note" style="margin-bottom:8px">La primera imagen es la portada. Toca una para cambiarla.</p><label class="btn ghost sm" style="margin-bottom:14px">Agregar imágenes<input type="file" id="pimg" accept="image/*" multiple class="sr"></label>`,
     fields:[{k:'title',l:'Título interno',ph:'Ej. Reel lanzamiento'},{k:'status',l:'Estado',t:'select',o:PST},{k:'project',l:'Cliente',t:'select',o:PROJ},
       {k:'format',l:'Formato',t:'select',o:FMT},{k:'date',l:'Fecha de publicación',t:'date'},{k:'time',l:'Hora',t:'time'},
@@ -881,7 +963,7 @@ function postSheet(id){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-08.3 rediseño Noir Orquídea';
+const APP_V='2026-10-08.4 cobros, metas, PIN y buscador';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
@@ -889,7 +971,7 @@ function settingsSheet(){
       {k:'leadDays',l:'Avisar fechas importantes con estos días de anticipación',ph:'3,1,0'},
       {k:'every',l:'Sincronizar automáticamente cada',t:'select',o:[['60','1 hora'],['240','4 horas'],['0','Solo al abrir y al guardar']]},
       {k:'theme',l:'Apariencia',t:'select',o:[['dark','Oscura (negro)'],['light','Clara'],['auto','Automática (como tu celular)']]}],
-    extra:[{label:'Actualizar la app',fn:hardRefresh},{label:'Sincronización',fn:()=>{closeSheet();syncSheet()}},{label:'Avisos en este aparato',fn:enableNotif},{label:'Exportar respaldo',fn:exportData},{label:'Importar respaldo',fn:()=>$('#file').click()}],
+    extra:[{label:'PIN de la app',fn:()=>{closeSheet();pinSheet()}},{label:'Actualizar la app',fn:hardRefresh},{label:'Sincronización',fn:()=>{closeSheet();syncSheet()}},{label:'Avisos en este aparato',fn:enableNotif},{label:'Exportar respaldo',fn:exportData},{label:'Importar respaldo',fn:()=>$('#file').click()}],
     onSave:v=>{const th=v.theme;delete v.theme;SY.every=[0,60,240].includes(+v.every)?+v.every:60;delete v.every;saveSY();
       v.alertPct=Math.min(100,Math.max(1,v.alertPct||80));v.leadDays=(v.leadDays||'3,1,0').replace(/[^0-9,]/g,'')||'3,1,0';
       S.set={...S.set,...v,u:Date.now()};applyTheme(th)}});
@@ -985,7 +1067,7 @@ async function sync(manual){
       if(g.status===200){const j=await g.json();sha=j.sha;merge(JSON.parse(unb64(j.content)))}
       else if(g.status!==404)throw new Error(g.status===401?'El token no es válido o venció':g.status===403?'GitHub negó el acceso o hay demasiadas consultas':`GitHub respondió ${g.status}`);
       stamp();persist();
-      const body=JSON.stringify({v:2,events:S.events,tx:S.tx,shop:S.shop,clients:S.clients,tasks:S.tasks,ideas:S.ideas,posts:S.posts,set:{name:S.set.name,budget:S.set.budget,alertPct:S.set.alertPct,leadDays:S.set.leadDays,u:S.set.u},del:S.del},null,1);
+      const body=JSON.stringify({v:2,events:S.events,tx:S.tx,shop:S.shop,clients:S.clients,tasks:S.tasks,ideas:S.ideas,posts:S.posts,goals:S.goals,set:{name:S.set.name,budget:S.set.budget,alertPct:S.set.alertPct,leadDays:S.set.leadDays,u:S.set.u},del:S.del},null,1);
       const h=hs(body);
       if(sha&&SY.sha===sha&&SY.h===h){SY.err='';break}
       const pr=await fetchT(ghUrl(),{method:'PUT',headers:ghHead(),body:JSON.stringify({message:'sync: datos de Mi Espacio',content:b64(body),branch:br,...(sha?{sha}:{})})});
@@ -1006,7 +1088,7 @@ function renderSync(){
 function syncSheet(){
   const st=SY.err?`Problema: ${esc(SY.err)}`:SY.last?`Última sincronización ${ago(SY.last)}.`:'Aún sin sincronizar.';
   sheet({title:'Sincronización',data:{repo:'panamanexia-spec/mi-primer-proyecto',branch:'main',path:'data/state.json',...SY},
-    pre:`<p class="note" style="margin-bottom:14px">Guarda tus datos en tu repositorio privado de GitHub para verlos igual en el celular y la computadora, y para que los avisos por WhatsApp sepan tus fechas y tu presupuesto. Necesitas un token de GitHub (Fine-grained, solo ese repositorio, permiso Contents en Read and write). Se guarda solo en este aparato. ${st}</p>`,
+    pre:`<p class="note" style="margin-bottom:14px">Guarda tus datos en tu repositorio privado de GitHub para verlos igual en el celular y la computadora. Necesitas un token de GitHub (Fine-grained, solo ese repositorio, permiso Contents en Read and write). Se guarda solo en este aparato. ${st}</p>`,
     fields:[{k:'repo',l:'Repositorio',ph:'usuario/repositorio'},{k:'branch',l:'Rama',ph:'main'},{k:'token',l:'Token de GitHub',t:'password',ph:'github_pat_…'},{k:'path',l:'Archivo de datos',ph:'data/state.json'}],
     onSave:v=>{SY={...SY,...v};if(!SY.branch)SY.branch='main';if(!SY.path)SY.path='data/state.json';SY.sha='';saveSY();
       if(!SY.repo||!SY.token){SYS='off';toast('Falta el token de GitHub: sin él no se puede sincronizar');renderSync();return false}
@@ -1026,13 +1108,101 @@ function notifyOnce(){
   }catch(e){}
 }
 
+/* ============ Buscador ============ */
+function openSearch(){
+  const norm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  sheet({title:'Buscar',noSave:true,fields:[{k:'q',l:'Escribe lo que buscas',ph:'Cliente, tarea, publicación, movimiento'}],onSave:()=>false,
+    setup(form){
+      const box=document.createElement('div');box.id='sres';box.setAttribute('aria-live','polite');form.querySelector('.f').after(box);
+      const input=form.elements.q;input.setAttribute('type','search');
+      const run=()=>{
+        const q=norm(input.value.trim());
+        if(q.length<2){box.innerHTML='<p class="note">Escribe al menos 2 letras.</p>';return}
+        const R=[],add=(tipo,title,sub,act,id)=>{if(norm(title+' '+sub).includes(q))R.push({tipo,title,sub:sub||'',act,id})};
+        S.clients.forEach(c=>add('Cliente',c.name,[c.contact,c.instagram,c.web,c.notes].filter(Boolean).join(' '),'go-client',c.name));
+        S.tasks.forEach(t=>add('Tarea',t.title,t.project,'edit-task',t.id));
+        S.posts.forEach(x=>add('Publicación',x.title,[x.project,x.caption,x.tags].filter(Boolean).join(' '),'edit-post',x.id));
+        S.events.forEach(e=>add('Evento',e.title,[e.date,e.note].filter(Boolean).join(' '),'edit-ev',e.id));
+        S.ideas.forEach(i=>add('Idea',i.title,[i.project,i.note].filter(Boolean).join(' '),'edit-idea',i.id));
+        S.tx.forEach(t=>add('Movimiento',t.desc||t.cat,[t.cat,t.type,money(t.amount),t.date].join(' '),'edit-tx',t.id));
+        S.shop.forEach(x=>add('Súper',x.name,x.qty||'','edit-shop',x.id));
+        S.goals.forEach(g=>add('Meta',g.name,'','goto-tab','money'));
+        box.innerHTML=R.length?`<ul class="list">${R.slice(0,30).map(r=>`<li class="row"><button class="row-main" type="button" data-act="${r.act}" data-id="${esc(r.id)}"><span class="t">${esc(r.title)}</span><span class="s">${esc(r.tipo)}${r.sub?' · '+esc(r.sub.slice(0,60)):''}</span></button></li>`).join('')}</ul>`:'<p class="note">No encontré nada.</p>';
+      };
+      input.addEventListener('input',run);run();
+    }});
+}
+
+/* ============ PIN de la app (pantalla de privacidad de este aparato) ============ */
+const PIN_KEY='miespacio.pin';
+const pinRec=()=>{try{return JSON.parse(localStorage.getItem(PIN_KEY)||'null')}catch(e){return null}};
+async function hashPin(pin,salt){
+  const d=new TextEncoder().encode(salt+':'+pin);
+  if(window.crypto&&crypto.subtle){const h=await crypto.subtle.digest('SHA-256',d);return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+  let h=0;for(const b of d)h=(h*31+b)|0;return String(h);
+}
+async function setPin(pin){const salt=uid()+uid();localStorage.setItem(PIN_KEY,JSON.stringify({s:salt,h:await hashPin(pin,salt),n:pin.length}))}
+function pinSheet(){
+  const has=!!pinRec();
+  sheet({title:'PIN de la app',data:{},
+    pre:`<p class="note" style="margin-bottom:14px">${has?'Ya tienes un PIN. Escribe uno nuevo para cambiarlo, o deja los dos campos vacíos y guarda para quitarlo.':'Pide un PIN de 4 a 6 números al abrir la app. Es una pantalla de privacidad para este aparato; no cifra tus datos.'}</p>`,
+    fields:[{k:'pin',l:'PIN nuevo',t:'password'},{k:'pin2',l:'Repite el PIN',t:'password'}],
+    setup(f){['pin','pin2'].forEach(k=>{const e=f.elements[k];e.setAttribute('inputmode','numeric');e.setAttribute('maxlength','6');e.setAttribute('autocomplete','new-password')})},
+    onSave:v=>{
+      if(!v.pin&&!v.pin2){if(has){localStorage.removeItem(PIN_KEY);toast('PIN quitado')}return}
+      if(!/^\d{4,6}$/.test(v.pin)){toast('El PIN debe tener de 4 a 6 números');return false}
+      if(v.pin!==v.pin2){toast('Los dos PIN no coinciden');return false}
+      setPin(v.pin).then(()=>toast('PIN guardado'));
+    }});
+}
+let lockBuf='',lockFail=0,lockUntil=0,hiddenAt=0,lockBusy=false;
+function paintLock(msg){
+  const r=pinRec(),n=r?r.n:4;
+  $('#lockDots').innerHTML=Array.from({length:n},(_,i)=>`<i class="${i<lockBuf.length?'on':''}"></i>`).join('');
+  if(msg!==undefined)$('#lockMsg').textContent=msg;
+}
+function showLock(){
+  if(!pinRec())return;
+  lockBuf='';paintLock('Escribe tu PIN');$('#lock').hidden=false;
+  document.querySelectorAll('body>*:not(#lock):not(svg):not(script)').forEach(e=>{e.inert=true});
+}
+function hideLock(){$('#lock').hidden=true;document.querySelectorAll('body>*').forEach(e=>{e.inert=false})}
+async function lockKey(k){
+  const r=pinRec();if(!r||lockBusy)return;
+  if(Date.now()<lockUntil){paintLock('Espera unos segundos e intenta de nuevo');return}
+  if(k==='del'){lockBuf=lockBuf.slice(0,-1);paintLock('Escribe tu PIN');return}
+  if(lockBuf.length>=r.n)return;
+  lockBuf+=k;paintLock();
+  if(lockBuf.length===r.n){
+    lockBusy=true;const ok=(await hashPin(lockBuf,r.s))===r.h;lockBusy=false;
+    if(ok){lockFail=0;hideLock();return}
+    lockBuf='';lockFail++;
+    if(lockFail>=5){lockUntil=Date.now()+30000;lockFail=0;paintLock('Demasiados intentos. Espera 30 segundos')}
+    else paintLock('PIN incorrecto');
+  }
+}
+$('#keypad').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)lockKey(b.dataset.k)});
+document.addEventListener('keydown',e=>{
+  if($('#lock').hidden)return;
+  if(/^\d$/.test(e.key))lockKey(e.key);else if(e.key==='Backspace')lockKey('del');
+});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){hiddenAt=Date.now();return}
+  if(pinRec()&&$('#lock').hidden&&hiddenAt&&Date.now()-hiddenAt>60000)showLock();
+});
+function pinForgot(){
+  if(!confirm('Para entrar sin el PIN hay que borrar los datos guardados en ESTE aparato (no los de GitHub, si ya los sincronizaste). ¿Continuar?'))return;
+  try{Object.keys(localStorage).filter(k=>k.startsWith('miespacio')).forEach(k=>localStorage.removeItem(k));indexedDB.deleteDatabase('miespacio')}catch(e){}
+  location.replace(location.pathname+'?v='+Date.now());
+}
+
 /* ============ Eventos ============ */
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
   const a=el.dataset.act,id=el.dataset.id;
   switch(a){
     case 'close':closeSheet();break;
-    case 'goto-tab':if(id==='work'&&ui.tab==='work')ui.open='';ui.tab=id;render(true);break;
+    case 'goto-tab':closeSheet();if(id==='work'&&ui.tab==='work'){ui.open='';ui.pubcal=false}ui.tab=id;render(true);break;
     case 'goto-proj':ui.tab='work';ui.proj=id;ui.open=id;render(true);break;
     case 'goto-work':ui.tab='work';render(true);break;
     case 'settings':settingsSheet();break;
@@ -1068,13 +1238,27 @@ document.addEventListener('click',e=>{
         S.tx.unshift({id:uid(),type:'gasto',amount:n,cat:'Super',desc:'Compra del súper',date:today()});toast('Gasto registrado')});break;
     case 'open-client':ui.open=id;ui.proj=id;render(true);break;
     case 'back-clients':ui.open='';render(true);break;
+    case 'go-client':closeSheet();ui.tab='work';ui.pubcal=false;ui.open=id;ui.proj=id;render(true);break;
+    case 'pay-client':{const c=S.clients.find(x=>x.id===id);if(!c)break;const k=cobro(c);
+      amountSheet(`Cobro a ${c.name}`,k.pend||c.fee||'',n=>{if(!n)return false;S.tx.unshift({id:uid(),type:'ingreso',amount:n,cat:c.name,desc:`Cobro: ${c.name}`,date:today()});toast('Cobro registrado')});break}
+    case 'add-goal':goalSheet();break;
+    case 'edit-goal':goalSheet(id);break;
+    case 'goal-add':{const g=S.goals.find(x=>x.id===id);if(!g)break;
+      amountSheet(`Aporte a ${g.name}`,'',n=>{if(!n)return false;S.tx.unshift({id:uid(),type:'ahorro',amount:n,cat:g.name,desc:`Aporte a ${g.name}`,date:today()});toast('Aporte registrado')});break}
+    case 'search':openSearch();break;
+    case 'pin-forgot':pinForgot();break;
     case 'del-client':delClientSheet(id);break;
     case 'add-client':clientSheet();break;
     case 'edit-client':clientSheet(id);break;
-    case 'add-post':postSheet();break;
+    case 'add-post':postSheet(null,el.dataset.date||'');break;
+    case 'open-pubcal':ui.pubcal=true;render(true);break;
+    case 'close-pubcal':ui.pubcal=false;render(true);break;
+    case 'pc-prev':ui.pcal=shiftM(ui.pcal,-1);render();break;
+    case 'pc-next':ui.pcal=shiftM(ui.pcal,1);render();break;
+    case 'pc-day':ui.psel=id;render();break;
     case 'edit-post':postSheet(id);break;
     case 'adv':{const x=S.posts.find(x=>x.id===id);x.status=NEXT[x.status];save();render();toast(`Ahora está en «${x.status}»`);break}
-    case 'add-idea':ideaSheet();break;
+    case 'add-idea':ideaSheet(null,id||'');break;
     case 'edit-idea':ideaSheet(id);break;
     case 'star':{const i=S.ideas.find(x=>x.id===id);i.fav=!i.fav;save();render();break}
   }
@@ -1090,7 +1274,7 @@ document.addEventListener('submit',e=>{
   const i=$('#shopName');i&&i.focus();
 });
 
-render();
+render();showLock();
 loadImgs().then(()=>{render();notifyOnce()});
 sync(false);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastTry>10*60000)sync(false)});
