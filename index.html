@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#faf3f1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1b1117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0d0a0f">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,53 +15,67 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* Layout: barra lateral + paneles en computadora; barra inferior + una columna en celular.
-   Tipografía: Fraunces (títulos, suave y con carácter) + Albert Sans (texto). */
+/* Diseño «Noir Orquídea»: fondo negro cálido, orquídea como firma y un color propio para cada sección
+   (Inicio orquídea, Agenda azul, Trabajo dorado, Finanzas menta, Súper coral).
+   Tipografía: Cormorant Garamond (títulos, elegante) + Manrope (texto y números). */
 :root{
-  --bg:#faf3f1; --surface:#ffffff; --surface2:#fdf0f4; --ink:#3a2130; --muted:#6f5666; --line:#e8d4db;
-  --brand:#b83b73; --brand-ink:#ffffff; --brand-soft:#fbe0ea; --brand-t:#8c2955;
-  --accent:#6f55c0; --accent-soft:#e9e2fa; --accent-t:#4f3a9a;
-  --ok:#1f7a5a; --ok-soft:#d9f1e8; --ok-t:#14573f;
-  --warn:#9a5b00; --warn-soft:#fbe9c9; --warn-t:#6e4100;
-  --bad:#b3263e; --bad-soft:#fbdde2; --bad-t:#8a1a2d;
-  --info:#1f6a99; --info-soft:#d8ebf7; --info-t:#134c70;
-  --mute:#6f5666; --mute-soft:#efe4e8; --mute-t:#5b4452;
-  --c-in:#3b6fd1; --c-out:#d4572a;
-  --shadow:0 1px 2px rgba(58,33,48,.06),0 10px 26px -14px rgba(58,33,48,.22);
-  --r:18px; --r-sm:12px; --focus:#3b2bd6;
-  --f-display:'Fraunces',Georgia,'Times New Roman',serif;
-  --f-body:'Albert Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+  --bg:#0d0a0f; --surface:#171219; --surface2:#211a24; --ink:#f7f0f4; --muted:#b9acb7; --line:#32293a;
+  --brand:#c23f8c; --brand-ink:#ffffff; --brand-soft:#3a1730; --brand-t:#f59ac9;
+  --accent:#b7a0f5; --accent-soft:#2a2142; --accent-t:#cdbcff;
+  --ok:#5ed1b0; --ok-soft:#10332a; --ok-t:#7be0c2;
+  --warn:#e9c46a; --warn-soft:#3a2f0e; --warn-t:#f0d58a;
+  --bad:#ff8c94; --bad-soft:#431a20; --bad-t:#ffa3aa;
+  --info:#7fc4f0; --info-soft:#13324a; --info-t:#9fd3f5;
+  --mute:#b9acb7; --mute-soft:#2a2230; --mute-t:#cfc3cd;
+  --c-in:#5ed1b0; --c-out:#ff8b7a;
+  --s-home:#e070ae; --i-home:#2a0b1d; --s-agenda:#6fb8f2; --i-agenda:#06223a; --s-work:#e7c15c; --i-work:#2b2100; --s-money:#4fd1a9; --i-money:#05271d; --s-shop:#ff8b7a; --i-shop:#330c06;
+  --shadow:0 1px 0 rgba(255,255,255,.05) inset,0 16px 32px -20px rgba(0,0,0,.9);
+  --focus:#ffd479;
+  --r:20px; --r-sm:14px;
+  --f-display:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --f-body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --sec:var(--s-home); --sec-ink:var(--i-home);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#1b1117; --surface:#27181f; --surface2:#2f1d26; --ink:#f7e9ef; --muted:#c7aebb; --line:#43303a;
-    --brand:#f29bbd; --brand-ink:#3a1527; --brand-soft:#4a2536; --brand-t:#f7b9d1;
-    --accent:#b9a4f2; --accent-soft:#35294f; --accent-t:#d3c6f8;
-    --ok:#6fd3ab; --ok-soft:#173a2e; --ok-t:#8be0bd;
-    --warn:#f2c46e; --warn-soft:#3f2c0c; --warn-t:#f2c46e;
-    --bad:#f5a0ae; --bad-soft:#4a1a24; --bad-t:#f5a0ae;
-    --info:#9fd0ee; --info-soft:#14344a; --info-t:#9fd0ee;
-    --mute:#c7aebb; --mute-soft:#3a2832; --mute-t:#cdb6c2;
-    --c-in:#5a8ae0; --c-out:#d9724a; --focus:#c9bfff;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px -14px rgba(0,0,0,.6);
-    color-scheme:dark;
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#faf6f2; --surface:#ffffff; --surface2:#f4ece8; --ink:#1b1420; --muted:#665a66; --line:#e6dbd6;
+  --brand:#b3306f; --brand-ink:#ffffff; --brand-soft:#fbe3ee; --brand-t:#8f2057;
+  --accent:#5d44b0; --accent-soft:#ece6fb; --accent-t:#473492;
+  --ok:#12795b; --ok-soft:#d9f1e8; --ok-t:#0e5a43;
+  --warn:#8a6200; --warn-soft:#faecc6; --warn-t:#6b4b00;
+  --bad:#b3263e; --bad-soft:#fbdde2; --bad-t:#8a1a2d;
+  --info:#1d6fb0; --info-soft:#d8ebf7; --info-t:#134c70;
+  --mute:#665a66; --mute-soft:#eee5e1; --mute-t:#52474f;
+  --c-in:#12795b; --c-out:#c0432f;
+  --s-home:#b3306f; --i-home:#ffffff; --s-agenda:#1d6fb0; --i-agenda:#ffffff; --s-work:#8a6200; --i-work:#ffffff; --s-money:#12795b; --i-money:#ffffff; --s-shop:#c0432f; --i-shop:#ffffff;
+  --shadow:0 1px 2px rgba(27,20,32,.06),0 12px 28px -16px rgba(27,20,32,.28);
+  --focus:#3b2bd6;
+}
+@media (prefers-color-scheme: light){
+  :root[data-theme="auto"]{
+  color-scheme:light;
+  --bg:#faf6f2; --surface:#ffffff; --surface2:#f4ece8; --ink:#1b1420; --muted:#665a66; --line:#e6dbd6;
+  --brand:#b3306f; --brand-ink:#ffffff; --brand-soft:#fbe3ee; --brand-t:#8f2057;
+  --accent:#5d44b0; --accent-soft:#ece6fb; --accent-t:#473492;
+  --ok:#12795b; --ok-soft:#d9f1e8; --ok-t:#0e5a43;
+  --warn:#8a6200; --warn-soft:#faecc6; --warn-t:#6b4b00;
+  --bad:#b3263e; --bad-soft:#fbdde2; --bad-t:#8a1a2d;
+  --info:#1d6fb0; --info-soft:#d8ebf7; --info-t:#134c70;
+  --mute:#665a66; --mute-soft:#eee5e1; --mute-t:#52474f;
+  --c-in:#12795b; --c-out:#c0432f;
+  --s-home:#b3306f; --i-home:#ffffff; --s-agenda:#1d6fb0; --i-agenda:#ffffff; --s-work:#8a6200; --i-work:#ffffff; --s-money:#12795b; --i-money:#ffffff; --s-shop:#c0432f; --i-shop:#ffffff;
+  --shadow:0 1px 2px rgba(27,20,32,.06),0 12px 28px -16px rgba(27,20,32,.28);
+  --focus:#3b2bd6;
   }
 }
-:root[data-theme="dark"]{
-  --bg:#1b1117; --surface:#27181f; --surface2:#2f1d26; --ink:#f7e9ef; --muted:#c7aebb; --line:#43303a;
-  --brand:#f29bbd; --brand-ink:#3a1527; --brand-soft:#4a2536; --brand-t:#f7b9d1;
-  --accent:#b9a4f2; --accent-soft:#35294f; --accent-t:#d3c6f8;
-  --ok:#6fd3ab; --ok-soft:#173a2e; --ok-t:#8be0bd;
-  --warn:#f2c46e; --warn-soft:#3f2c0c; --warn-t:#f2c46e;
-  --bad:#f5a0ae; --bad-soft:#4a1a24; --bad-t:#f5a0ae;
-  --info:#9fd0ee; --info-soft:#14344a; --info-t:#9fd0ee;
-  --mute:#c7aebb; --mute-soft:#3a2832; --mute-t:#cdb6c2;
-  --c-in:#5a8ae0; --c-out:#d9724a; --focus:#c9bfff;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px -14px rgba(0,0,0,.6);
-  color-scheme:dark;
-}
+body[data-tab="home"]{--sec:var(--s-home);--sec-ink:var(--i-home)}
+body[data-tab="agenda"]{--sec:var(--s-agenda);--sec-ink:var(--i-agenda)}
+body[data-tab="work"]{--sec:var(--s-work);--sec-ink:var(--i-work)}
+body[data-tab="money"]{--sec:var(--s-money);--sec-ink:var(--i-money)}
+body[data-tab="shop"]{--sec:var(--s-shop);--sec-ink:var(--i-shop)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;font-family:var(--f-body);background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5}
@@ -252,12 +265,66 @@ textarea{min-height:90px;resize:vertical}
 .toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:600;z-index:80;opacity:0;transition:opacity .25s;pointer-events:none;max-width:92vw;text-align:center}
 .toast.show{opacity:1}
 @media (min-width:900px){.toast{bottom:28px}}
+/* ---------- Noir Orquídea: marca, navegación, botones ---------- */
+body{background:radial-gradient(900px 420px at 88% -8%,color-mix(in srgb,var(--sec) 15%,transparent),transparent 70%),radial-gradient(700px 360px at -10% 105%,color-mix(in srgb,var(--brand) 10%,transparent),transparent 70%),var(--bg);background-attachment:fixed;font-weight:500}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:.005em}
+.page-head h1{font-size:clamp(2.1rem,6vw,3rem);line-height:1.02}
+.page-head h1::after{content:"";display:block;width:46px;height:3px;border-radius:3px;background:var(--sec);margin-top:12px}
+.eyebrow{color:var(--sec);letter-spacing:.14em}
+.card>h2,.card-h h2{font-size:1.5rem;display:flex;align-items:center;gap:10px}
+.card>h2::before,.card-h h2::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--sec);flex:none}
+.card{border-radius:var(--r);background:var(--surface)}
+.brand{font-family:var(--f-display);font-size:1.5rem;font-weight:700;letter-spacing:.01em;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.syncbtn{white-space:nowrap}
+@media (max-width:420px){.bar .syncbtn{padding:0 10px;font-size:.78rem}.bar .actions{gap:6px}}
+.brand svg.logo{width:36px;height:36px;flex:none}
+.brand i{display:none}
+.bar{background:color-mix(in srgb,var(--bg) 82%,transparent)}
+.tabs{background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+.tabs button[data-id="home"],.side nav button[data-id="home"]{--s:var(--s-home)}
+.tabs button[data-id="agenda"],.side nav button[data-id="agenda"]{--s:var(--s-agenda)}
+.tabs button[data-id="work"],.side nav button[data-id="work"]{--s:var(--s-work)}
+.tabs button[data-id="money"],.side nav button[data-id="money"]{--s:var(--s-money)}
+.tabs button[data-id="shop"],.side nav button[data-id="shop"]{--s:var(--s-shop)}
+.tabs button svg,.side nav button svg{color:var(--s)}
+.tabs button{font-weight:700;letter-spacing:.01em}
+.tabs button[aria-current="page"],.side nav button[aria-current="page"]{color:var(--ink);background:color-mix(in srgb,var(--s) 17%,transparent)}
+.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-7px;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--s)}
+.side nav button:hover{background:color-mix(in srgb,var(--s) 10%,transparent)}
+.btn{background:var(--sec);color:var(--sec-ink);border-color:var(--sec);box-shadow:0 12px 26px -16px var(--sec),inset 0 1px 0 rgba(255,255,255,.28);letter-spacing:.01em;transition:transform .15s ease,filter .15s ease}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);box-shadow:none}
+.btn.ghost:hover{background:transparent;border-color:var(--sec);color:var(--sec)}
+.btn.danger{background:transparent;color:var(--bad-t);border-color:var(--bad);box-shadow:none}
+.iconbtn{background:var(--surface);border-color:var(--line)}
+.link,.lk,.more summary,.al svg{color:var(--sec)}
+.chk[aria-checked="true"]{background:var(--sec);border-color:var(--sec);color:var(--sec-ink)}
+.chip[aria-pressed="true"]{background:var(--sec);color:var(--sec-ink);border-color:var(--sec)}
+.seg button[aria-pressed="true"]{background:var(--sec);color:var(--sec-ink)}
+.day.today{outline-color:var(--sec)}
+.day[aria-pressed="true"]{background:var(--sec);color:var(--sec-ink)}
+.day[aria-pressed="true"] .dots i{background:var(--sec-ink)!important}
+.stat b{font-family:var(--f-body);font-weight:800;letter-spacing:-.01em}
+.mnav b{font-family:var(--f-display);font-size:1.5rem}
+.dot[class*="k-"]{background:var(--ps);color:var(--pt)}
+.cli:hover{border-color:var(--sec)}
+.strip button.th[aria-pressed="true"]{border-color:var(--sec)}
+#sheet .back{background:rgba(5,3,7,.72)}
+#sheet .panel{border:1px solid var(--line)}
+.panel h2{font-size:1.9rem}
+input,select,textarea{background:var(--surface2);border-color:var(--line)}
+input:focus,select:focus,textarea:focus{border-color:var(--sec)}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f58ac4"/><stop offset="1" stop-color="#e9c46a"/></linearGradient>
+<mask id="lm"><rect width="100" height="100" fill="#fff"/><circle cx="64" cy="40" r="27" fill="#000"/></mask>
+<symbol id="logo" viewBox="0 0 100 100"><circle cx="50" cy="54" r="31" fill="url(#lg)" mask="url(#lm)"/><path d="M71 22l2.3 8.2 8.2 2.3-8.2 2.3L71 43l-2.3-8.2-8.2-2.3 8.2-2.3z" fill="#f3d98b"/></symbol>
+</defs></svg>
 <a class="skip" href="#main">Saltar al contenido</a>
 <aside class="side" aria-label="Menú principal">
-  <div class="brand"><i aria-hidden="true">✿</i>Mi Espacio</div>
+  <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Mi Espacio</div>
   <nav id="sidenav" aria-label="Secciones"></nav>
   <div class="foot">
     <button class="syncbtn" data-act="sync" type="button"></button>
@@ -266,7 +333,7 @@ textarea{min-height:90px;resize:vertical}
 </aside>
 <div>
   <header class="bar">
-    <div class="brand"><i aria-hidden="true">✿</i>Mi Espacio</div>
+    <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Mi Espacio</div>
     <div class="actions" style="flex-wrap:nowrap">
       <button class="syncbtn" data-act="sync" type="button"></button>
       <button class="iconbtn" data-act="settings" type="button" aria-label="Ajustes" id="gear2"></button>
@@ -298,6 +365,7 @@ function cleanRec(c,r){
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
   if(c==='tx'){o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
   if(c==='shop'||c==='tasks')o.done=!!o.done;
+  if(c==='clients'&&!['accent','brand','info','warn','ok'].includes(o.kind))delete o.kind;
   if(c==='ideas')o.fav=!!o.fav;
   if(c==='posts'){if(!['Pendiente','En revisión','Aprobado','Por subir','Por cambiar','Publicado'].includes(o.status))o.status='Pendiente';o.imgs=Array.isArray(o.imgs)?o.imgs.filter(i=>typeof i==='string'&&SAFE.test(i)):[]}
   return o;
@@ -339,7 +407,7 @@ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}ca
 const PROJ=[],ECATS=[];
 const KIND={Personal:'info',Finanzas:'warn',Salud:'ok',Casa:'mute',Otros:'mute',General:'mute'};
 const KINDS=['accent','brand','info','warn','ok'];
-const chash=n=>[...String(n)].reduce((a,ch)=>(a*31+ch.charCodeAt(0))>>>0,7);
+const nextKind=()=>{const n=Object.fromEntries(KINDS.map(k=>[k,0]));S.clients.forEach(c=>{if(KINDS.includes(c.kind))n[c.kind]++});return KINDS.reduce((a,k)=>n[k]<n[a]?k:a,KINDS[0])};
 const TXCATS={ingreso:['Otros ingresos'],
   gasto:['Casa','Super','Transporte','Salud','Ocio','Servicios','Belleza y ropa','Trabajo','Otros'],
   ahorro:['Ahorro','Emergencia','Metas']};
@@ -397,7 +465,10 @@ function syncProj(){
   PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
   ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
   TXCATS.ingreso=[...PROJ,'Otros ingresos'];
-  PROJ.forEach(n=>{if(!Object.hasOwn(KIND,n))KIND[n]=KINDS[chash(n)%KINDS.length]});
+  let changed=false;
+  S.clients.forEach(c=>{if(!KINDS.includes(c.kind)){c.kind=nextKind();changed=true}});
+  PROJ.forEach(n=>{const c=S.clients.find(x=>x.name===n);if(c)KIND[n]=c.kind});
+  if(changed){stamp();persist()}
   if(!PROJ.includes(ui.proj))ui.proj=PROJ[0]||'';
   if(ui.open&&!PROJ.includes(ui.open))ui.open='';
 }
@@ -536,7 +607,7 @@ function vClients(){
     const n=S.tasks.filter(x=>x.project===c.name&&!x.done).length,po=S.posts.filter(x=>x.project===c.name&&x.status!=='Publicado').length;
     const nx=importantDates(c.name,30)[0];
     const bits=[`${n} tarea${n===1?'':'s'}`,po+(po===1?' publicación':' publicaciones')+' por salir'];
-    return `<li><button class="cli" type="button" data-act="open-client" data-id="${esc(c.name)}"><span class="dot" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span>
+    return `<li><button class="cli" type="button" data-act="open-client" data-id="${esc(c.name)}"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span>
       <span class="row-main"><span class="t">${esc(c.name)}</span><span class="s">${bits.join(' · ')}</span>${nx?`<span class="s">Próxima fecha: ${esc(nx.title)}, ${when(nx.d)}</span>`:''}</span>${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}${ic('right')}</button></li>`}).join('');
   return page('Trabajo','Mis clientes')+
    `<button class="btn big" type="button" data-act="add-client">${ic('plus')}Agregar cliente</button>`+
@@ -642,7 +713,7 @@ function vShop(){
 
 const TABS=[['home','Inicio','home',vHome],['agenda','Agenda','calendar',vAgenda],['work','Trabajo','briefcase',vWork],['money','Finanzas','chart',vMoney],['shop','Súper','cart',vShop]];
 function render(focus){
-  const y=scrollY;syncProj();
+  const y=scrollY;syncProj();document.body.dataset.tab=ui.tab;
   $('#main').innerHTML=TABS.find(t=>t[0]===ui.tab)[3]();
   const nb=alerts().filter(a=>a.lvl>=1).length;
   const btn=t=>`<button type="button" data-act="goto-tab" data-id="${t[0]}" ${t[0]===ui.tab?'aria-current="page"':''}>${ic(t[2])}<span>${t[1]}</span>${t[0]==='home'&&nb?`<i class="badge" aria-label="${nb} alertas">${nb}</i>`:''}</button>`;
@@ -671,7 +742,7 @@ function sheet(o){
     return `<label class="f"><span>${x.l}</span>${inp}</label>`;
   });
   const mf=o.moreFrom;
-  const fields=mf?fieldHtml.slice(0,mf).join('')+`<details class="more" ${o.fields.slice(mf).some(x=>d[x.k])?'open':''}><summary>Más datos (opcional)</summary>${fieldHtml.slice(mf).join('')}</details>`:fieldHtml.join('');
+  const fields=mf?fieldHtml.slice(0,mf).join('')+`<details class="more" ${o.fields.slice(mf).some(x=>x.k!=='kind'&&d[x.k])?'open':''}><summary>Más datos (opcional)</summary>${fieldHtml.slice(mf).join('')}</details>`:fieldHtml.join('');
   const el=$('#sheet');
   el.innerHTML=`<div class="back" data-act="close"></div><form class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetT"><h2 id="sheetT" tabindex="-1">${o.title}</h2>${o.pre||''}${fields}
    <div class="btns">${o.noSave?'':'<button class="btn" type="submit">Guardar</button>'}<button class="btn ghost" type="button" data-act="close">Cancelar</button>
@@ -751,9 +822,10 @@ function delClientSheet(id){
 }
 function clientSheet(id){
   const c=S.clients.find(x=>x.id===id);
-  sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',data:c||{status:'Activo'},
+  sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',data:c||{status:'Activo',kind:nextKind()},
     moreFrom:2,
     fields:[{k:'name',l:'Nombre del cliente'},{k:'status',l:'Estado',t:'select',o:STATUS},
+      {k:'kind',l:'Color del cliente',t:'select',o:[['brand','Orquídea'],['accent','Lila'],['info','Azul'],['warn','Dorado'],['ok','Menta']]},
       {k:'web',l:'Página web',ph:'www.sucliente.com'},{k:'instagram',l:'Instagram',ph:'@usuario'},{k:'tiktok',l:'TikTok',ph:'@usuario'},{k:'facebook',l:'Facebook',ph:'usuario o enlace'},
       {k:'linkedin',l:'LinkedIn',ph:'empresa o enlace'},{k:'youtube',l:'YouTube',ph:'@canal'},{k:'otras',l:'Otras redes o enlaces',t:'textarea',ph:'Pinterest, Linktree, Drive'},
       {k:'contact',l:'Contacto',ph:'Teléfono o correo'},{k:'fee',l:'Cobro mensual o por proyecto',t:'number',ph:'0.00'},{k:'notes',l:'Notas',t:'textarea'}],
@@ -809,24 +881,25 @@ function postSheet(id){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-08.2 clientes más simples';
+const APP_V='2026-10-08.3 rediseño Noir Orquídea';
 function settingsSheet(){
-  sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'auto',every:String(SY.every===undefined?60:SY.every)},
+  sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
       {k:'alertPct',l:'Avisarme cuando use este % del presupuesto',t:'number',ph:'80'},
       {k:'leadDays',l:'Avisar fechas importantes con estos días de anticipación',ph:'3,1,0'},
       {k:'every',l:'Sincronizar automáticamente cada',t:'select',o:[['60','1 hora'],['240','4 horas'],['0','Solo al abrir y al guardar']]},
-      {k:'theme',l:'Apariencia',t:'select',o:[['auto','Automática'],['light','Clara'],['dark','Oscura']]}],
+      {k:'theme',l:'Apariencia',t:'select',o:[['dark','Oscura (negro)'],['light','Clara'],['auto','Automática (como tu celular)']]}],
     extra:[{label:'Actualizar la app',fn:hardRefresh},{label:'Sincronización',fn:()=>{closeSheet();syncSheet()}},{label:'Avisos en este aparato',fn:enableNotif},{label:'Exportar respaldo',fn:exportData},{label:'Importar respaldo',fn:()=>$('#file').click()}],
     onSave:v=>{const th=v.theme;delete v.theme;SY.every=[0,60,240].includes(+v.every)?+v.every:60;delete v.every;saveSY();
       v.alertPct=Math.min(100,Math.max(1,v.alertPct||80));v.leadDays=(v.leadDays||'3,1,0').replace(/[^0-9,]/g,'')||'3,1,0';
       S.set={...S.set,...v,u:Date.now()};applyTheme(th)}});
 }
 function applyTheme(th){
-  try{th==='auto'?localStorage.removeItem('miespacio.theme'):localStorage.setItem('miespacio.theme',th)}catch(e){}
-  th==='auto'||!th?document.documentElement.removeAttribute('data-theme'):document.documentElement.setAttribute('data-theme',th);
+  th=['light','dark','auto'].includes(th)?th:'dark';
+  try{localStorage.setItem('miespacio.theme',th)}catch(e){}
+  document.documentElement.setAttribute('data-theme',th);
 }
-try{const th=localStorage.getItem('miespacio.theme');if(th)document.documentElement.setAttribute('data-theme',th)}catch(e){}
+try{const th=localStorage.getItem('miespacio.theme');document.documentElement.setAttribute('data-theme',['light','dark','auto'].includes(th)?th:'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}
 function exportData(){
   const b=new Blob([JSON.stringify({...S,_imgs:IMG})],{type:'application/json'}),a=document.createElement('a');
   a.href=URL.createObjectURL(b);a.download=`mi-espacio-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('Respaldo descargado');
