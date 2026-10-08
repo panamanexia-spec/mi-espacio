@@ -8,8 +8,8 @@
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Mi Espacio">
-<title>Mi Espacio</title>
+<meta name="apple-mobile-web-app-title" content="Todo en Orden">
+<title>Todo en Orden</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -77,7 +77,7 @@ body[data-tab="work"]{--sec:var(--s-work);--sec-ink:var(--i-work)}
 body[data-tab="money"]{--sec:var(--s-money);--sec-ink:var(--i-money)}
 body[data-tab="shop"]{--sec:var(--s-shop);--sec-ink:var(--i-shop)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{-webkit-text-size-adjust:100%}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%}
 body{margin:0;font-family:var(--f-body);background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5}
 h1,h2,h3{font-family:var(--f-display);font-weight:600;margin:0;line-height:1.15;text-wrap:balance}
 p{margin:0}
@@ -344,8 +344,10 @@ fieldset.f legend{display:block;font-size:.88rem;font-weight:700;color:var(--mut
 #sres{margin-top:6px}
 #lock{position:fixed;inset:0;z-index:200;background:radial-gradient(700px 420px at 50% 0%,color-mix(in srgb,var(--brand) 22%,transparent),transparent 70%),var(--bg);display:grid;place-items:center;padding:24px}
 #lock[hidden]{display:none}
+#lock,#lock *{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .lock-in{width:min(100%,320px);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
-.lock-in svg.logo{width:64px;height:64px}
+.lock-in svg.logo{width:72px;height:72px}
+@media (max-width:420px){.brand{font-size:1.3rem;gap:8px}.brand svg.logo{width:30px;height:30px}}
 .lock-in h2{font-size:2rem}
 .lockdots{display:flex;gap:14px;min-height:20px}
 .lockdots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted)}
@@ -359,12 +361,11 @@ fieldset.f legend{display:block;font-size:.88rem;font-weight:700;color:var(--mut
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
 <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6fb5"/><stop offset="1" stop-color="#ff9f43"/></linearGradient>
-<mask id="lm"><rect width="100" height="100" fill="#fff"/><circle cx="64" cy="40" r="27" fill="#000"/></mask>
-<symbol id="logo" viewBox="0 0 100 100"><circle cx="50" cy="54" r="31" fill="url(#lg)" mask="url(#lm)"/><path d="M71 22l2.3 8.2 8.2 2.3-8.2 2.3L71 43l-2.3-8.2-8.2-2.3 8.2-2.3z" fill="#ffd2a0"/></symbol>
+<symbol id="logo" viewBox="0 0 100 100"><path d="M50 12C53 37 63 47 88 52 63 57 53 67 50 92 47 67 37 57 12 52 37 47 47 37 50 12Z" fill="url(#lg)"/><path d="M79 8C80 17 83 20 92 21 83 22 80 25 79 34 78 25 75 22 66 21 75 20 78 17 79 8Z" fill="#ffd2a0"/><path d="M21 70C22 76 24 78 30 79 24 80 22 82 21 88 20 82 18 80 12 79 18 78 20 76 21 70Z" fill="#ff9f43"/></symbol>
 </defs></svg>
 <a class="skip" href="#main">Saltar al contenido</a>
 <aside class="side" aria-label="Menú principal">
-  <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Mi Espacio</div>
+  <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Todo en Orden</div>
   <nav id="sidenav" aria-label="Secciones"></nav>
   <div class="foot">
     <button class="syncbtn" data-act="sync" type="button"></button>
@@ -374,7 +375,7 @@ fieldset.f legend{display:block;font-size:.88rem;font-weight:700;color:var(--mut
 </aside>
 <div>
   <header class="bar">
-    <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Mi Espacio</div>
+    <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Todo en Orden</div>
     <div class="actions" style="flex-wrap:nowrap">
       <button class="syncbtn" data-act="sync" type="button"></button>
       <button class="iconbtn" data-act="search" type="button" aria-label="Buscar" id="srch2"></button>
@@ -386,7 +387,7 @@ fieldset.f legend{display:block;font-size:.88rem;font-weight:700;color:var(--mut
 <nav class="tabs" id="tabs" aria-label="Secciones"></nav>
 <div id="sheet"></div>
 <div id="lock" hidden role="dialog" aria-modal="true" aria-labelledby="lockT">
-  <div class="lock-in"><svg class="logo big" aria-hidden="true"><use href="#logo"/></svg><h2 id="lockT">Mi Espacio</h2><p class="note" id="lockMsg">Escribe tu PIN</p><div id="lockDots" class="lockdots" aria-hidden="true"></div>
+  <div class="lock-in"><svg class="logo big" aria-hidden="true"><use href="#logo"/></svg><h2 id="lockT">Todo en Orden</h2><p class="note" id="lockMsg">Escribe tu PIN</p><div id="lockDots" class="lockdots" aria-hidden="true"></div>
   <div class="keypad" id="keypad"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><span></span><button type="button" data-k="0">0</button><button type="button" data-k="del" aria-label="Borrar">⌫</button></div>
   <button class="link" type="button" data-act="pin-forgot">Olvidé mi PIN</button></div>
 </div>
@@ -1244,7 +1245,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-08.9 tipos de ingreso';
+const APP_V='2026-10-08.10 Todo en Orden';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
@@ -1264,7 +1265,7 @@ function applyTheme(th){
 try{const th=localStorage.getItem('miespacio.theme');document.documentElement.setAttribute('data-theme',['light','dark','auto'].includes(th)?th:'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}
 function exportData(){
   const b=new Blob([JSON.stringify({...S,_imgs:IMG})],{type:'application/json'}),a=document.createElement('a');
-  a.href=URL.createObjectURL(b);a.download=`mi-espacio-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('Respaldo descargado');
+  a.href=URL.createObjectURL(b);a.download=`todo-en-orden-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('Respaldo descargado');
 }
 $('#file').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
@@ -1350,7 +1351,7 @@ async function sync(manual){
       const body=JSON.stringify({v:2,events:S.events,tx:S.tx,shop:S.shop,clients:S.clients,tasks:S.tasks,ideas:S.ideas,posts:S.posts,goals:S.goals,set:{name:S.set.name,budget:S.set.budget,gross:S.set.gross,alertPct:S.set.alertPct,leadDays:S.set.leadDays,u:S.set.u},del:S.del},null,1);
       const h=hs(body);
       if(sha&&SY.sha===sha&&SY.h===h){SY.err='';break}
-      const pr=await fetchT(ghUrl(),{method:'PUT',headers:ghHead(),body:JSON.stringify({message:'sync: datos de Mi Espacio',content:b64(body),branch:br,...(sha?{sha}:{})})});
+      const pr=await fetchT(ghUrl(),{method:'PUT',headers:ghHead(),body:JSON.stringify({message:'sync: datos de Todo en Orden',content:b64(body),branch:br,...(sha?{sha}:{})})});
       if(pr.status===200||pr.status===201){const j=await pr.json();SY.sha=j.content.sha;SY.h=h;SY.err='';break}
       if((pr.status===409||pr.status===422)&&tries===0)continue;
       throw new Error(pr.status===404?'No encuentro el repositorio o la rama':pr.status===403?'El token no tiene permiso de escritura':`No se pudo guardar (${pr.status})`);
@@ -1384,7 +1385,7 @@ function notifyOnce(){
     if(!('Notification' in window)||Notification.permission!=='granted'||localStorage.getItem('miespacio.notif')===today())return;
     const A=alerts().filter(a=>a.lvl>=1);if(!A.length)return;
     localStorage.setItem('miespacio.notif',today());
-    navigator.serviceWorker.ready.then(r=>r.showNotification('Mi Espacio',{body:A.slice(0,4).map(a=>a.tx).join('\n'),icon:'icon-192.png'}));
+    navigator.serviceWorker.ready.then(r=>r.showNotification('Todo en Orden',{body:A.slice(0,4).map(a=>a.tx).join('\n'),icon:'icon-192.png'}));
   }catch(e){}
 }
 

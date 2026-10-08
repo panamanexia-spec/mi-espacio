@@ -1,4 +1,6 @@
-# Mi Espacio: notas para continuar el trabajo en otro chat
+# Todo en Orden (antes «Mi Espacio»): notas para continuar el trabajo en otro chat
+
+El nombre de la app es **Todo en Orden** y su logotipo es un **destello** (estrella de cuatro puntas con degradado rosa a anaranjado). El repositorio se sigue llamando `mi-espacio` y las claves guardadas en el aparato (`miespacio.*`) no cambian, para no perder datos.
 
 App personal (PWA) de **agenda, trabajo con clientes, finanzas, súper y metas de ahorro**. La usa una persona que **no programa**: explica todo en español sencillo, sin jerga, y avisa qué tiene que hacer ella.
 

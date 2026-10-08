@@ -1,6 +1,6 @@
 {
-  "name": "Mi Espacio",
-  "short_name": "Mi Espacio",
+  "name": "Todo en Orden",
+  "short_name": "Todo en Orden",
   "description": "Agenda, finanzas, súper, clientes e ideas en un solo lugar",
   "start_url": "./index.html",
   "scope": "./",
