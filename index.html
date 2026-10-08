@@ -164,6 +164,15 @@ main{padding:20px 16px 120px;max-width:1120px;margin:0 auto;outline:0}
 .mnav{display:flex;align-items:center;gap:10px}
 .mnav b{font-family:var(--f-display);font-size:1.2rem;font-weight:600;text-transform:capitalize;min-width:9ch;text-align:center}
 .note{font-size:.9rem;color:var(--muted)}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;margin-bottom:4px}
+.btn.big{width:100%;min-height:56px;font-size:1.05rem;margin-bottom:18px}
+.clist{display:grid;gap:10px}
+.cli{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);text-align:left}
+.cli .row-main{display:flex;flex-direction:column;flex:1;min-width:0}
+.cli>svg{flex:none;color:var(--muted)}
+.cs{margin-bottom:16px}
+.more{margin:6px 0 14px;border:1px dashed var(--line);border-radius:var(--r-sm);padding:10px 14px}
+.more summary{font-weight:700;color:var(--brand-t);min-height:36px;display:flex;align-items:center}
 .kv{display:flex;gap:14px;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
 .kv:last-child{border-bottom:0}
 .kv .k{color:var(--muted);font-weight:600;flex:none}
@@ -383,14 +392,14 @@ const when=(d,t=today())=>{const n=diffDays(t,d);return n<0?`hace ${-n} día${n<
 
 /* ============ Estado de UI ============ */
 const nowYM=today().slice(0,7);
-const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'',wtab:'panorama',fstatus:'Todos'};
+const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'',open:''};
 function syncProj(){
   PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
   ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
   TXCATS.ingreso=[...PROJ,'Otros ingresos'];
   PROJ.forEach(n=>{if(!Object.hasOwn(KIND,n))KIND[n]=KINDS[chash(n)%KINDS.length]});
   if(!PROJ.includes(ui.proj))ui.proj=PROJ[0]||'';
-  if(!['panorama','contenido','datos','ideas'].includes(ui.wtab))ui.wtab='panorama';
+  if(ui.open&&!PROJ.includes(ui.open))ui.open='';
 }
 /* primera vez: Nexia e Identidad Prestada aparecen como clientes (se pueden editar o borrar) */
 S.clients.forEach(c=>{if(c.handle&&!c.instagram)c.instagram=c.handle});
@@ -520,61 +529,48 @@ function safeHref(v,base){
   try{const u=/^https?:\/\//i.test(v)?new URL(v):base?new URL(base+encodeURIComponent(v.replace(/^@/,''))):new URL('https://'+v);
     return /^https?:$/.test(u.protocol)?u.href:null}catch(e){return null}
 }
-function vWork(){
-  const p=ui.proj,c=clientOf(p);
-  const tabs=[['panorama','Panorama'],['contenido','Contenido'],['datos','Datos y redes'],['ideas','Ideas']];
-  if(!c)return page('Trabajo','Mis clientes',addBtn('Cliente','add-client'))+`<div class="card">${empty('Agrega a tu primer cliente.')}</div>`;
-  const act={panorama:addBtn('Tarea','add-task',p),contenido:addBtn('Publicación','add-post'),datos:`<button class="btn sm" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`,ideas:addBtn('Idea','add-idea')}[ui.wtab];
-  return page('Trabajo','Mis clientes',act+addBtn('Cliente','add-client'))+
-   `<div class="chips" role="group" aria-label="Cliente">${PROJ.map(x=>`<button class="chip" type="button" aria-pressed="${x===p}" data-act="proj" data-id="${esc(x)}">${esc(x)}</button>`).join('')}</div>
-   <div class="subtabs" role="tablist" aria-label="Secciones de ${esc(p)}">${tabs.map(([k,l])=>`<button type="button" role="tab" aria-selected="${k===ui.wtab}" data-act="wtab" data-id="${k}">${l}</button>`).join('')}</div>`+
-   ({panorama:wPanorama,contenido:wContenido,datos:wDatos,ideas:wIdeas}[ui.wtab])(p);
+/* ---- Trabajo: lista de clientes y una pantalla por cliente ---- */
+function vWork(){return ui.open&&clientOf(ui.open)?vClient(clientOf(ui.open)):vClients()}
+function vClients(){
+  const cards=S.clients.map(c=>{
+    const n=S.tasks.filter(x=>x.project===c.name&&!x.done).length,po=S.posts.filter(x=>x.project===c.name&&x.status!=='Publicado').length;
+    const nx=importantDates(c.name,30)[0];
+    const bits=[`${n} tarea${n===1?'':'s'}`,po+(po===1?' publicación':' publicaciones')+' por salir'];
+    return `<li><button class="cli" type="button" data-act="open-client" data-id="${esc(c.name)}"><span class="dot" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span>
+      <span class="row-main"><span class="t">${esc(c.name)}</span><span class="s">${bits.join(' · ')}</span>${nx?`<span class="s">Próxima fecha: ${esc(nx.title)}, ${when(nx.d)}</span>`:''}</span>${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}${ic('right')}</button></li>`}).join('');
+  return page('Trabajo','Mis clientes')+
+   `<button class="btn big" type="button" data-act="add-client">${ic('plus')}Agregar cliente</button>`+
+   (S.clients.length?`<ul class="list clist" aria-label="Clientes">${cards}</ul><p class="note" style="margin-top:14px">Toca un cliente para ver todo lo suyo: datos, tareas, publicaciones e ideas.</p>`
+     :`<div class="card">${empty('Todavía no tienes clientes. Toca «Agregar cliente» para empezar.')}</div>`);
 }
-function wPanorama(p){
-  const cli=clientOf(p),tasks=S.tasks.filter(t=>t.project===p);
+function vClient(c){
+  const p=c.name,tasks=S.tasks.filter(t=>t.project===p),pend=tasks.filter(t=>!t.done).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9')),done=tasks.filter(t=>t.done);
+  const posts=S.posts.filter(x=>x.project===p).sort((a,b)=>(a.date?a.date+(a.time||'00:00'):'9999').localeCompare(b.date?b.date+(b.time||'00:00'):'9999'));
+  const por=posts.filter(x=>x.status!=='Publicado').length;
   const cobrado=S.tx.filter(t=>t.date.startsWith(nowYM)&&t.type==='ingreso'&&t.cat===p).reduce((a,t)=>a+t.amount,0);
-  const pend=tasks.filter(t=>!t.done).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'));
   const dates=importantDates(p,30);
-  const por=S.posts.filter(x=>x.project===p&&x.status!=='Publicado').length;
-  const trow=t=>`<li class="row ${t.done?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${t.done}" aria-label="${t.done?'Desmarcar':'Marcar como hecha'}: ${esc(t.title)}" data-act="toggle" data-kind="task" data-id="${t.id}">${t.done?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-task" data-id="${t.id}"><span class="t">${esc(t.title)}</span><span class="s">${[clientName(t.clientId),t.due?longDate(t.due):'sin fecha'].filter(Boolean).map(esc).join(' · ')}</span></button></li>`;
-  return `<div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Estado</span><b>${esc(cli?cli.status||'Activo':'')}</b></div><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Posts por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div></div>
-  <div class="grid"><section class="card" aria-labelledby="h-fi"><div class="card-h"><h2 id="h-fi">Fechas importantes</h2>${addBtn('Fecha','add-ev-imp',p)}</div>
-    <p class="note" style="margin-bottom:8px">Próximos 30 días. Recibes aviso por WhatsApp antes de cada una.</p>
-    ${dates.length?`<ul class="list">${dates.map(x=>`<li class="row"><button class="row-main" type="button" data-act="${x.act}" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${longDate(x.d)} · ${x.sub}</span></button>${pill(when(x.d),diffDays(today(),x.d)<=1?'bad':'info')}</li>`).join('')}</ul>`:empty('No hay fechas próximas.')}</section>
-  <section class="card" aria-labelledby="h-ta"><h2 id="h-ta">Tareas</h2>${pend.length?`<ul class="list">${pend.map(trow).join('')}</ul>`:empty('Todo al día.')}
-    ${tasks.some(t=>t.done)?`<details style="margin-top:10px"><summary class="link">Completadas (${tasks.filter(t=>t.done).length})</summary><ul class="list">${tasks.filter(t=>t.done).map(trow).join('')}</ul></details>`:''}</section></div>`;
-}
-function wContenido(p){
-  const base=S.posts.filter(x=>x.project===p);
-  const cnt=s=>base.filter(x=>x.status===s).length;
-  const key=x=>x.date?x.date+(x.time||'00:00'):'9999';
-  const row=x=>{const cover=x.imgs&&x.imgs[0]&&IMG[x.imgs[0]];
+  const ideas=S.ideas.filter(i=>i.project===p).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||b.id.localeCompare(a.id));
+  const links=Object.entries(ICOS).filter(([k])=>c[k]).map(([k,[lab,base]])=>{const h=safeHref(c[k],base);return h?`<a class="btn ghost sm" href="${esc(h)}" target="_blank" rel="noopener noreferrer">${esc(lab)}</a>`:`<span class="pill k-mute">${esc(lab)}: ${esc(c[k])}</span>`}).join('');
+  const info=[c.contact&&['Contacto',c.contact],c.fee&&['Cobro acordado',money(num(c.fee))],c.notes&&['Notas',c.notes]].filter(Boolean);
+  const trow=t=>`<li class="row ${t.done?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${t.done}" aria-label="${t.done?'Desmarcar':'Marcar como hecha'}: ${esc(t.title)}" data-act="toggle" data-kind="task" data-id="${t.id}">${t.done?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-task" data-id="${t.id}"><span class="t">${esc(t.title)}</span><span class="s">${t.due?longDate(t.due):'sin fecha'}</span></button></li>`;
+  const prow=x=>{const cover=x.imgs&&x.imgs[0]&&IMG[x.imgs[0]];
     return `<li class="post"><div class="thumb" aria-hidden="true" style="${cover?`background-image:url('${cover}')`:''}"></div>
-    <button class="row-main" type="button" data-act="edit-post" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${[x.format,clientName(x.clientId),x.date?shortDate(x.date)+(x.time?' '+x.time:''):'sin fecha'].filter(Boolean).map(esc).join(' · ')}</span>${x.status==='Por cambiar'&&x.feedback?`<span class="s">Cambios: ${esc(x.feedback.slice(0,60))}</span>`:''}</button>
+    <button class="row-main" type="button" data-act="edit-post" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${[x.format,x.date?shortDate(x.date)+(x.time?' '+x.time:''):'sin fecha'].filter(Boolean).map(esc).join(' · ')}</span>${x.status==='Por cambiar'&&x.feedback?`<span class="s">Cambios: ${esc(x.feedback.slice(0,60))}</span>`:''}</button>${pill(x.status,SKIND[x.status])}
     ${NEXT[x.status]?`<button class="btn ghost sm" type="button" data-act="adv" data-id="${x.id}" aria-label="Pasar «${esc(x.title)}» a ${NEXT[x.status]}">${NEXT[x.status]} ${ic('right')}</button>`:''}</li>`};
-  const groups=PST.filter(s=>ui.fstatus==='Todos'||ui.fstatus===s).map(s=>({s,list:base.filter(x=>x.status===s).sort((a,b)=>key(a).localeCompare(key(b)))})).filter(g=>g.list.length);
-  return `<div class="chips" role="group" aria-label="Filtrar por estado"><button class="chip" type="button" aria-pressed="${ui.fstatus==='Todos'}" data-act="fstatus" data-id="Todos">Todos los estados</button>${PST.map(s=>`<button class="chip" type="button" aria-pressed="${ui.fstatus===s}" data-act="fstatus" data-id="${s}">${s} (${cnt(s)})</button>`).join('')}</div>
-  ${groups.length?`<div class="board">${groups.map(g=>`<section class="col" aria-label="${g.s}"><h3>${pill(g.s,SKIND[g.s])}<span class="note">${g.list.length}</span></h3><ul>${g.list.map(row).join('')}</ul></section>`).join('')}</div>`:`<div class="card">${empty('Aún no hay publicaciones aquí.')}</div>`}`;
-}
-function wDatos(p){
-  const c=clientOf(p);if(!c)return '';
-  const kv=(k,v)=>`<li class="kv"><span class="k">${k}</span><span class="v">${v}</span></li>`;
-  let rows='';
-  Object.entries(ICOS).forEach(([key,[lab,base]])=>{
-    if(!c[key])return;const href=safeHref(c[key],base);
-    rows+=kv(lab,href?`<a class="lk" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(c[key])}</a>`:esc(c[key]));
-  });
-  if(c.otras)rows+=kv('Otras redes',esc(c.otras));
-  if(c.contact)rows+=kv('Contacto',esc(c.contact));
-  if(c.fee)rows+=kv('Cobro acordado',money(num(c.fee)));
-  if(c.notes)rows+=kv('Notas',esc(c.notes));
-  return `<section class="card" aria-label="Datos de ${esc(p)}"><div class="card-h"><h2>${esc(p)}</h2>${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}</div>
-   ${rows?`<ul class="list">${rows}</ul>`:empty('Aún no hay datos. Toca «Editar» para agregar su página web y redes.')}</section>
-  <div class="actions" style="margin-top:14px"><button class="btn ghost" type="button" data-act="edit-client" data-id="${c.id}">Editar datos</button><button class="btn danger" type="button" data-act="del-client" data-id="${c.id}">Eliminar cliente</button></div>`;
-}
-function wIdeas(p){
-  const list=S.ideas.filter(i=>i.project===p||i.project==='General').sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||b.id.localeCompare(a.id));
-  return list.length?`<div class="ideas">${list.map(i=>`<article class="idea"><button class="open" type="button" data-act="edit-idea" data-id="${i.id}"><h3>${esc(i.title)}</h3>${i.note?`<p>${esc(i.note)}</p>`:''}<p style="margin-top:8px">${pill(i.status||'Idea',i.status==='Hecha'?'ok':i.status==='En marcha'?'info':'warn')} ${i.project==='General'?pill('General','mute'):''}</p></button><button class="star" type="button" aria-pressed="${!!i.fav}" aria-label="${i.fav?'Quitar de favoritas':'Marcar como favorita'}: ${esc(i.title)}" data-act="star" data-id="${i.id}">${ic('star')}</button></article>`).join('')}</div>`:`<div class="card">${empty('Aquí van tus ideas para '+esc(p)+'.')}</div>`;
+  const sec=(id,title,btn,body)=>`<section class="card cs" aria-labelledby="${id}"><div class="card-h"><h2 id="${id}">${title}</h2>${btn}</div>${body}</section>`;
+  return `<button class="link back" type="button" data-act="back-clients">${ic('left')}Todos los clientes</button>`+
+  page(p,'Cliente',`<button class="btn sm" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`)+
+  `<p style="margin:-6px 0 16px">${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}</p>
+  <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Publicaciones por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div></div>
+  ${sec('h-d','Datos y redes',`<button class="link" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`,
+    (links?`<div class="actions" style="margin-bottom:12px">${links}</div>`:'')+(info.length?`<ul class="list">${info.map(([k,v])=>`<li class="kv"><span class="k">${k}</span><span class="v">${esc(v)}</span></li>`).join('')}</ul>`:'')+((!links&&!info.length)?empty('Aún no hay datos. Toca «Editar» para agregar su página web, redes y contacto.'):''))}
+  ${sec('h-t','Tareas','',`<form class="quick" data-quick="task"><label class="sr" for="qt">Nueva tarea</label><input id="qt" name="n" placeholder="Escribe una tarea y toca Agregar" autocomplete="off"><button class="btn" type="submit">${ic('plus')}Agregar</button></form>
+    ${pend.length?`<ul class="list">${pend.map(trow).join('')}</ul>`:empty('No hay tareas pendientes.')}
+    ${done.length?`<details style="margin-top:10px"><summary class="link">Completadas (${done.length})</summary><ul class="list">${done.map(trow).join('')}</ul></details>`:''}`)}
+  ${sec('h-p','Publicaciones',addBtn('Publicación','add-post'),posts.length?`<ul class="list">${posts.map(prow).join('')}</ul>`:empty('Aún no hay publicaciones. Toca «Publicación» para crear la primera.'))}
+  ${sec('h-f','Fechas importantes',addBtn('Fecha','add-ev-imp',p),`<p class="note" style="margin-bottom:8px">Próximos 30 días. Recibes aviso antes de cada una.</p>${dates.length?`<ul class="list">${dates.map(x=>`<li class="row"><button class="row-main" type="button" data-act="${x.act}" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${longDate(x.d)} · ${x.sub}</span></button>${pill(when(x.d),diffDays(today(),x.d)<=1?'bad':'info')}</li>`).join('')}</ul>`:empty('No hay fechas próximas.')}`)}
+  ${sec('h-i','Ideas',addBtn('Idea','add-idea'),ideas.length?`<ul class="list">${ideas.map(i=>`<li class="row"><button class="row-main" type="button" data-act="edit-idea" data-id="${i.id}"><span class="t">${i.fav?'★ ':''}${esc(i.title)}</span>${i.note?`<span class="s">${esc(i.note.slice(0,90))}</span>`:''}</button>${pill(i.status||'Idea',i.status==='Hecha'?'ok':i.status==='En marcha'?'info':'warn')}</li>`).join('')}</ul>`:empty('Aquí van tus ideas para este cliente.'))}
+  <div class="actions" style="margin-top:18px"><button class="btn danger" type="button" data-act="del-client" data-id="${c.id}">Eliminar cliente</button></div>`;
 }
 
 /* ---- Finanzas ---- */
@@ -666,14 +662,16 @@ function closeSheet(){
 function sheet(o){
   const d=o.data||{};
   if(!lastFocus)lastFocus=document.activeElement;
-  const fields=o.fields.map(x=>{
+  const fieldHtml=o.fields.map(x=>{
     const v=d[x.k]??x.def??'';let inp;
     if(x.t==='select'&&v!==''&&!x.o.some(op=>String(Array.isArray(op)?op[0]:op)===String(v)))x={...x,o:[...x.o,v]};
     if(x.t==='select')inp=`<select name="${x.k}">${x.o.map(op=>{const [val,lab]=Array.isArray(op)?op:[op,op];return `<option value="${esc(val)}" ${String(val)===String(v)?'selected':''}>${esc(lab)}</option>`}).join('')}</select>`;
     else if(x.t==='textarea')inp=`<textarea name="${x.k}" placeholder="${esc(x.ph||'')}">${esc(v)}</textarea>`;
     else inp=`<input name="${x.k}" type="${x.t==='number'?'text':(x.t||'text')}" ${x.t==='number'?'inputmode="decimal"':''} value="${esc(v)}" placeholder="${esc(x.ph||'')}" autocomplete="off">`;
     return `<label class="f"><span>${x.l}</span>${inp}</label>`;
-  }).join('');
+  });
+  const mf=o.moreFrom;
+  const fields=mf?fieldHtml.slice(0,mf).join('')+`<details class="more" ${o.fields.slice(mf).some(x=>d[x.k])?'open':''}><summary>Más datos (opcional)</summary>${fieldHtml.slice(mf).join('')}</details>`:fieldHtml.join('');
   const el=$('#sheet');
   el.innerHTML=`<div class="back" data-act="close"></div><form class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetT"><h2 id="sheetT" tabindex="-1">${o.title}</h2>${o.pre||''}${fields}
    <div class="btns">${o.noSave?'':'<button class="btn" type="submit">Guardar</button>'}<button class="btn ghost" type="button" data-act="close">Cancelar</button>
@@ -754,7 +752,8 @@ function delClientSheet(id){
 function clientSheet(id){
   const c=S.clients.find(x=>x.id===id);
   sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',data:c||{status:'Activo'},
-    fields:[{k:'name',l:'Nombre'},{k:'status',l:'Estado',t:'select',o:STATUS},
+    moreFrom:2,
+    fields:[{k:'name',l:'Nombre del cliente'},{k:'status',l:'Estado',t:'select',o:STATUS},
       {k:'web',l:'Página web',ph:'www.sucliente.com'},{k:'instagram',l:'Instagram',ph:'@usuario'},{k:'tiktok',l:'TikTok',ph:'@usuario'},{k:'facebook',l:'Facebook',ph:'usuario o enlace'},
       {k:'linkedin',l:'LinkedIn',ph:'empresa o enlace'},{k:'youtube',l:'YouTube',ph:'@canal'},{k:'otras',l:'Otras redes o enlaces',t:'textarea',ph:'Pinterest, Linktree, Drive'},
       {k:'contact',l:'Contacto',ph:'Teléfono o correo'},{k:'fee',l:'Cobro mensual o por proyecto',t:'number',ph:'0.00'},{k:'notes',l:'Notas',t:'textarea'}],
@@ -767,10 +766,10 @@ function clientSheet(id){
       if(c&&c.name!==v.name){
         ['tasks','posts','ideas'].forEach(k=>S[k].forEach(r=>{if(r.project===c.name)r.project=v.name}));
         S.events.forEach(r=>{if(r.cat===c.name)r.cat=v.name});S.tx.forEach(t=>{if(t.type==='ingreso'&&t.cat===c.name)t.cat=v.name});
-        if(ui.proj===c.name)ui.proj=v.name;
+        if(ui.proj===c.name)ui.proj=v.name;if(ui.open===c.name)ui.open=v.name;
       }
       upsert(S.clients,{...v,id:c?c.id:uid()});
-      if(!c)ui.proj=v.name;
+      if(!c){ui.proj=v.name;ui.open=v.name}
     },
     onDelete:c?()=>{delClient(c)}:null});
 }
@@ -810,7 +809,7 @@ function postSheet(id){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-08.1 sincronización automática';
+const APP_V='2026-10-08.2 clientes más simples';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'auto',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
@@ -960,9 +959,9 @@ document.addEventListener('click',e=>{
   const a=el.dataset.act,id=el.dataset.id;
   switch(a){
     case 'close':closeSheet();break;
-    case 'goto-tab':ui.tab=id;render(true);break;
-    case 'goto-proj':ui.tab='work';ui.proj=id;ui.wtab='panorama';render(true);break;
-    case 'goto-work':ui.tab='work';ui.wtab=id;render(true);break;
+    case 'goto-tab':if(id==='work'&&ui.tab==='work')ui.open='';ui.tab=id;render(true);break;
+    case 'goto-proj':ui.tab='work';ui.proj=id;ui.open=id;render(true);break;
+    case 'goto-work':ui.tab='work';render(true);break;
     case 'settings':settingsSheet();break;
     case 'sync':sync(true);break;
     case 'add-ev':evSheet(null,id);break;
@@ -994,21 +993,23 @@ document.addEventListener('click',e=>{
     case 'shop-expense':
       amountSheet('¿Cuánto gastaste en el súper?','',n=>{if(!n)return false;
         S.tx.unshift({id:uid(),type:'gasto',amount:n,cat:'Super',desc:'Compra del súper',date:today()});toast('Gasto registrado')});break;
-    case 'proj':ui.proj=id;render();break;
+    case 'open-client':ui.open=id;ui.proj=id;render(true);break;
+    case 'back-clients':ui.open='';render(true);break;
     case 'del-client':delClientSheet(id);break;
-    case 'wtab':ui.wtab=id;render();break;
     case 'add-client':clientSheet();break;
     case 'edit-client':clientSheet(id);break;
     case 'add-post':postSheet();break;
     case 'edit-post':postSheet(id);break;
     case 'adv':{const x=S.posts.find(x=>x.id===id);x.status=NEXT[x.status];save();render();toast(`Ahora está en «${x.status}»`);break}
-    case 'fstatus':ui.fstatus=id;render();break;
     case 'add-idea':ideaSheet();break;
     case 'edit-idea':ideaSheet(id);break;
     case 'star':{const i=S.ideas.find(x=>x.id===id);i.fav=!i.fav;save();render();break}
   }
 });
 document.addEventListener('submit',e=>{
+  if(e.target.dataset&&e.target.dataset.quick==='task'){
+    e.preventDefault();const n=e.target.n.value.trim();if(!n||!ui.open)return;
+    S.tasks.unshift({id:uid(),title:n,project:ui.open,due:'',done:false});save();render();const i=$('#qt');i&&i.focus();return}
   if(e.target.id!=='shopForm')return;
   e.preventDefault();
   const n=e.target.n.value.trim();if(!n)return;
