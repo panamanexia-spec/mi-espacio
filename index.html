@@ -810,15 +810,16 @@ function postSheet(id){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-07.6 sincronización';
+const APP_V='2026-10-08.1 sincronización automática';
 function settingsSheet(){
-  sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'auto'},
+  sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'auto',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
       {k:'alertPct',l:'Avisarme cuando use este % del presupuesto',t:'number',ph:'80'},
       {k:'leadDays',l:'Avisar fechas importantes con estos días de anticipación',ph:'3,1,0'},
+      {k:'every',l:'Sincronizar automáticamente cada',t:'select',o:[['60','1 hora'],['240','4 horas'],['0','Solo al abrir y al guardar']]},
       {k:'theme',l:'Apariencia',t:'select',o:[['auto','Automática'],['light','Clara'],['dark','Oscura']]}],
     extra:[{label:'Actualizar la app',fn:hardRefresh},{label:'Sincronización',fn:()=>{closeSheet();syncSheet()}},{label:'Avisos en este aparato',fn:enableNotif},{label:'Exportar respaldo',fn:exportData},{label:'Importar respaldo',fn:()=>$('#file').click()}],
-    onSave:v=>{const th=v.theme;delete v.theme;
+    onSave:v=>{const th=v.theme;delete v.theme;SY.every=[0,60,240].includes(+v.every)?+v.every:60;delete v.every;saveSY();
       v.alertPct=Math.min(100,Math.max(1,v.alertPct||80));v.leadDays=(v.leadDays||'3,1,0').replace(/[^0-9,]/g,'')||'3,1,0';
       S.set={...S.set,...v,u:Date.now()};applyTheme(th)}});
 }
@@ -860,7 +861,7 @@ const saveSY=()=>{try{localStorage.setItem(SYNC_KEY,JSON.stringify(SY))}catch(e)
 const b64=s=>btoa(unescape(encodeURIComponent(s)));
 const unb64=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,''))));
 const hs=t=>{let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return h};
-let syncing=false,syT,syncStart=0;
+let syncing=false,syT,syncStart=0,lastTry=0;
 const fetchT=(u,o={},ms=25000)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return fetch(u,{...o,signal:c.signal}).finally(()=>clearTimeout(t))};
 const autoSync=()=>{if(SY.repo&&SY.token){clearTimeout(syT);syT=setTimeout(()=>sync(false),3000)}};
 const REPO_OK=/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/,PATH_OK=/^(?!.*\.\.)[A-Za-z0-9_.\/-]+$/;
@@ -894,12 +895,17 @@ async function syncImgs(){
   }
   saveSY();
 }
+let imgBusy=false;
+async function bgImgs(){
+  if(imgBusy)return;imgBusy=true;
+  try{const n=Object.keys(IMG).length;await syncImgs();if(Object.keys(IMG).length!==n)render()}catch(e){}finally{imgBusy=false}
+}
 let SYS=SY.token?(SY.err?'err':'ok'):'off';
 async function sync(manual){
   if(!SY.repo||!SY.token){SYS='off';renderSync();if(manual)syncSheet();return}
   if(!navigator.onLine){SYS='offline';renderSync();if(manual)toast('Sin conexión: se sincroniza al volver');return}
   if(syncing&&Date.now()-syncStart<90000)return;
-  syncing=true;syncStart=Date.now();SYS='busy';renderSync();
+  syncing=true;syncStart=lastTry=Date.now();SYS='busy';renderSync();
   try{
     for(let tries=0;tries<2;tries++){
       const br=SY.branch||'main';let sha;
@@ -915,15 +921,15 @@ async function sync(manual){
       if((pr.status===409||pr.status===422)&&tries===0)continue;
       throw new Error(pr.status===404?'No encuentro el repositorio o la rama':pr.status===403?'El token no tiene permiso de escritura':`No se pudo guardar (${pr.status})`);
     }
-    try{await syncImgs()}catch(e){}
     SY.last=new Date().toISOString();SY.err='';saveSY();SYS='ok';render();if(manual)toast('Sincronizado');
+    bgImgs();
   }catch(e){SY.err=e&&e.name==='AbortError'?'La conexión tardó demasiado. Toca para reintentar.':String(e.message||e);saveSY();SYS='err';renderSync();if(manual)toast(SY.err)}
   finally{syncing=false;if(SYS==='busy'){SYS='err';renderSync()}}
 }
 const ago=iso=>{if(!iso)return '';const m=Math.round((Date.now()-new Date(iso))/60000);return m<1?'ahora':m<60?`hace ${m} min`:m<1440?`hace ${Math.round(m/60)} h`:`hace ${Math.round(m/1440)} d`};
 function renderSync(){
-  const txt={off:'Sin sincronizar',ok:`Sincronizado ${ago(SY.last)}`,busy:'Sincronizando…',err:'Error al sincronizar',offline:'Sin conexión'}[SYS];
-  document.querySelectorAll('.syncbtn').forEach(b=>{b.dataset.s=SYS;b.innerHTML=`${ic('refresh')}<span>${txt}</span>`;b.setAttribute('aria-label',txt+(SYS==='err'?': '+(SY.err||''):'')+'. Tocar para sincronizar')});
+  const txt={off:'Sin sincronizar',ok:`Sincronizado ${ago(SY.last)}`,busy:'Sincronizando…',err:'No se pudo sincronizar',offline:'Sin conexión'}[SYS];
+  document.querySelectorAll('.syncbtn').forEach(b=>{b.dataset.s=SYS;b.innerHTML=`${ic('refresh')}<span>${txt}</span>`;b.title=SYS==='err'?(SY.err||''):'';b.setAttribute('aria-label',txt+(SYS==='err'?': '+(SY.err||''):'')+'. Tocar para sincronizar')});
 }
 function syncSheet(){
   const st=SY.err?`Problema: ${esc(SY.err)}`:SY.last?`Última sincronización ${ago(SY.last)}.`:'Aún sin sincronizar.';
@@ -1013,10 +1019,11 @@ document.addEventListener('submit',e=>{
 render();
 loadImgs().then(()=>{render();notifyOnce()});
 sync(false);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync(false)});
-addEventListener('online',()=>sync(false));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastTry>10*60000)sync(false)});
+addEventListener('online',()=>{if(SYS==='offline'||SYS==='err'||Date.now()-lastTry>10*60000)sync(false)});
 addEventListener('offline',()=>{SYS='offline';renderSync()});
-setInterval(()=>{if(!document.hidden)sync(false);else renderSync()},60000);
+/* sincronización automática: cada hora, cada 4 horas o solo al abrir y al guardar (se elige en Ajustes) */
+setInterval(()=>{renderSync();const m=SY.every===undefined?60:+SY.every;if(m>0&&!document.hidden&&SY.token&&Date.now()-lastTry>=m*60000)sync(false)},60000);
 if('serviceWorker' in navigator){
   const had=!!navigator.serviceWorker.controller;let reloaded=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!reloaded){reloaded=true;location.reload()}});
