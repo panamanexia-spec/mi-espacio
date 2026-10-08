@@ -320,6 +320,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--sec)}
 .goal{display:flex;gap:14px;align-items:flex-start}.goal .gmain{flex:1;min-width:0}.goal .gpig{flex:none}
 svg.pig{display:block;flex:none;max-width:100%}
 .row-main:disabled{cursor:default}
+.cele{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.cele h3{font-size:1.9rem}
+.cele .ask{margin-top:6px}
+.nobtns .btns{display:none}
 /* buscador, PIN, calendario */
 #sres{margin-top:6px}
 #lock{position:fixed;inset:0;z-index:200;background:radial-gradient(700px 420px at 50% 0%,color-mix(in srgb,var(--brand) 22%,transparent),transparent 70%),var(--bg);display:grid;place-items:center;padding:24px}
@@ -386,11 +390,11 @@ function cleanRec(c,r){
   if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.id!=='string'||!SAFE.test(r.id))return null;
   const o={...r};
   TEXTF.forEach(k=>{if(k in o&&typeof o[k]!=='string')o[k]=o[k]==null||typeof o[k]==='object'?'':String(o[k])});
-  ['date','due','payFrom','for'].forEach(k=>{if(k in o&&o[k]!==''&&!isD(o[k]))o[k]=''});
+  ['date','due','payFrom','for','created','doneOn','since'].forEach(k=>{if(k in o&&o[k]!==''&&!isD(o[k]))o[k]=''});
   if('time' in o&&o.time!==''&&!isT(o.time))o.time='';
   if('u' in o&&!Number.isFinite(o.u))delete o.u;
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
-  if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0}
+  if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0;o.done=!!o.done;o.final=Number.isFinite(+o.final)?+o.final:0;o.aportes=Number.isInteger(+o.aportes)&&+o.aportes>=0?+o.aportes:0}
   if(c==='clients'){if(!(Number.isInteger(+o.payDay)&&+o.payDay>=1&&+o.payDay<=31))delete o.payDay;if(!['semanal','quincenal','mensual'].includes(o.freq))delete o.freq;if(!(String(o.payWeekday).length===1&&+o.payWeekday>=0&&+o.payWeekday<=6))delete o.payWeekday;else o.payWeekday=+o.payWeekday;if(!o.payFrom)delete o.payFrom}
   if(c==='tx'){if(!['mensual','quincenal','bimestral'].includes(o.repeat))o.repeat='';if(o.for==='')delete o.for;if(typeof o.from!=='string'||!SAFE.test(o.from))delete o.from;o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
   if(c==='shop'||c==='tasks')o.done=!!o.done;
@@ -490,7 +494,7 @@ const when=(d,t=today())=>{const n=diffDays(t,d);return n<0?`hace ${-n} día${n<
 
 /* ============ Estado de UI ============ */
 const nowYM=today().slice(0,7);
-const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',fper:'mes',pubcal:false,pcal:nowYM,psel:today()};
+const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',cel:[],fper:'mes',pubcal:false,pcal:nowYM,psel:today()};
 function syncProj(){
   PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
   ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
@@ -811,23 +815,34 @@ function pig(pct,w=96){
   <circle cx="88" cy="48" r="2.8" fill="var(--ink)"/><rect x="52" y="25" width="22" height="5" rx="2.5" fill="var(--ink)"/>${f>=1?'<path d="M64 4l1.8 6.2 6.2 1.8-6.2 1.8L64 20l-1.8-6.2-6.2-1.8 6.2-1.8z" fill="#ffd2a0"/>':''}</svg>`;
 }
 const goalsCard=()=>{
-  const sv=g=>S.tx.filter(t=>t.type==='ahorro'&&t.cat===g.name).reduce((a,t)=>a+t.amount,0);
-  const tot=S.goals.reduce((a,g)=>a+sv(g),0),meta=S.goals.reduce((a,g)=>a+(g.target||0),0),pt=meta>0?Math.min(100,tot/meta*100):0;
+  const A=S.goals.filter(g=>!g.done),sv=g=>S.tx.filter(t=>t.type==='ahorro'&&t.cat===g.name).reduce((a,t)=>a+t.amount,0);
+  const tot=A.reduce((a,g)=>a+sv(g),0),meta=A.reduce((a,g)=>a+(g.target||0),0),pt=meta>0?Math.min(100,tot/meta*100):0;
   return `<section class="card bars span2" aria-labelledby="h-me"><div class="card-h"><h2 id="h-me">Mi alcancía</h2>${addBtn('Meta','add-goal')}</div>
-  ${S.goals.length?`<div class="bank">${pig(pt,150)}<div><p class="note">Llevas ahorrado</p><b class="big-n">${money(tot)}</b><p class="note">de ${money(meta)} en tus metas · ${Math.round(pt)} %</p></div></div>`:''}
-  ${S.goals.length?S.goals.map(g=>{const saved=sv(g),pct=g.target>0?Math.min(100,saved/g.target*100):0;
+  ${A.length?`<div class="bank">${pig(pt,150)}<div><p class="note">Llevas ahorrado</p><b class="big-n">${money(tot)}</b><p class="note">de ${money(meta)} en tus metas · ${Math.round(pt)} %</p></div></div>`
+    :`<div class="bank">${pig(0,130)}<div><p class="note">${S.goals.length?'Completaste todas tus metas. ¡Felicidades!':'Todavía no tienes metas.'}</p><p style="margin:6px 0 12px">Tu alcancía está lista para la próxima.</p><button class="btn" type="button" data-act="add-goal">${ic('plus')}Nueva meta</button></div></div>`}
+  ${A.map(g=>{const saved=sv(g),pct=g.target>0?Math.min(100,saved/g.target*100):0;
   return `<div class="b goal"><div class="gpig">${pig(pct,64)}</div><div class="gmain"><div><span>${esc(g.name)}</span><span class="amt">${money(saved)} de ${money(g.target||0)}</span></div><div class="track" role="meter" aria-label="Avance de ${esc(g.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
-  <div class="actions" style="margin-top:8px"><button class="btn sm" type="button" data-act="goal-add" data-id="${g.id}">Aportar</button><button class="btn ghost sm" type="button" data-act="edit-goal" data-id="${g.id}">Editar</button>${(g.due||pct>=100)?`<span class="note" style="align-self:center">${g.due?'Para '+longDate(g.due):''}${pct>=100?' ¡Lograda!':''}</span>`:''}</div></div></div>`}).join(''):empty('Crea una meta, por ejemplo «Viaje» o «Fondo de emergencia», y mira cómo se llena tu alcancía.')}</section>`;
+  <div class="actions" style="margin-top:8px"><button class="btn sm" type="button" data-act="goal-add" data-id="${g.id}">Aportar</button><button class="btn ghost sm" type="button" data-act="edit-goal" data-id="${g.id}">Editar</button>${g.due?`<span class="note" style="align-self:center">Para ${longDate(g.due)}</span>`:''}</div></div></div>`}).join('')}</section>`;
+};
+const wonCard=()=>{
+  const W=S.goals.filter(g=>g.done).sort((a,b)=>(b.doneOn||'').localeCompare(a.doneOn||''));
+  if(!W.length)return '';
+  return `<section class="card span2" aria-labelledby="h-wg"><div class="card-h"><h2 id="h-wg">Metas logradas</h2><span class="pill k-ok">${W.length}</span></div><ul class="list">${W.map(g=>{
+    const days=g.since&&g.doneOn?Math.max(0,diffDays(g.since,g.doneOn)):null;
+    return `<li class="row"><span class="dot k-ok" aria-hidden="true">${ic('check')}</span><button class="row-main" type="button" data-act="edit-goal" data-id="${g.id}"><span class="t">${esc(g.name)}</span><span class="s">${g.doneOn?'Lograda el '+longDate(g.doneOn)+' · ':''}${money(g.final||g.target)} de ${money(g.target)}${days!=null?` · en ${days} día${days===1?'':'s'}`:''}${g.aportes?` · ${g.aportes} aporte${g.aportes===1?'':'s'}`:''}</span></button></li>`}).join('')}</ul></section>`;
 };
 function goalSheet(id){
   const g=S.goals.find(x=>x.id===id);
-  sheet({title:g?'Editar meta':'Nueva meta',required:'name',data:g||{},
+  const saved=g?S.tx.filter(t=>t.type==='ahorro'&&t.cat===g.name).reduce((a,t)=>a+t.amount,0):0;
+  sheet({title:g?(g.done?'Meta lograda':'Editar meta'):'Nueva meta',required:'name',data:g||{},
+    pre:g&&g.done?`<p class="note" style="margin-bottom:14px">Lograda el ${longDate(g.doneOn)}: ahorraste ${money(g.final||g.target)}. Si subes el monto, la meta se vuelve a abrir sola.</p>`:'',
     fields:[{k:'name',l:'¿Para qué ahorras?',ph:'Viaje, fondo de emergencia'},{k:'target',l:'Monto que quieres juntar',t:'number',ph:'0.00'},{k:'due',l:'Fecha objetivo (opcional)',t:'date'}],
     onSave:v=>{
       if(!(v.target>0)){toast('Pon cuánto quieres juntar');return false}
       if(['Ahorro','Emergencia','Metas'].includes(v.name)||S.goals.some(x=>x.id!==(g&&g.id)&&x.name.toLowerCase()===v.name.toLowerCase())){toast('Ya existe una meta con ese nombre');return false}
       if(g&&g.name!==v.name)S.tx.forEach(t=>{if(t.type==='ahorro'&&t.cat===g.name)t.cat=v.name});
-      upsert(S.goals,{...v,id:g?g.id:uid()})},
+      const keep=g&&g.done&&saved>=v.target-0.005;
+      upsert(S.goals,{...v,id:g?g.id:uid(),created:g&&g.created?g.created:today(),...(keep?{}:{done:false,doneOn:'',final:0,aportes:0,since:''})})},
     onDelete:g?()=>remove(S.goals,g.id):null});
 }
 function fixedCard(){
@@ -871,6 +886,7 @@ function vMoney(){
   <div class="grid">
   ${cq.rows.length?`<section class="card span2" aria-labelledby="h-cc"><div class="card-h"><h2 id="h-cc">Cobros de clientes · ${perLabel(ym,ui.fper)}</h2></div><ul class="list">${cq.rows.map(({c,n,esperado,cobrado,falta})=>`<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${n} pago${n===1?'':'s'} · cobrado ${money(cobrado)} de ${money(esperado)}</span></button>${pill(falta>0.004?'Falta '+money(falta):'Cobrado',falta>0.004?'warn':'ok')}</li>`).join('')}</ul><p class="note" style="margin-top:8px">Total esperado ${money(cq.esperado)} · cobrado ${money(cq.cobrado)}</p></section>`:''}
   ${goalsCard()}
+  ${wonCard()}
   ${fixedCard()}
   ${salaryCard()}
   <section class="card" aria-labelledby="h-pr"><div class="card-h"><h2 id="h-pr">Presupuesto</h2><button class="link" type="button" data-act="budget">${S.set.budget?'Cambiar':'Definir'}</button></div>
@@ -899,6 +915,28 @@ function vShop(){
 
 const TABS=[['home','Inicio','home',vHome],['agenda','Agenda','calendar',vAgenda],['work','Trabajo','briefcase',vWork],['money','Finanzas','chart',vMoney],['shop','Súper','cart',vShop]];
 const REPT={mensual:'cada mes',quincenal:'cada quincena',bimestral:'cada 2 meses'};
+/* una meta se da por lograda sola cuando lo ahorrado alcanza el monto */
+function checkGoals(){
+  const out=[];
+  S.goals.forEach(g=>{
+    if(g.done||!(g.target>0))return;
+    const tx=S.tx.filter(t=>t.type==='ahorro'&&t.cat===g.name).sort((a,b)=>a.date.localeCompare(b.date)),saved=tx.reduce((a,t)=>a+t.amount,0);
+    if(saved<g.target-0.005)return;
+    let acc=0,when_=tx.length?tx[tx.length-1].date:today();
+    for(const t of tx){acc+=t.amount;if(acc>=g.target-0.005){when_=t.date;break}}
+    g.done=true;g.doneOn=when_;g.final=saved;g.aportes=tx.length;g.since=g.created&&isD(g.created)?g.created:(tx[0]?tx[0].date:when_);
+    out.push(g.id);
+  });
+  if(out.length){stamp();persist();autoSync()}
+  return out;
+}
+function showCelebration(){
+  const g=S.goals.find(x=>x.id===ui.cel.shift());
+  if(!g)return;
+  const rest=S.goals.filter(x=>!x.done).length;
+  sheet({title:'¡Meta lograda!',noSave:true,noBtns:true,fields:[],onSave:()=>false,
+    pre:`<div class="cele">${pig(100,150)}<h3>${esc(g.name)}</h3><p>Ahorraste <b>${money(g.final)}</b> y llegaste a tu meta de ${money(g.target)}. Quedó guardada en «Metas logradas».</p>${rest?`<p class="note">Todavía tienes ${rest} meta${rest===1?'':'s'} en marcha.</p>`:''}<p class="ask"><b>¿Tienes otra meta en mente?</b></p><div class="actions" style="justify-content:center"><button class="btn" type="button" data-act="add-goal">Sí, agregar otra meta</button><button class="btn ghost" type="button" data-act="no-goal">No por ahora</button></div></div>`});
+}
 function applyRecurring(){
   let n=0;const t0=today();
   S.tx.filter(t=>['mensual','quincenal','bimestral'].includes(t.repeat)&&isD(t.date)).forEach(t=>{
@@ -916,13 +954,14 @@ function applyRecurring(){
   if(n){stamp();persist();autoSync()}
 }
 function render(focus){
-  const y=scrollY;syncProj();applyRecurring();document.body.dataset.tab=ui.tab;
+  const y=scrollY;syncProj();applyRecurring();ui.cel.push(...checkGoals());document.body.dataset.tab=ui.tab;
   $('#main').innerHTML=TABS.find(t=>t[0]===ui.tab)[3]();
   const nb=alerts().filter(a=>a.lvl>=1).length;
   const btn=t=>`<button type="button" data-act="goto-tab" data-id="${t[0]}" ${t[0]===ui.tab?'aria-current="page"':''}>${ic(t[2])}<span>${t[1]}</span>${t[0]==='home'&&nb?`<i class="badge" aria-label="${nb} alertas">${nb}</i>`:''}</button>`;
   $('#tabs').innerHTML=TABS.map(btn).join('');$('#sidenav').innerHTML=TABS.map(btn).join('');
   $('#gear1').innerHTML=ic('sliders');$('#gear2').innerHTML=ic('sliders');$('#srch1').innerHTML=ic('search');$('#srch2').innerHTML=ic('search');
   renderSync();
+  if(ui.cel.length&&!$('#sheet').classList.contains('open')&&$('#lock').hidden&&!ui.celT){ui.celT=setTimeout(()=>{ui.celT=0;if(ui.cel.length&&!$('#sheet').classList.contains('open')&&$('#lock').hidden)showCelebration()},500)}
   if(focus){$('#main').focus({preventScroll:true});scrollTo(0,0)}else scrollTo(0,y);
 }
 
@@ -947,7 +986,7 @@ function sheet(o){
   const mf=o.moreFrom;
   const fields=mf?fieldHtml.slice(0,mf).join('')+`<details class="more" ${o.fields.slice(mf).some(x=>!['kind','freq','payWeekday','payFrom'].includes(x.k)&&d[x.k])?'open':''}><summary>Más datos (opcional)</summary>${fieldHtml.slice(mf).join('')}</details>`:fieldHtml.join('');
   const el=$('#sheet');
-  el.innerHTML=`<div class="back" data-act="close"></div><form class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetT"><h2 id="sheetT" tabindex="-1">${o.title}</h2>${o.pre||''}${fields}
+  el.innerHTML=`<div class="back" data-act="close"></div><form class="panel${o.noBtns?' nobtns':''}" role="dialog" aria-modal="true" aria-labelledby="sheetT"><h2 id="sheetT" tabindex="-1">${o.title}</h2>${o.pre||''}${fields}
    <div class="btns">${o.noSave?'':'<button class="btn" type="submit">Guardar</button>'}<button class="btn ghost" type="button" data-act="close">Cancelar</button>
    ${(o.extra||[]).map((e,i)=>`<button class="btn ghost" type="button" data-x="${i}">${e.label}</button>`).join('')}
    ${o.onDelete?`<button class="btn danger" type="button" data-del="1">Eliminar</button>`:''}</div></form>`;
@@ -1104,7 +1143,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-08.5 pagos por periodo y alcancía';
+const APP_V='2026-10-08.6 metas logradas';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
@@ -1386,6 +1425,7 @@ document.addEventListener('click',e=>{
     case 'salary':salarySheet();break;
     case 'add-fixed':txSheet(null,'gasto');break;
     case 'edit-goal':goalSheet(id);break;
+    case 'no-goal':closeSheet();toast('Listo. Tu alcancía queda lista para cuando quieras otra meta');render();break;
     case 'goal-add':{const g=S.goals.find(x=>x.id===id);if(!g)break;
       amountSheet(`Aporte a ${g.name}`,'',n=>{if(!n)return false;S.tx.unshift({id:uid(),type:'ahorro',amount:n,cat:g.name,desc:`Aporte a ${g.name}`,date:today()});toast('Aporte registrado')});break}
     case 'search':openSearch();break;
