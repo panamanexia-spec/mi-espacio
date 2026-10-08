@@ -291,7 +291,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:.005em}
 .tabs button[aria-current="page"],.side nav button[aria-current="page"]{color:var(--ink);background:color-mix(in srgb,var(--s) 17%,transparent)}
 .tabs button[aria-current="page"]::before{content:"";position:absolute;top:-7px;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--s)}
 .side nav button:hover{background:color-mix(in srgb,var(--s) 10%,transparent)}
-.btn{background:var(--sec);color:var(--sec-ink);border-color:var(--sec);box-shadow:0 12px 26px -16px var(--sec),inset 0 1px 0 rgba(255,255,255,.28);letter-spacing:.01em;transition:transform .15s ease,filter .15s ease}
+.btn{background:var(--sec);color:var(--sec-ink);border-color:var(--sec);box-shadow:0 8px 18px -12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.28);letter-spacing:.01em;transition:transform .15s ease,filter .15s ease}
 .btn:active{transform:scale(.97)}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);box-shadow:none}
 .btn.ghost:hover{background:transparent;border-color:var(--sec);color:var(--sec)}
@@ -314,16 +314,32 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:.005em}
 .panel h2{font-size:1.9rem}
 input,select,textarea{background:var(--surface2);border-color:var(--line)}
 input:focus,select:focus,textarea:focus{border-color:var(--sec)}
-/* alcancía y pagos */
-.bank{display:flex;align-items:center;gap:18px;margin-bottom:16px;padding:14px;border-radius:var(--r-sm);background:var(--surface2)}
-.bank .big-n{font-family:var(--f-body);font-size:1.9rem;font-weight:800;display:block;line-height:1.1}
-.goal{display:flex;gap:14px;align-items:flex-start}.goal .gmain{flex:1;min-width:0}.goal .gpig{flex:none}
-svg.pig{display:block;flex:none;max-width:100%}
+.gsum{margin-bottom:16px;padding:14px;border-radius:var(--r-sm);background:var(--surface2)}
+.gsum .big-n{font-family:var(--f-body);font-size:1.9rem;font-weight:800;display:block;line-height:1.1}
+.goal{display:block}.goal .gmain{min-width:0}
+.cele-badge{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:var(--sec);color:var(--sec-ink)}
+.cele-badge svg{width:42px;height:42px;stroke-width:3}
+[hidden]{display:none!important}
+fieldset.f{border:0;padding:0;margin:0 0 14px;min-width:0}
+fieldset.f legend{display:block;font-size:.88rem;font-weight:700;color:var(--muted);margin-bottom:6px;padding:0}
+.dchips{display:flex;gap:6px;flex-wrap:wrap}
+.dchip{position:relative}
+.dchip input{position:absolute;opacity:0;inset:0;min-height:0;width:100%;height:100%;cursor:pointer}
+.dchip span{display:grid;place-items:center;min-width:48px;min-height:44px;padding:0 10px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface2);font-weight:700;text-transform:capitalize}
+.dchip input:checked+span{background:var(--sec);color:var(--sec-ink);border-color:var(--sec)}
+.dchip input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
 .row-main:disabled{cursor:default}
 .cele{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
 .cele h3{font-size:1.9rem}
 .cele .ask{margin-top:6px}
 .nobtns .btns{display:none}
+/* textos muy largos nunca deben romper la pantalla */
+.pill{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.row>.pill,.post>.pill,li>.pill{max-width:42%;flex:0 1 auto}
+.stat b{white-space:normal;overflow-wrap:anywhere}
+.amt{white-space:normal;overflow-wrap:anywhere;text-align:right;max-width:46%}
+.kv .k{flex:0 1 42%;overflow-wrap:anywhere}
+.brand,.page-head h1,.card-h h2{overflow-wrap:anywhere}
 /* buscador, PIN, calendario */
 #sres{margin-top:6px}
 #lock{position:fixed;inset:0;z-index:200;background:radial-gradient(700px 420px at 50% 0%,color-mix(in srgb,var(--brand) 22%,transparent),transparent 70%),var(--bg);display:grid;place-items:center;padding:24px}
@@ -385,7 +401,8 @@ const COLL=['events','tx','shop','clients','tasks','ideas','posts','goals'];
 let S;
 /* Todo dato que viene de fuera (almacenamiento, respaldo importado, GitHub) se limpia antes de usarse */
 const SAFE=/^[\w-]{1,64}$/,isD=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v),isT=v=>typeof v==='string'&&/^\d{2}:\d{2}$/.test(v);
-const TEXTF=['title','name','note','desc','caption','tags','feedback','link','handle','contact','notes','qty','cat','project','clientId','format','status','important','web','instagram','tiktok','facebook','linkedin','youtube','otras'];
+const TEXTF=['title','name','note','desc','caption','tags','feedback','link','handle','contact','notes','qty','cat','project','clientId','format','status','important','web','instagram','tiktok','facebook','linkedin','youtube','otras','otroTxt'];
+function pmOf(o){const n=String(o.payWeekdays||(o.payWeekday==null?5:o.payWeekday)).split(',').filter(x=>x!=='').length||1;return o.freq==='quincenal'?2:o.freq==='semanal'?n*52/12:1}
 function cleanRec(c,r){
   if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.id!=='string'||!SAFE.test(r.id))return null;
   const o={...r};
@@ -395,8 +412,23 @@ function cleanRec(c,r){
   if('u' in o&&!Number.isFinite(o.u))delete o.u;
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
   if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0;o.done=!!o.done;o.final=Number.isFinite(+o.final)?+o.final:0;o.aportes=Number.isInteger(+o.aportes)&&+o.aportes>=0?+o.aportes:0}
-  if(c==='clients'){if(!['planilla','extra'].includes(o.tipo))delete o.tipo;if(!['mes','pago'].includes(o.feeBase))delete o.feeBase;if(!['si','no'].includes(o.auto))delete o.auto;if(!(Number.isInteger(+o.payDay)&&+o.payDay>=1&&+o.payDay<=31))delete o.payDay;if(!['semanal','quincenal','mensual'].includes(o.freq))delete o.freq;if(!(String(o.payWeekday).length===1&&+o.payWeekday>=0&&+o.payWeekday<=6))delete o.payWeekday;else o.payWeekday=+o.payWeekday;if(!o.payFrom)delete o.payFrom}
-  if(c==='tx'){if('auto' in o)o.auto=!!o.auto;if(!Number.isFinite(+o.bruto)||+o.bruto<=0)delete o.bruto;if(!['mensual','quincenal','bimestral'].includes(o.repeat))o.repeat='';if(o.for==='')delete o.for;if(typeof o.from!=='string'||!SAFE.test(o.from))delete o.from;o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
+  if(c==='clients'){
+    if(!['mensual','quincenal','semanal'].includes(o.freq))delete o.freq;
+    if(o.payWeekdays!=null&&!/^[0-6](,[0-6])*$/.test(String(o.payWeekdays)))delete o.payWeekdays;
+    if(o.payWeekdays==null&&o.payWeekday!=null&&String(o.payWeekday)!==''&&Number.isInteger(+o.payWeekday)&&+o.payWeekday>=0&&+o.payWeekday<=6)o.payWeekdays=String(+o.payWeekday);
+    delete o.payWeekday;
+    if(!(Number.isInteger(+o.payDay)&&+o.payDay>=1&&+o.payDay<=31))delete o.payDay;
+    if(o.tipo==='planilla')o.tipo='salario';
+    else if(o.tipo==='extra'){o.tipo='otro';if(!o.otroTxt)o.otroTxt='Ingreso extra'}
+    else if(!['salario','ofrenda','otro'].includes(o.tipo)){delete o.tipo;if(+o.fee>0){o.tipo='otro';if(!o.otroTxt)o.otroTxt='Ingreso'}}
+    if(o.feeBase){const pm=pmOf(o),f=+o.fee;if(f>0){if(o.tipo==='salario'&&o.feeBase==='pago')o.fee=Math.round(f*pm*100)/100;else if(o.tipo!=='salario'&&o.feeBase==='mes')o.fee=Math.round(f/pm*100)/100}delete o.feeBase}
+    if(!['si','no'].includes(o.auto))delete o.auto;
+    if(o.bonusOn!=='si')o.bonusOn='no';
+    if(+o.bonus>0)o.bonus=+o.bonus;else delete o.bonus;
+    if(!['mensual','quincenal','semanal'].includes(o.bonusFreq))delete o.bonusFreq;
+    if(!o.payFrom)delete o.payFrom;
+  }
+  if(c==='tx'){if(o.stream!=='bono')delete o.stream;if('auto' in o)o.auto=!!o.auto;if(!Number.isFinite(+o.bruto)||+o.bruto<=0)delete o.bruto;if(!['mensual','quincenal','bimestral'].includes(o.repeat))o.repeat='';if(o.for==='')delete o.for;if(typeof o.from!=='string'||!SAFE.test(o.from))delete o.from;o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
   if(c==='shop'||c==='tasks')o.done=!!o.done;
   if(c==='clients'&&!['brand','info','warn','bad','accent'].includes(o.kind))delete o.kind;
   if(c==='ideas')o.fav=!!o.fav;
@@ -552,7 +584,7 @@ function alerts(){
   if(rev)A.push({lvl:0,ic:'bell',tx:`${rev} publicación${rev>1?'es':''} en revisión del cliente`,act:'goto-work',id:'contenido'});
   S.tasks.filter(x=>!x.done&&x.due&&x.due<=t).forEach(x=>A.push({lvl:x.due<t?3:1,ic:'check',tx:`${x.due<t?'Tarea vencida':'Tarea de hoy'}: ${x.title}`,act:'edit-task',id:x.id}));
   S.clients.filter(c=>c.status==='Activo').forEach(c=>{
-    cobro(c).overdue.slice(0,2).forEach(q=>A.push({lvl:q.st==='hoy'?2:3,ic:'chart',tx:q.st==='hoy'?`Hoy toca cobrar ${money(q.falta)} a ${c.name}`:`Falta cobrar ${money(q.falta)} a ${c.name} (del ${shortDate(q.due)})`,act:'go-client',id:c.name}))});
+    cobro(c).overdue.slice(0,2).forEach(q=>A.push({lvl:q.st==='hoy'?2:3,ic:'chart',tx:q.st==='hoy'?`Hoy toca cobrar ${money(q.falta)} a ${c.name}${q.s==='bono'?' (bono)':''}`:`Falta cobrar ${money(q.falta)} a ${c.name}${q.s==='bono'?' (bono)':''} (del ${shortDate(q.due)})`,act:'go-client',id:c.name}))});
   const bs=budgetState();
   if(bs.lvl==='warn')A.push({lvl:2,ic:'chart',tx:`Presupuesto: llevas ${Math.round(bs.pct)}% del mes`,act:'goto-tab',id:'money'});
   if(bs.lvl==='bad')A.push({lvl:3,ic:'chart',tx:`Presupuesto agotado (${Math.round(bs.pct)}%)`,act:'goto-tab',id:'money'});
@@ -560,17 +592,26 @@ function alerts(){
 }
 const lastDay=(y,m)=>new Date(y,m,0).getDate();
 const PLAN=.11; /* Panamá: 9.75 % Seguro Social + 1.25 % Seguro Educativo */
-/* el monto puede ser el total del mes (la app lo reparte entre semanas, quincenas o pagos) o lo que se recibe en cada pago */
-const isMes=c=>c.feeBase==='mes';
-const grossPay=c=>{const f=num(c.fee);return isMes(c)?Math.round(f/perMonth(c)*100)/100:f};
-const grossMonth=c=>{const f=num(c.fee);return isMes(c)?f:f*perMonth(c)};
-const payAmt=c=>{const g=grossPay(c);return c.tipo==='planilla'?Math.round(g*(1-PLAN)*100)/100:g};
-const perMonth=c=>c.freq==='quincenal'?2:c.freq==='semanal'?52/12:1;
 const WDAYS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-/* fechas de pago de un cliente entre dos fechas: semanal (un día de la semana), quincenal (15 y fin de mes) o mensual (un día del mes) */
+const r2=n=>Math.round(n*100)/100;
+const isSal=c=>c.tipo==='salario';
+const wdList=c=>String(c.payWeekdays||(c.payWeekday==null||c.payWeekday===''?5:c.payWeekday)).split(',').filter(x=>x!=='').map(Number).filter(n=>n>=0&&n<=6);
+const perMonthF=(freq,c)=>freq==='quincenal'?2:freq==='semanal'?(wdList(c).length||1)*52/12:1;
+const perMonth=c=>perMonthF(c.freq,c);
+/* salario: se escribe el bruto MENSUAL y se reparte por pago; ofrenda u otro: se escribe lo de cada vez */
+const grossMonth=c=>isSal(c)?num(c.fee):num(c.fee)*perMonth(c);
+const grossPay=c=>isSal(c)?r2(num(c.fee)/perMonth(c)):num(c.fee);
+const payAmt=c=>isSal(c)?r2(grossPay(c)*(1-PLAN)):num(c.fee);
+const bonusOn=c=>isSal(c)&&c.bonusOn==='si'&&num(c.bonus)>0;
+const bonusFreq=c=>c.bonusFreq||'mensual';
+const bonusMonth=c=>bonusOn(c)?num(c.bonus)*perMonthF(bonusFreq(c),c):0;
+/* cada cliente puede tener dos fuentes de pago: la principal y el bono o comisión (sin descuento) */
+function streams(c){const o=[];if(payAmt(c)>0)o.push({k:'main',fee:payAmt(c),o:c,pre:''});if(bonusOn(c))o.push({k:'bono',fee:num(c.bonus),o:{...c,freq:bonusFreq(c),payDay:c.freq==='mensual'?c.payDay:31},pre:'Bono · '});return o}
+const encFor=q=>(q.s==='bono'?'b:':'')+q.due;
+/* fechas de pago entre dos fechas: semanal (uno o varios días de la semana), quincenal (15 y fin de mes) o mensual (un día del mes) */
 function dueDates(c,from,to){
   const out=[],f=c.freq||'mensual',a=D(from),b=D(to);
-  if(f==='semanal'){const wd=c.payWeekday==null||c.payWeekday===''?5:+c.payWeekday;const d=new Date(a);d.setDate(d.getDate()+((wd-d.getDay()+7)%7));while(d<=b){out.push(ymd(d));d.setDate(d.getDate()+7)}}
+  if(f==='semanal'){(wdList(c).length?wdList(c):[5]).forEach(wd=>{const d=new Date(a);d.setDate(d.getDate()+((wd-d.getDay()+7)%7));while(d<=b){out.push(ymd(d));d.setDate(d.getDate()+7)}});out.sort()}
   else{
     let y=a.getFullYear(),m=a.getMonth()+1;
     while(`${y}-${pad(m)}`<=to.slice(0,7)){
@@ -582,40 +623,45 @@ function dueDates(c,from,to){
   return out;
 }
 const payStart=c=>c.payFrom&&isD(c.payFrom)?c.payFrom:nowYM+'-01';
-const dueLabel=(c,due)=>{const d=shortDate(due);return c.freq==='semanal'?`${WDAYS[D(due).getDay()]} ${d}`:c.freq==='quincenal'?`Quincena del ${d}`:d};
-/* periodos de cobro: los últimos 8 vencidos o pagados y los 2 siguientes, con lo que se ha pagado de cada uno */
-function periods(c){
-  const fee=payAmt(c);if(!(fee>0))return [];
-  const t=today(),from=payStart(c);
-  const past=dueDates(c,from,t),fut=dueDates(c,addDays(t,1),addDays(t,45)).slice(0,2);
-  const all=[...past.slice(-8),...fut],near=dueDates(c,addDays(from,-20),addDays(t,60));
-  const paidBy={};
-  S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name).forEach(x=>{
+const dueLabel=(o,due)=>{const d=shortDate(due);return o.freq==='semanal'?`${WDAYS[D(due).getDay()]} ${d}`:o.freq==='quincenal'?`Quincena del ${d}`:d};
+function paidMap(c,sk,near,from){
+  const m={};
+  S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name&&(x.stream||'main')===sk).forEach(x=>{
     let k=x.for&&isD(x.for)?x.for:null;
-    if(!k&&x.date>=addDays(from,-20)){let best=1e9;near.forEach(d=>{const n=Math.abs(diffDays(d,x.date));if(n<best){best=n;k=d}})}
-    if(k)paidBy[k]=(paidBy[k]||0)+x.amount;
+    if(!k&&sk==='main'&&x.date>=addDays(from,-20)){let best=1e9;near.forEach(d=>{const n=Math.abs(diffDays(d,x.date));if(n<best){best=n;k=d}})}
+    if(k)m[k]=(m[k]||0)+x.amount;
   });
+  return m;
+}
+/* periodos de cobro de una fuente: los últimos 8 vencidos o pagados y los 2 siguientes */
+function periods(c,sk='main'){
+  const sm=streams(c).find(x=>x.k===sk);if(!sm)return [];
+  const fee=sm.fee,o=sm.o,t=today(),from=payStart(c);
+  const past=dueDates(o,from,t),fut=dueDates(o,addDays(t,1),addDays(t,45)).slice(0,2);
+  const all=[...past.slice(-8),...fut],paidBy=paidMap(c,sk,dueDates(o,addDays(from,-20),addDays(t,60)),from);
   return all.map(due=>{const paid=paidBy[due]||0,falta=Math.max(0,fee-paid);
     const st=paid>=fee-0.005?'pagado':due<t?'vencido':due===t?'hoy':'proximo';
-    return {due,paid,falta,st}});
+    return {due,paid,falta,st,s:sk,fee,label:sm.pre+dueLabel(o,due)}});
 }
 function cobro(c){
-  const P=periods(c),fee=payAmt(c);
+  const P=[...periods(c,'main'),...periods(c,'bono')].sort((a,b)=>a.due.localeCompare(b.due));
   const overdue=P.filter(p=>p.st==='vencido'||p.st==='hoy');
   const paid=S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name&&x.date.startsWith(nowYM)).reduce((a,x)=>a+x.amount,0);
-  return {fee,gross:grossPay(c),plan:c.tipo==='planilla',P,overdue,pend:overdue.reduce((a,p)=>a+p.falta,0),next:P.find(p=>p.st==='proximo'),paid};
+  return {fee:payAmt(c),gross:grossPay(c),plan:isSal(c),P,overdue,pend:overdue.reduce((a,p)=>a+p.falta,0),next:P.find(p=>p.st==='proximo'),paid};
 }
 /* periodo = mes completo, 1.ª quincena (1–15) o 2.ª quincena (16–fin) */
 function win(ym,per){const [y,m]=ym.split('-').map(Number),ld=lastDay(y,m);return per==='q1'?[ym+'-01',ym+'-15']:per==='q2'?[ym+'-16',`${ym}-${pad(ld)}`]:[ym+'-01',`${ym}-${pad(ld)}`]}
 const perLabel=(ym,per)=>{const [a,b]=win(ym,per);return per==='mes'?mLabel(ym):`${+a.slice(8)} al ${+b.slice(8)} de ${MESES[+ym.slice(5)-1]}`};
 function cobrosEn(ym,per){
-  const [a,b]=win(ym,per),t=today();let esperado=0,cobrado=0;const rows=[];
-  S.clients.filter(c=>c.status==='Activo'&&num(c.fee)>0).forEach(c=>{
-    const fee=payAmt(c),ds=dueDates(c,a>payStart(c)?a:payStart(c),b);if(!ds.length)return;
-    const near=dueDates(c,addDays(a,-20),addDays(b,20)),paidBy={};
-    S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name).forEach(x=>{let k=x.for&&isD(x.for)?x.for:null;if(!k){let best=1e9;near.forEach(d=>{const n=Math.abs(diffDays(d,x.date));if(n<best){best=n;k=d}})}if(k)paidBy[k]=(paidBy[k]||0)+x.amount});
-    let e=0,r=0;ds.forEach(d=>{e+=fee;r+=Math.min(fee,paidBy[d]||0)});
-    esperado+=e;cobrado+=r;rows.push({c,n:ds.length,esperado:e,cobrado:r,falta:e-r});
+  const [a,b]=win(ym,per);let esperado=0,cobrado=0;const rows=[];
+  S.clients.filter(c=>c.status==='Activo').forEach(c=>{
+    let n=0,e=0,r=0;const from=payStart(c);
+    streams(c).forEach(sm=>{
+      const ds=dueDates(sm.o,a>from?a:from,b);if(!ds.length)return;
+      const paidBy=paidMap(c,sm.k,dueDates(sm.o,addDays(a,-20),addDays(b,20)),from);
+      ds.forEach(d=>{n++;e+=sm.fee;r+=Math.min(sm.fee,paidBy[d]||0)});
+    });
+    if(n){esperado+=e;cobrado+=r;rows.push({c,n,esperado:e,cobrado:r,falta:e-r})}
   });
   return {esperado,cobrado,rows};
 }
@@ -660,9 +706,9 @@ function vHome(){
       <div class="stats"><div class="stat"><span>Tareas</span><b>${open}</b></div><div class="stat"><span>Posts por salir</span><b>${por}</b></div></div>
       <p class="note" style="margin-top:10px">${nx?`Próxima fecha: <b>${esc(nx.title)}</b>, ${when(nx.d)}`:'Sin fechas próximas'}</p></section>`;
   };
-  const cob=S.clients.filter(c=>c.status==='Activo'&&num(c.fee)>0).map(c=>({c,k:cobro(c)})).filter(x=>x.k.overdue.length||(x.k.next&&diffDays(t,x.k.next.due)<=3));
+  const cob=S.clients.filter(c=>c.status==='Activo'&&(payAmt(c)>0||bonusOn(c))).map(c=>({c,k:cobro(c)})).filter(x=>x.k.overdue.length||(x.k.next&&diffDays(t,x.k.next.due)<=3));
   const cobrarCard=cob.length?`<section class="card" aria-labelledby="h-cb"><div class="card-h"><h2 id="h-cb">Cobros</h2></div><ul class="list">${cob.map(({c,k})=>{const o=k.overdue[0],q=o||k.next;
-    return `<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${o?(o.st==='hoy'?'Hoy toca cobrar ':'Vencido del '+shortDate(o.due)+' · falta ')+money(k.pend):'Próximo cobro: '+dueLabel(c,q.due)+' ('+when(q.due)+')'}</span></button>${o?`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${o.due}">Cobrar</button>`:pill(money(k.fee),'info')}</li>`}).join('')}</ul></section>`:'';
+    return `<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${o?(o.st==='hoy'?'Hoy toca cobrar ':'Vencido del '+shortDate(o.due)+' · falta ')+money(k.pend):'Próximo cobro: '+q.label+' ('+when(q.due)+')'}</span></button>${o?`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(o)}">Cobrar</button>`:pill(money(k.fee),'info')}</li>`}).join('')}</ul></section>`:'';
   const per=t.slice(8)<=15?'q1':'q2',cq=cobrosEn(nowYM,per),[qa,qb]=win(nowYM,per);
   const qList=S.tx.filter(x=>x.date>=qa&&x.date<=qb),qIn=qList.filter(x=>x.type==='ingreso').reduce((a,x)=>a+x.amount,0),qOut=qList.filter(x=>x.type==='gasto').reduce((a,x)=>a+x.amount,0),qSave=qList.filter(x=>x.type==='ahorro').reduce((a,x)=>a+x.amount,0);
   const quinCard=`<section class="card" aria-labelledby="h-qn"><div class="card-h"><h2 id="h-qn">Esta quincena</h2><button class="link" type="button" data-act="goto-tab" data-id="money">Finanzas</button></div><p class="note" style="margin-bottom:10px">${perLabel(nowYM,per)}</p>
@@ -751,24 +797,25 @@ function vClient(c){
   const dates=importantDates(p,30);
   const ideas=S.ideas.filter(i=>i.project===p).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||b.id.localeCompare(a.id));
   const links=Object.entries(ICOS).filter(([k])=>c[k]).map(([k,[lab,base]])=>{const h=safeHref(c[k],base);return h?`<a class="btn ghost sm" href="${esc(h)}" target="_blank" rel="noopener noreferrer">${esc(lab)}</a>`:`<span class="pill k-mute">${esc(lab)}: ${esc(c[k])}</span>`}).join('');
-  const info=[c.contact&&['Contacto',c.contact],c.fee&&[isMes(c)?(c.tipo==='planilla'?'Salario bruto al mes':'Monto total al mes'):(c.tipo==='planilla'?'Salario bruto por pago':'Monto por pago'),money(num(c.fee))],c.notes&&['Notas',c.notes]].filter(Boolean);
+  const tipoTxt=c.tipo==='ofrenda'?'Ofrenda':c.tipo==='otro'?(c.otroTxt||'Otro ingreso'):'Salario';
+  const info=[c.contact&&['Contacto',c.contact],c.fee&&[isSal(c)?'Salario bruto mensual':tipoTxt+' (cada vez)',money(num(c.fee))],bonusOn(c)&&['Bono o comisión',`${money(num(c.bonus))} ${{semanal:'cada semana',quincenal:'cada quincena',mensual:'cada mes'}[bonusFreq(c)]}`],c.notes&&['Notas',c.notes]].filter(Boolean);
   const trow=t=>`<li class="row ${t.done?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${t.done}" aria-label="${t.done?'Desmarcar':'Marcar como hecha'}: ${esc(t.title)}" data-act="toggle" data-kind="task" data-id="${t.id}">${t.done?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-task" data-id="${t.id}"><span class="t">${esc(t.title)}</span><span class="s">${t.due?longDate(t.due):'sin fecha'}</span></button></li>`;
   const prow=x=>{const cover=x.imgs&&x.imgs[0]&&IMG[x.imgs[0]];
     return `<li class="post"><div class="thumb" aria-hidden="true" style="${cover?`background-image:url('${cover}')`:''}"></div>
     <button class="row-main" type="button" data-act="edit-post" data-id="${x.id}"><span class="t">${esc(x.title)}</span><span class="s">${[x.format,x.date?shortDate(x.date)+(x.time?' '+x.time:''):'sin fecha'].filter(Boolean).map(esc).join(' · ')}</span>${x.status==='Por cambiar'&&x.feedback?`<span class="s">Cambios: ${esc(x.feedback.slice(0,60))}</span>`:''}</button>${pill(x.status,SKIND[x.status])}
     ${NEXT[x.status]?`<button class="btn ghost sm" type="button" data-act="adv" data-id="${x.id}" aria-label="Pasar «${esc(x.title)}» a ${NEXT[x.status]}">${NEXT[x.status]} ${ic('right')}</button>`:''}</li>`};
   const ck=cobro(c),st={pagado:['Pagado','ok'],vencido:['Falta','bad'],hoy:['Hoy','warn'],proximo:['Próximo','info']};
-  const freqTxt=!ck.fee?'':c.freq==='semanal'?`Pago semanal, cada ${WDAYS[c.payWeekday==null?5:+c.payWeekday]}`:c.freq==='quincenal'?`Pago quincenal, los 15 y fin de mes`:`Pago mensual, el día ${c.payDay||1}`;
-  const planTxt=(isMes(c)&&ck.fee?`Total al mes: ${money(num(c.fee))}${ck.plan?' (bruto)':''}. `:'')+(ck.plan?`Salario en planilla: bruto ${money(ck.gross)} menos 11 % de seguros (${money(ck.gross*PLAN)}) = ${money(ck.fee)} netos por pago.`:`Ingreso extra: ${money(ck.fee)} por pago, sin descuentos.`)+(c.auto==='si'?' Se suma solo a tus ingresos en cada fecha de pago; si algún pago no llegó, edítalo o bórralo abajo.':'');
+  const freqTxt=!ck.fee?'':c.freq==='semanal'?`Pago semanal: ${wdList(c).map(n=>WDAYS[n]).join(' y ')}`:c.freq==='quincenal'?'Pago quincenal: los 15 y el último día del mes':`Pago mensual: el día ${c.payDay||1}`;
+  const planTxt=(isSal(c)?`Salario bruto mensual ${money(num(c.fee))} − 11 % de seguros (${money(num(c.fee)*PLAN)}) = ${money(num(c.fee)*(1-PLAN))} netos al mes; ${money(ck.fee)} netos en cada pago.`:`${tipoTxt}: ${money(ck.fee)} cada vez, sin descuentos.`)+(bonusOn(c)?` Bono o comisión: ${money(num(c.bonus))} ${{semanal:'cada semana',quincenal:'cada quincena',mensual:'cada mes'}[bonusFreq(c)]}, sin descuento.`:'')+(c.auto==='si'?' Se suma solo a tus ingresos en cada fecha de pago; si algún pago no llegó, edítalo o bórralo abajo.':'');
   const mine=S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,10);
-  const pagosHtml=(ck.fee?`<p class="note" style="margin-bottom:4px">${freqTxt}.</p><p class="note" style="margin-bottom:8px">${planTxt}</p><ul class="list">${ck.P.slice().reverse().map(q=>`<li class="row"><button class="row-main" type="button" ${q.st==='pagado'?'disabled':`data-act="pay-client" data-id="${c.id}" data-for="${q.due}"`}><span class="t">${esc(dueLabel(c,q.due))}</span><span class="s">${q.paid?`Recibido ${money(q.paid)} de ${money(ck.fee)}`:`Monto ${money(ck.fee)}`}</span></button>${pill(st[q.st][0],st[q.st][1])}${q.st==='pagado'?'':`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${q.due}">Cobrar</button>`}</li>`).join('')}</ul>`
-    :`<p class="note" style="margin-bottom:8px">Toca «Ajustar» y pon cuánto te paga y cada cuánto (semanal, quincenal o mensual) para llevar el control de sus pagos.</p>`)+
-    (mine.length?`<h3 class="gh" style="font-family:var(--f-body)">Pagos recibidos</h3><ul class="list">${mine.map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-tx" data-id="${x.id}"><span class="t">${money(x.amount)}${x.bruto?' netos':''}</span><span class="s">${x.bruto?'Bruto '+money(x.bruto)+' · ':''}${longDate(x.date)}${x.for?' · pago del '+shortDate(x.for):''}</span></button><button class="link" type="button" data-act="edit-tx" data-id="${x.id}" aria-label="Editar o borrar este pago">Editar</button></li>`).join('')}</ul>`:'');
+  const pagosHtml=((ck.fee||bonusOn(c))?`<p class="note" style="margin-bottom:4px">${freqTxt}.</p><p class="note" style="margin-bottom:8px">${planTxt}</p><ul class="list">${ck.P.slice().reverse().map(q=>`<li class="row"><button class="row-main" type="button" ${q.st==='pagado'?'disabled':`data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}"`}><span class="t">${esc(q.label)}</span><span class="s">${q.paid?`Recibido ${money(q.paid)} de ${money(ck.fee)}`:`Monto ${money(ck.fee)}`}</span></button>${pill(st[q.st][0],st[q.st][1])}${q.st==='pagado'?'':`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}">Cobrar</button>`}</li>`).join('')}</ul>`
+    :`<p class="note" style="margin-bottom:8px">Toca «Ajustar» y elige si es salario, ofrenda u otro, cuánto es y cada cuánto, para llevar el control de sus pagos.</p>`)+
+    (mine.length?`<h3 class="gh" style="font-family:var(--f-body)">Pagos recibidos</h3><ul class="list">${mine.map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-tx" data-id="${x.id}"><span class="t">${money(x.amount)}${x.bruto?' netos':''}</span><span class="s">${x.bruto?'Bruto '+money(x.bruto)+' · ':''}${longDate(x.date)}${x.for?' · pago del '+shortDate(x.for):''}${x.stream==='bono'?' · bono':''}</span></button><button class="link" type="button" data-act="edit-tx" data-id="${x.id}" aria-label="Editar o borrar este pago">Editar</button></li>`).join('')}</ul>`:'');
   const sec=(id,title,btn,body)=>`<section class="card cs" aria-labelledby="${id}"><div class="card-h"><h2 id="${id}">${title}</h2>${btn}</div>${body}</section>`;
   return `<button class="link back" type="button" data-act="back-clients">${ic('left')}Todos los clientes</button>`+
   page(p,'Cliente',`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}">Registrar cobro</button><button class="btn ghost sm" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`)+
-  `<p style="margin:-6px 0 16px">${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')} ${ck.fee?pill(ck.pend>0?'Falta cobrar '+money(ck.pend):'Pagos al día',ck.pend>0?'warn':'ok'):''}</p>
-  <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Publicaciones por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div>${ck.fee?`<div class="stat card"><span>Falta cobrar</span><b class="${ck.pend>0?'neg':''}">${money(ck.pend)}</b></div>`:''}</div>
+  `<p style="margin:-6px 0 16px">${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')} ${(ck.fee||bonusOn(c))?pill(ck.pend>0?'Falta cobrar '+money(ck.pend):'Pagos al día',ck.pend>0?'warn':'ok'):''}</p>
+  <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Publicaciones por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div>${(ck.fee||bonusOn(c))?`<div class="stat card"><span>Falta cobrar</span><b class="${ck.pend>0?'neg':''}">${money(ck.pend)}</b></div>`:''}</div>
   ${sec('h-c','Pagos',`<button class="link" type="button" data-act="edit-client" data-id="${c.id}">Ajustar</button>`,pagosHtml)}
   ${sec('h-d','Datos y redes',`<button class="link" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`,
     (links?`<div class="actions" style="margin-bottom:12px">${links}</div>`:'')+(info.length?`<ul class="list">${info.map(([k,v])=>`<li class="kv"><span class="k">${k}</span><span class="v">${esc(v)}</span></li>`).join('')}</ul>`:'')+((!links&&!info.length)?empty('Aún no hay datos. Toca «Editar» para agregar su página web, redes y contacto.'):''))}
@@ -808,28 +855,14 @@ function breakdown(list,type){
   const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),max=rows.length?rows[0][1]:1;
   return rows.map(([c,v])=>`<div class="b"><div><span>${esc(c)}</span><span class="amt">${money(v)}</span></div><div class="track"><i style="width:${v/max*100}%"></i></div></div>`).join('');
 }
-let pigN=0;
-/* alcancía: se llena de abajo hacia arriba según el avance */
-function pig(pct,w=96){
-  const id='pg'+(++pigN),f=Math.max(0,Math.min(100,pct))/100;
-  return `<svg class="pig" width="${w}" height="${Math.round(w*.8)}" viewBox="0 0 130 104" role="img" aria-label="Alcancía al ${Math.round(pct)} %"><defs><clipPath id="${id}"><ellipse cx="60" cy="58" rx="42" ry="32"/></clipPath><linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6fb5"/><stop offset="1" stop-color="#ff9f43"/></linearGradient></defs>
-  <path d="M26 54C16 52 12 44 16 36" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
-  <rect x="34" y="82" width="12" height="16" rx="5" fill="var(--surface2)" stroke="var(--ink)" stroke-width="3"/><rect x="74" y="82" width="12" height="16" rx="5" fill="var(--surface2)" stroke="var(--ink)" stroke-width="3"/>
-  <ellipse cx="60" cy="58" rx="42" ry="32" fill="var(--surface2)"/>
-  <g clip-path="url(#${id})"><rect x="14" y="26" width="92" height="64" fill="url(#${id}g)" style="transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(${f});transition:transform .9s cubic-bezier(.16,1,.3,1)"/></g>
-  <ellipse cx="60" cy="58" rx="42" ry="32" fill="none" stroke="var(--ink)" stroke-width="3"/>
-  <path d="M44 30l-4-14 16 8" fill="var(--surface2)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
-  <ellipse cx="104" cy="60" rx="13" ry="11" fill="var(--surface2)" stroke="var(--ink)" stroke-width="3"/><circle cx="100" cy="60" r="2" fill="var(--ink)"/><circle cx="108" cy="60" r="2" fill="var(--ink)"/>
-  <circle cx="88" cy="48" r="2.8" fill="var(--ink)"/><rect x="52" y="25" width="22" height="5" rx="2.5" fill="var(--ink)"/>${f>=1?'<path d="M64 4l1.8 6.2 6.2 1.8-6.2 1.8L64 20l-1.8-6.2-6.2-1.8 6.2-1.8z" fill="#ffd2a0"/>':''}</svg>`;
-}
 const goalsCard=()=>{
   const A=S.goals.filter(g=>!g.done),sv=g=>S.tx.filter(t=>t.type==='ahorro'&&t.cat===g.name).reduce((a,t)=>a+t.amount,0);
   const tot=A.reduce((a,g)=>a+sv(g),0),meta=A.reduce((a,g)=>a+(g.target||0),0),pt=meta>0?Math.min(100,tot/meta*100):0;
-  return `<section class="card bars span2" aria-labelledby="h-me"><div class="card-h"><h2 id="h-me">Mi alcancía</h2>${addBtn('Meta','add-goal')}</div>
-  ${A.length?`<div class="bank">${pig(pt,150)}<div><p class="note">Llevas ahorrado</p><b class="big-n">${money(tot)}</b><p class="note">de ${money(meta)} en tus metas · ${Math.round(pt)} %</p></div></div>`
-    :`<div class="bank">${pig(0,130)}<div><p class="note">${S.goals.length?'Completaste todas tus metas. ¡Felicidades!':'Todavía no tienes metas.'}</p><p style="margin:6px 0 12px">Tu alcancía está lista para la próxima.</p><button class="btn" type="button" data-act="add-goal">${ic('plus')}Nueva meta</button></div></div>`}
+  return `<section class="card bars span2" aria-labelledby="h-me"><div class="card-h"><h2 id="h-me">Metas de ahorro</h2>${addBtn('Meta','add-goal')}</div>
+  ${A.length?`<div class="gsum"><p class="note">Llevas ahorrado</p><b class="big-n">${money(tot)}</b><p class="note">de ${money(meta)} en tus metas · ${Math.round(pt)} %</p></div>`
+    :`<div class="gsum"><p>${S.goals.length?'Completaste todas tus metas. ¡Felicidades!':'Todavía no tienes metas.'}</p><p class="note" style="margin:4px 0 12px">Cuando quieras, crea la próxima.</p><button class="btn" type="button" data-act="add-goal">${ic('plus')}Nueva meta</button></div>`}
   ${A.map(g=>{const saved=sv(g),pct=g.target>0?Math.min(100,saved/g.target*100):0;
-  return `<div class="b goal"><div class="gpig">${pig(pct,64)}</div><div class="gmain"><div><span>${esc(g.name)}</span><span class="amt">${money(saved)} de ${money(g.target||0)}</span></div><div class="track" role="meter" aria-label="Avance de ${esc(g.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
+  return `<div class="b goal"><div class="gmain"><div><span>${esc(g.name)}</span><span class="amt">${money(saved)} de ${money(g.target||0)}</span></div><div class="track" role="meter" aria-label="Avance de ${esc(g.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
   <div class="actions" style="margin-top:8px"><button class="btn sm" type="button" data-act="goal-add" data-id="${g.id}">Aportar</button><button class="btn ghost sm" type="button" data-act="edit-goal" data-id="${g.id}">Editar</button>${g.due?`<span class="note" style="align-self:center">Para ${longDate(g.due)}</span>`:''}</div></div></div>`}).join('')}</section>`;
 };
 const wonCard=()=>{
@@ -865,13 +898,14 @@ function fixedCard(){
 function salaryCalc(g){const ss=g*.0975,se=g*.0125,net=g-ss-se;return {ss,se,tot:ss+se,net,q:net/2}}
 function salaryRows(g){const r=salaryCalc(g);return `<ul class="list"><li class="kv"><span class="k">Salario bruto mensual</span><span class="v">${money(g)}</span></li><li class="kv"><span class="k">Seguro Social (9.75 %)</span><span class="v neg">− ${money(r.ss)}</span></li><li class="kv"><span class="k">Seguro Educativo (1.25 %)</span><span class="v neg">− ${money(r.se)}</span></li><li class="kv"><span class="k">Total descuentos (11 %)</span><span class="v neg">− ${money(r.tot)}</span></li><li class="kv"><span class="k"><b>Salario neto mensual</b></span><span class="v pos"><b>${money(r.net)}</b></span></li><li class="kv"><span class="k">Neto por quincena</span><span class="v">${money(r.q)}</span></li></ul>`}
 function salaryCard(){
-  const PL=S.clients.filter(c=>c.tipo==='planilla'&&num(c.fee)>0&&c.status!=='Terminado'),EX=S.clients.filter(c=>c.tipo!=='planilla'&&num(c.fee)>0&&c.status==='Activo');
+  const PL=S.clients.filter(c=>isSal(c)&&num(c.fee)>0&&c.status!=='Terminado'),EX=S.clients.filter(c=>!isSal(c)&&num(c.fee)>0&&c.status==='Activo');
   const gross=PL.length?PL.reduce((a,c)=>a+grossMonth(c),0):num(S.set.gross);
-  const extra=EX.reduce((a,c)=>a+grossMonth(c),0),net=gross-gross*PLAN;
-  const src=PL.length?`<p class="note" style="margin-bottom:10px">Calculado con tus salarios en planilla: ${PL.map(c=>`<button class="link" type="button" data-act="go-client" data-id="${esc(c.name)}">${esc(c.name)}</button>`).join(', ')}. Para cambiar el monto, edita el cliente.</p>`:'';
+  const bonos=PL.reduce((a,c)=>a+bonusMonth(c),0),extra=EX.reduce((a,c)=>a+grossMonth(c),0),net=gross-gross*PLAN;
+  const src=PL.length?`<p class="note" style="margin-bottom:10px">Calculado con tu salario en: ${PL.map(c=>`<button class="link" type="button" data-act="go-client" data-id="${esc(c.name)}">${esc(c.name)}</button>`).join(', ')}. Para cambiar el monto, edita el cliente.</p>`:'';
+  const otros=bonos+extra;
   return `<section class="card" aria-labelledby="h-sa"><div class="card-h"><h2 id="h-sa">Mi salario (Panamá)</h2>${PL.length?'':`<button class="link" type="button" data-act="salary">${gross?'Cambiar':'Calcular'}</button>`}</div>
-   ${gross>0?src+salaryRows(gross):`<p class="note">Si un cliente te paga en planilla, en su ficha elige «Salario en planilla» y aquí verás tu salario neto sin escribirlo dos veces. También puedes calcularlo a mano con «Calcular».</p>`}
-   ${extra>0?`<ul class="list" style="margin-top:10px"><li class="kv"><span class="k">Ingresos extra al mes (sin descuentos)</span><span class="v">${money(extra)}</span></li>${gross>0?`<li class="kv"><span class="k"><b>Total que te llega al mes</b></span><span class="v pos"><b>${money(net+extra)}</b></span></li>`:''}</ul><p class="note" style="margin-top:6px">${EX.map(c=>esc(c.name)).join(', ')}: ingreso extra, no lleva descuentos.</p>`:''}
+   ${gross>0?src+salaryRows(gross):`<p class="note">Si un cliente te paga un salario, en su ficha elige «Salario» y aquí verás tu salario neto sin escribirlo dos veces. También puedes calcularlo a mano con «Calcular».</p>`}
+   ${otros>0?`<ul class="list" style="margin-top:10px">${bonos>0?`<li class="kv"><span class="k">Bonos y comisiones al mes (sin descuento)</span><span class="v">${money(bonos)}</span></li>`:''}${extra>0?`<li class="kv"><span class="k">Ofrendas y otros ingresos al mes</span><span class="v">${money(extra)}</span></li>`:''}${gross>0?`<li class="kv"><span class="k"><b>Total que te llega al mes</b></span><span class="v pos"><b>${money(net+otros)}</b></span></li>`:''}</ul>`:''}
    ${gross>0?`<p class="note" style="margin-top:8px">Solo descuenta los seguros (11 %). El impuesto sobre la renta aplica únicamente si ganas más de $11,000 al año.</p>`:''}</section>`;
 }
 function salarySheet(){
@@ -948,17 +982,19 @@ function showCelebration(){
   if(!g)return;
   const rest=S.goals.filter(x=>!x.done).length;
   sheet({title:'¡Meta lograda!',noSave:true,noBtns:true,fields:[],onSave:()=>false,
-    pre:`<div class="cele">${pig(100,150)}<h3>${esc(g.name)}</h3><p>Ahorraste <b>${money(g.final)}</b> y llegaste a tu meta de ${money(g.target)}. Quedó guardada en «Metas logradas».</p>${rest?`<p class="note">Todavía tienes ${rest} meta${rest===1?'':'s'} en marcha.</p>`:''}<p class="ask"><b>¿Tienes otra meta en mente?</b></p><div class="actions" style="justify-content:center"><button class="btn" type="button" data-act="add-goal">Sí, agregar otra meta</button><button class="btn ghost" type="button" data-act="no-goal">No por ahora</button></div></div>`});
+    pre:`<div class="cele"><div class="cele-badge" aria-hidden="true">${ic('check')}</div><h3>${esc(g.name)}</h3><p>Ahorraste <b>${money(g.final)}</b> y llegaste a tu meta de ${money(g.target)}. Quedó guardada en «Metas logradas».</p>${rest?`<p class="note">Todavía tienes ${rest} meta${rest===1?'':'s'} en marcha.</p>`:''}<p class="ask"><b>¿Tienes otra meta en mente?</b></p><div class="actions" style="justify-content:center"><button class="btn" type="button" data-act="add-goal">Sí, agregar otra meta</button><button class="btn ghost" type="button" data-act="no-goal">No por ahora</button></div></div>`});
 }
 function applyAutoPays(){
   let n=0;const t=today();
-  S.clients.filter(c=>c.auto==='si'&&c.status!=='Terminado'&&payAmt(c)>0).forEach(c=>{
-    const from=payStart(c),dues=dueDates(c,from,t).slice(-26),near=dueDates(c,addDays(from,-20),addDays(t,60)),paid={};
-    S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name).forEach(x=>{let k=x.for&&isD(x.for)?x.for:null;if(!k&&x.date>=addDays(from,-20)){let best=1e9;near.forEach(d=>{const m=Math.abs(diffDays(d,x.date));if(m<best){best=m;k=d}})}if(k)paid[k]=(paid[k]||0)+x.amount});
-    dues.forEach(due=>{
-      const id=`${c.id}-p${due.replace(/-/g,'')}`;
-      if(id.length>64||S.tx.some(x=>x.id===id)||S.del[id]||(paid[due]||0)>0)return;
-      S.tx.push({id,type:'ingreso',amount:payAmt(c),cat:c.name,date:due,for:due,desc:`Pago automático: ${c.name}`,auto:true,...(c.tipo==='planilla'?{bruto:grossPay(c)}:{})});n++;
+  S.clients.filter(c=>c.auto==='si'&&c.status!=='Terminado').forEach(c=>{
+    const from=payStart(c);
+    streams(c).forEach(sm=>{
+      const dues=dueDates(sm.o,from,t).slice(-26),paid=paidMap(c,sm.k,dueDates(sm.o,addDays(from,-20),addDays(t,60)),from);
+      dues.forEach(due=>{
+        const id=`${c.id}-${sm.k==='bono'?'b':'p'}${due.replace(/-/g,'')}`;
+        if(id.length>64||S.tx.some(x=>x.id===id)||S.del[id]||(paid[due]||0)>0)return;
+        S.tx.push({id,type:'ingreso',amount:sm.fee,cat:c.name,date:due,for:due,desc:sm.k==='bono'?`Bono automático: ${c.name}`:`Pago automático: ${c.name}`,auto:true,...(sm.k==='bono'?{stream:'bono'}:{}),...(sm.k==='main'&&isSal(c)?{bruto:grossPay(c)}:{})});n++;
+      });
     });
   });
   if(n){stamp();persist();autoSync()}
@@ -1003,14 +1039,15 @@ function sheet(o){
   if(!lastFocus)lastFocus=document.activeElement;
   const fieldHtml=o.fields.map(x=>{
     const v=d[x.k]??x.def??'';let inp;
+    if(x.t==='days'){const sel=String(v).split(',').filter(z=>z!=='');return `<fieldset class="f daysf" data-fk="${x.k}"><legend>${x.l}</legend><div class="dchips">${WDAYS.map((n,i)=>`<label class="dchip"><input type="checkbox" value="${i}" ${sel.includes(String(i))?'checked':''}><span>${n.slice(0,3)}</span></label>`).join('')}</div><input type="hidden" name="${x.k}" value="${esc(sel.join(','))}"></fieldset>`}
     if(x.t==='select'&&v!==''&&!x.o.some(op=>String(Array.isArray(op)?op[0]:op)===String(v)))x={...x,o:[...x.o,v]};
     if(x.t==='select')inp=`<select name="${x.k}">${x.o.map(op=>{const [val,lab]=Array.isArray(op)?op:[op,op];return `<option value="${esc(val)}" ${String(val)===String(v)?'selected':''}>${esc(lab)}</option>`}).join('')}</select>`;
     else if(x.t==='textarea')inp=`<textarea name="${x.k}" placeholder="${esc(x.ph||'')}">${esc(v)}</textarea>`;
     else inp=`<input name="${x.k}" type="${x.t==='number'?'text':(x.t||'text')}" ${x.t==='number'?'inputmode="decimal"':''} value="${esc(v)}" placeholder="${esc(x.ph||'')}" autocomplete="off">`;
-    return `<label class="f"><span>${x.l}</span>${inp}</label>`;
+    return `<label class="f" data-fk="${x.k}"><span>${x.l}</span>${inp}</label>`;
   });
   const mf=o.moreFrom;
-  const fields=mf?fieldHtml.slice(0,mf).join('')+`<details class="more" ${o.fields.slice(mf).some(x=>!['kind','payWeekday','payFrom'].includes(x.k)&&d[x.k])?'open':''}><summary>Más datos (opcional)</summary>${fieldHtml.slice(mf).join('')}</details>`:fieldHtml.join('');
+  const fields=mf?fieldHtml.slice(0,mf).join('')+`<details class="more" ${o.fields.slice(mf).some(x=>!['kind','auto','payFrom'].includes(x.k)&&d[x.k])?'open':''}><summary>Más datos (opcional)</summary>${fieldHtml.slice(mf).join('')}</details>`:fieldHtml.join('');
   const el=$('#sheet');
   el.innerHTML=`<div class="back" data-act="close"></div><form class="panel${o.noBtns?' nobtns':''}" role="dialog" aria-modal="true" aria-labelledby="sheetT"><h2 id="sheetT" tabindex="-1">${o.title}</h2>${o.pre||''}${fields}
    <div class="btns">${o.noSave?'':'<button class="btn" type="submit">Guardar</button>'}<button class="btn ghost" type="button" data-act="close">Cancelar</button>
@@ -1031,6 +1068,13 @@ function sheet(o){
   if(del)del.onclick=()=>{
     if(!del.dataset.sure){del.dataset.sure=1;del.textContent='¿Seguro? Toca otra vez';return}
     o.onDelete();onCancel=null;save();closeSheet();render()};
+  form.querySelectorAll('.daysf').forEach(g=>g.addEventListener('change',()=>{g.querySelector('input[type=hidden]').value=[...g.querySelectorAll('input[type=checkbox]:checked')].map(z=>z.value).join(',')}));
+  const dyn=o.fields.filter(x=>x.show||x.lab);
+  if(dyn.length){
+    const apply=()=>{const vals={};o.fields.forEach(x=>{const e=form.elements[x.k];if(e)vals[x.k]=e.value});
+      dyn.forEach(x=>{const w=form.querySelector(`[data-fk="${x.k}"]`);if(!w)return;if(x.show)w.hidden=!x.show(vals);if(x.lab){const sp=w.querySelector('span,legend');if(sp)sp.textContent=x.lab(vals)}})};
+    form.addEventListener('input',apply);form.addEventListener('change',apply);apply();
+  }
   if(o.setup)o.setup(form);
   const first=form.querySelector('input:not([type=file]),select,textarea');(first||form.querySelector('h2')).focus({preventScroll:true});
 }
@@ -1092,60 +1136,77 @@ function cobroSheet(cid,txId,forDue){
   const c=S.clients.find(x=>x.id===cid);if(!c)return;
   const t=txId?S.tx.find(x=>x.id===txId):null,k=cobro(c);
   const lab={pagado:'ya pagado',vencido:'falta',hoy:'toca hoy',proximo:'próximo'};
-  const opts=[...k.P.map(q=>[q.due,`${dueLabel(c,q.due)}: ${lab[q.st]}${q.st==='pagado'?'':' '+money(q.falta)}`]),['','Pago extra (no es de un periodo)']];
-  const def=t?(t.for||''):(forDue||(k.overdue[0]&&k.overdue[0].due)||(k.next&&k.next.due)||'');
-  const q=k.P.find(x=>x.due===def);
+  const opts=[...k.P.map(q=>[encFor(q),`${q.label}: ${lab[q.st]}${q.st==='pagado'?'':' '+money(q.falta)}`]),['','Pago extra (no es de un periodo)']];
+  const def=t?(t.for?(t.stream==='bono'?'b:':'')+t.for:''):(forDue||(k.overdue[0]&&encFor(k.overdue[0]))||(k.next&&encFor(k.next))||'');
+  const q=k.P.find(x=>encFor(x)===def),isBono=q&&q.s==='bono';
   sheet({title:t?'Editar pago':`Cobro a ${c.name}`,required:'amount',
-    pre:k.plan?`<p class="note" style="margin-bottom:14px">Salario en planilla: bruto ${money(k.gross)} menos 11 % de seguros (Seguro Social 9.75 % + Educativo 1.25 %) = <b>${money(k.fee)} netos</b>. Anota lo que realmente te depositaron.</p>`:'',
+    pre:k.plan&&!isBono?`<p class="note" style="margin-bottom:14px">Salario: bruto ${money(k.gross)} menos 11 % de seguros (Seguro Social 9.75 % + Educativo 1.25 %) = <b>${money(k.fee)} netos</b>. Anota lo que realmente te depositaron.</p>`:'',
     data:t?{amount:t.amount,date:t.date,for:def,desc:t.desc||''}:{amount:q&&q.falta>0?q.falta:k.fee||'',date:today(),for:def,desc:''},
     fields:[{k:'amount',l:k.plan?'Monto neto recibido':'Monto recibido',t:'number',ph:'0.00'},{k:'date',l:'Fecha en que te pagaron',t:'date'},{k:'for',l:'¿A qué pago corresponde?',t:'select',o:opts},{k:'desc',l:'Nota (opcional)'}],
     onSave:v=>{if(!(v.amount>0)){toast('Pon el monto recibido');return false}
-      const rec={type:'ingreso',amount:v.amount,cat:c.name,date:v.date||today(),desc:v.desc||`Cobro: ${c.name}`,for:v.for||''};
+      const bn=String(v.for).startsWith('b:'),fd=bn?String(v.for).slice(2):v.for;
+      const rec={type:'ingreso',amount:v.amount,cat:c.name,date:v.date||today(),desc:v.desc||`Cobro: ${c.name}`,for:fd||''};
       if(!rec.for)delete rec.for;
-      if(k.plan)rec.bruto=Math.round(v.amount/(1-PLAN)*100)/100;
-      if(t){const n={...t,...rec};if(!rec.for)delete n.for;S.tx[S.tx.indexOf(t)]=n}else S.tx.unshift({id:uid(),...rec});
+      if(bn)rec.stream='bono';
+      if(k.plan&&!bn)rec.bruto=Math.round(v.amount/(1-PLAN)*100)/100;
+      if(t){const n={...t,...rec};if(!rec.for)delete n.for;if(!bn)delete n.stream;if(!(k.plan&&!bn))delete n.bruto;S.tx[S.tx.indexOf(t)]=n}else S.tx.unshift({id:uid(),...rec});
       ui.month=rec.date.slice(0,7);toast(t?'Pago actualizado':'Cobro registrado')},
     onDelete:t?()=>{remove(S.tx,t.id);toast('Pago eliminado')}:null});
 }
 function clientSheet(id){
   const c=S.clients.find(x=>x.id===id);
-  sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',data:c?{...c,tipo:c.tipo||'extra',feeBase:c.feeBase||(num(c.fee)>0?'pago':'mes'),auto:c.auto||(num(c.fee)>0?'no':'si'),payWeekday:String(c.payWeekday==null?5:c.payWeekday),freq:c.freq||'mensual'}:{status:'Activo',kind:nextKind(),tipo:'extra',feeBase:'mes',auto:'si',freq:'mensual',payWeekday:'5',payFrom:today()},
-    moreFrom:7,
+  const FQ=[['semanal','Cada semana'],['quincenal','Cada quincena (15 y fin de mes)'],['mensual','Cada mes']];
+  sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',
+    data:c?{...c,tipo:c.tipo||'salario',freq:c.freq||'quincenal',payWeekdays:c.payWeekdays||'5',bonusOn:c.bonusOn||'no',bonusFreq:c.bonusFreq||'mensual',auto:c.auto||(num(c.fee)>0?'no':'si')}
+      :{status:'Activo',kind:nextKind(),tipo:'salario',freq:'quincenal',payWeekdays:'5',bonusOn:'no',bonusFreq:'mensual',auto:'si',payFrom:today()},
+    moreFrom:11,
     fields:[{k:'name',l:'Nombre del cliente'},{k:'status',l:'Estado',t:'select',o:STATUS},
-      {k:'tipo',l:'¿Este ingreso es tu salario?',t:'select',o:[['planilla','Sí, es mi salario (descuenta 11 %)'],['extra','No, es un extra (sin descuentos)']]},
-      {k:'fee',l:'Monto total (si es tu salario, el bruto)',t:'number',ph:'0.00'},
-      {k:'feeBase',l:'Ese monto es…',t:'select',o:[['mes','El total de todo el mes'],['pago','Lo que recibo en cada pago']]},
-      {k:'freq',l:'¿Cada cuánto te pagan?',t:'select',o:[['semanal','Cada semana'],['quincenal','Cada quincena (15 y fin de mes)'],['mensual','Cada mes']]},
-      {k:'auto',l:'¿Sumarlo solo a tus ingresos?',t:'select',o:[['si','Sí, se suma solo en su fecha'],['no','No, yo confirmo cada pago']]},
-      {k:'payWeekday',l:'Si es semanal: ¿qué día de la semana?',t:'select',o:WDAYS.map((n,i)=>[String(i),n])},
-      {k:'payDay',l:'Si es mensual: ¿qué día del mes?',t:'number',ph:'Ej. 15'},
+      {k:'tipo',l:'¿Qué tipo de ingreso es?',t:'select',o:[['salario','Salario'],['ofrenda','Ofrenda'],['otro','Otro']]},
+      {k:'otroTxt',l:'¿De qué es este ingreso?',ph:'Ej. venta, ayuda, clases',show:v=>v.tipo==='otro'},
+      {k:'fee',l:'Salario bruto mensual',t:'number',ph:'0.00',lab:v=>v.tipo==='salario'?'Salario bruto mensual':'¿Cuánto es cada vez?'},
+      {k:'freq',l:'¿Cada cuánto te pagan?',t:'select',o:FQ,lab:v=>v.tipo==='salario'?'¿Cada cuánto te pagan?':'¿Cada cuánto es?'},
+      {k:'payWeekdays',l:'¿Qué días de la semana?',t:'days',show:v=>v.freq==='semanal'},
+      {k:'payDay',l:'¿Qué día del mes?',t:'number',ph:'Ej. 15',show:v=>v.freq==='mensual'},
+      {k:'bonusOn',l:'¿Tienes bono o comisión?',t:'select',o:[['no','No'],['si','Sí']],show:v=>v.tipo==='salario'},
+      {k:'bonus',l:'¿Cuánto es el bono o comisión cada vez? (no se descuenta)',t:'number',ph:'0.00',show:v=>v.tipo==='salario'&&v.bonusOn==='si'},
+      {k:'bonusFreq',l:'¿Cada cuánto lo recibes?',t:'select',o:FQ,show:v=>v.tipo==='salario'&&v.bonusOn==='si'},
+      {k:'auto',l:'¿Sumarlo solo a tus ingresos en cada fecha?',t:'select',o:[['si','Sí, automático'],['no','No, yo confirmo cada pago']]},
       {k:'payFrom',l:'Llevar la cuenta desde',t:'date'},
       {k:'kind',l:'Color del cliente',t:'select',o:[['brand','Rosa'],['info','Azul'],['warn','Anaranjado'],['bad','Rojo'],['accent','Violeta']]},
       {k:'web',l:'Página web',ph:'www.sucliente.com'},{k:'instagram',l:'Instagram',ph:'@usuario'},{k:'tiktok',l:'TikTok',ph:'@usuario'},{k:'facebook',l:'Facebook',ph:'usuario o enlace'},
       {k:'linkedin',l:'LinkedIn',ph:'empresa o enlace'},{k:'youtube',l:'YouTube',ph:'@canal'},{k:'otras',l:'Otras redes o enlaces',t:'textarea',ph:'Pinterest, Linktree, Drive'},
       {k:'contact',l:'Contacto',ph:'Teléfono o correo'},{k:'notes',l:'Notas',t:'textarea'}],
     setup(form){
-      const box=document.createElement('div');box.className='note';box.style.margin='-6px 0 14px';box.setAttribute('aria-live','polite');form.elements.auto.closest('label').after(box);
+      const box=document.createElement('div');box.className='note';box.style.margin='-6px 0 14px';box.setAttribute('aria-live','polite');form.elements.bonusFreq.closest('label').after(box);
+      const val=k=>form.elements[k].value,per={semanal:'semana',quincenal:'quincena',mensual:'mes'};
       const run=()=>{
-        const f=num(form.elements.fee.value);if(!(f>0)){box.textContent='Escribe el monto y te muestro el cálculo.';return}
-        const tmp={fee:f,feeBase:form.elements.feeBase.value,freq:form.elements.freq.value,tipo:form.elements.tipo.value},g=grossPay(tmp),n=payAmt(tmp),per=tmp.freq==='semanal'?'semana':tmp.freq==='quincenal'?'quincena':'mes';
-        box.innerHTML=tmp.tipo==='planilla'?`Cada ${per}: bruto <b>${money(g)}</b> − seguros 11 % (${money(g*PLAN)}) = <b>${money(n)}</b> netos. Al mes te llegan <b>${money(n*perMonth(tmp))}</b> netos.`:`Cada ${per}: <b>${money(n)}</b>, sin descuentos. Al mes: <b>${money(n*perMonth(tmp))}</b>.`;
+        const f=num(val('fee')),tmp={fee:f,tipo:val('tipo'),freq:val('freq'),payWeekdays:val('payWeekdays')};
+        if(!(f>0)){box.textContent=tmp.tipo==='salario'?'Escribe tu salario bruto mensual y te muestro los descuentos.':'Escribe cuánto es cada vez y te muestro el cálculo.';return}
+        let h;
+        if(tmp.tipo==='salario'){const pm=perMonth(tmp),n=f*(1-PLAN);h=`Salario bruto <b>${money(f)}</b> − Seguro Social 9.75 % (${money(f*.0975)}) − Seguro Educativo 1.25 % (${money(f*.0125)}) = <b>${money(n)}</b> netos al mes. Cada ${per[tmp.freq]} recibes <b>${money(r2(f/pm)*(1-PLAN))}</b> netos.`;
+          const bn=num(val('bonus'));if(val('bonusOn')==='si'&&bn>0)h+=` Más bono o comisión: <b>${money(bn)}</b> cada ${per[val('bonusFreq')]}, sin descuento.`}
+        else h=`Cada vez: <b>${money(f)}</b>, sin descuentos. Al mes, aproximadamente <b>${money(f*perMonth(tmp))}</b>.`;
+        box.innerHTML=h;
       };
-      ['fee','feeBase','freq','tipo'].forEach(k=>['input','change'].forEach(ev=>form.elements[k].addEventListener(ev,run)));run();
+      form.addEventListener('input',run);form.addEventListener('change',run);run();
     },
     extra:c?[{label:'Registrar cobro',fn:()=>{closeSheet();cobroSheet(c.id)}}]:[],
     onSave:v=>{
       if(v.name==='Personal'||v.name==='General'||S.clients.some(x=>x.id!==(c&&c.id)&&x.name.toLowerCase()===v.name.toLowerCase())){toast('Ya existe un cliente con ese nombre');return false}
+      if(v.freq==='semanal'&&!String(v.payWeekdays||'').length){toast('Elige al menos un día de la semana');return false}
       if(c&&c.name!==v.name){
         ['tasks','posts','ideas'].forEach(k=>S[k].forEach(r=>{if(r.project===c.name)r.project=v.name}));
         S.events.forEach(r=>{if(r.cat===c.name)r.cat=v.name});S.tx.forEach(t=>{if(t.type==='ingreso'&&t.cat===c.name)t.cat=v.name});
         if(ui.proj===c.name)ui.proj=v.name;if(ui.open===c.name)ui.open=v.name;
       }
-      v.payDay=(v.payDay>=1&&v.payDay<=31)?Math.round(v.payDay):'';v.payWeekday=+v.payWeekday;
-      upsert(S.clients,{...v,id:c?c.id:uid()});
+      v.payDay=(v.payDay>=1&&v.payDay<=31)?Math.round(v.payDay):'';
+      if(v.tipo!=='otro')v.otroTxt='';
+      if(v.tipo!=='salario'){v.bonusOn='no';v.bonus=0}
+      if(!v.payFrom)v.payFrom=today();
+      upsert(S.clients,{...v,id:c?c.id:uid(),payWeekday:undefined,feeBase:undefined});
       if(!c){ui.proj=v.name;ui.open=v.name}
     },
-    onDelete:c?()=>{delClient(c)}:null});
+    onDelete:c?()=>{delClient(c,false)}:null});
 }
 function ideaSheet(id,project){
   const i=S.ideas.find(x=>x.id===id);
@@ -1183,17 +1244,16 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-08.8 monto total y pagos automáticos';
+const APP_V='2026-10-08.9 tipos de ingreso';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
       {k:'alertPct',l:'Avisarme cuando use este % del presupuesto',t:'number',ph:'80'},
-      {k:'leadDays',l:'Avisar fechas importantes con estos días de anticipación',ph:'3,1,0'},
       {k:'every',l:'Sincronizar automáticamente cada',t:'select',o:[['60','1 hora'],['240','4 horas'],['0','Solo al abrir y al guardar']]},
       {k:'theme',l:'Apariencia',t:'select',o:[['dark','Oscura (negro)'],['light','Clara'],['auto','Automática (como tu celular)']]}],
     extra:[{label:'PIN de la app',fn:()=>{closeSheet();pinSheet()}},{label:'Actualizar la app',fn:hardRefresh},{label:'Sincronización',fn:()=>{closeSheet();syncSheet()}},{label:'Avisos en este aparato',fn:enableNotif},{label:'Exportar respaldo',fn:exportData},{label:'Importar respaldo',fn:()=>$('#file').click()}],
     onSave:v=>{const th=v.theme;delete v.theme;SY.every=[0,60,240].includes(+v.every)?+v.every:60;delete v.every;saveSY();
-      v.alertPct=Math.min(100,Math.max(1,v.alertPct||80));v.leadDays=(v.leadDays||'3,1,0').replace(/[^0-9,]/g,'')||'3,1,0';
+      v.alertPct=Math.min(100,Math.max(1,v.alertPct||80));
       S.set={...S.set,...v,u:Date.now()};applyTheme(th)}});
 }
 function applyTheme(th){
@@ -1410,6 +1470,8 @@ document.addEventListener('visibilitychange',()=>{
   if(document.hidden){hiddenAt=Date.now();return}
   if(pinRec()&&$('#lock').hidden&&hiddenAt&&Date.now()-hiddenAt>60000)showLock();
 });
+const LOAD_DAY=today();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&today()!==LOAD_DAY)location.reload()});
 function pinForgot(){
   if(!confirm('Para entrar sin el PIN hay que borrar los datos guardados en ESTE aparato (no los de GitHub, si ya los sincronizaste). ¿Continuar?'))return;
   try{Object.keys(localStorage).filter(k=>k.startsWith('miespacio')).forEach(k=>localStorage.removeItem(k));indexedDB.deleteDatabase('miespacio')}catch(e){}
