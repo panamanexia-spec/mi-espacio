@@ -31,5 +31,10 @@ App personal (PWA) de **agenda, trabajo con clientes, finanzas, súper y metas d
 - **Apple Pay**: un Atajo de iPhone deja archivos en `data/inbox/` del repositorio de datos; `pullInbox()` los trae al sincronizar a `S.inbox` («Por confirmar»), los borra de GitHub y la usuaria elige la categoría (`inboxSheet`; recuerda comercio→categoría en `localStorage['miespacio.merch']`). Guía para ella en `docs/atajo-apple-pay.md`. Todo lo que llega del inbox es entrada no confiable: pasa por `cleanRec('inbox')`.
 - Extras: buscador global, PIN de la app (privacidad por aparato, no cifra), calendario de publicaciones, sincronización automática cada hora o 4 horas (Ajustes).
 
+## Lo que la usuaria pidió para después (próximo chat)
+1. **Reordenar las pestañas**: ahora usa la app sobre todo para finanzas y su vida personal. Orden deseado: **Inicio, Finanzas, Súper, Agenda, Trabajo (clientes al final)**. Revisar que el color de cada sección y el menú sigan bien (`TABS`, `--s-*`).
+2. **Finanzas en pareja con su esposo**: quiere unir las finanzas de los dos en una parte (posible pestaña aparte). Antes de construirlo hay que **preguntarle** cómo lo imagina: ¿cada quien con su celular y los mismos datos? ¿ven también los clientes y el salario de ella o solo lo compartido? ¿gastos del hogar compartidos y los personales separados? Ojo con la privacidad: hoy los datos van a un archivo de GitHub con un token que da acceso a todo; compartirlo con su esposo le daría acceso a todo. Opciones a plantear con calma: un segundo archivo/repositorio solo para lo compartido, o pasar los datos a Supabase con cuentas separadas. Explicarlo en español sencillo.
+3. Probar con ella el **Atajo de Apple Pay** (`docs/atajo-apple-pay.md`) y ajustar según lo que vea en su iPhone.
+
 ## Ideas pendientes que se hablaron
 Plantillas de tareas por cliente, vista semanal, recordatorios de cobro por mensaje, y pasar los datos a Supabase si quiere fotos sincronizadas (hoy las fotos viven en el aparato y se suben a GitHub en segundo plano).
