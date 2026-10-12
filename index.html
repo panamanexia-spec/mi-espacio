@@ -1014,7 +1014,7 @@ function vShop(){
   <div class="actions" style="margin-top:14px"><button class="btn ghost" type="button" data-act="shop-clear">Quitar comprados</button><button class="btn" type="button" data-act="shop-expense">Registrar gasto del súper</button></div>`;
 }
 
-const TABS=[['home','Inicio','home',vHome],['agenda','Agenda','calendar',vAgenda],['work','Trabajo','briefcase',vWork],['money','Finanzas','chart',vMoney],['shop','Súper','cart',vShop]];
+const TABS=[['home','Inicio','home',vHome],['money','Finanzas','chart',vMoney],['shop','Súper','cart',vShop],['agenda','Agenda','calendar',vAgenda],['work','Trabajo','briefcase',vWork]];
 const norm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const lastCat=()=>{try{return localStorage.getItem('miespacio.lastcat')||''}catch(e){return ''}};
 const merchKey=x=>norm(x).replace(/[^a-z0-9 ]/g,'').trim().slice(0,40);
@@ -1348,7 +1348,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-12.1 gasto rápido y bandeja de Apple Pay';
+const APP_V='2026-10-12.2 pestañas reordenadas';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
