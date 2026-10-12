@@ -427,8 +427,8 @@ fieldset.f legend{display:block;font-size:.88rem;font-weight:700;color:var(--mut
 <script>
 /* ============ Datos ============ */
 const KEY='miespacio.v1';
-const DEF={events:[],tx:[],shop:[],clients:[],tasks:[],ideas:[],posts:[],goals:[],inbox:[],favs:[],del:{},set:{name:'',budget:0,alertPct:80,leadDays:'3,1,0',u:0,seeded:false}};
-const COLL=['events','tx','shop','clients','tasks','ideas','posts','goals','inbox'];
+const DEF={events:[],tx:[],shop:[],clients:[],tasks:[],ideas:[],posts:[],goals:[],debts:[],inbox:[],favs:[],del:{},set:{name:'',budget:0,alertPct:80,leadDays:'3,1,0',u:0,seeded:false}};
+const COLL=['events','tx','shop','clients','tasks','ideas','posts','goals','debts','inbox'];
 let S;
 /* Todo dato que viene de fuera (almacenamiento, respaldo importado, GitHub) se limpia antes de usarse */
 const SAFE=/^[\w-]{1,64}$/,isD=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v),isT=v=>typeof v==='string'&&/^\d{2}:\d{2}$/.test(v);
@@ -438,12 +438,14 @@ function cleanRec(c,r){
   if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.id!=='string'||!SAFE.test(r.id))return null;
   const o={...r};
   TEXTF.forEach(k=>{if(k in o&&typeof o[k]!=='string')o[k]=o[k]==null||typeof o[k]==='object'?'':String(o[k])});
-  ['date','due','payFrom','for','created','doneOn','since'].forEach(k=>{if(k in o&&o[k]!==''&&!isD(o[k]))o[k]=''});
+  ['date','due','payFrom','for','created','doneOn','since','end'].forEach(k=>{if(k in o&&o[k]!==''&&!isD(o[k]))o[k]=''});
   if('time' in o&&o.time!==''&&!isT(o.time))o.time='';
   if('u' in o&&!Number.isFinite(o.u))delete o.u;
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
   if(c==='inbox'){o.amount=+o.amount;if(!(o.amount>0&&o.amount<1e7))return null;o.desc=String(o.desc||'').slice(0,80);o.card=String(o.card||'').slice(0,30);o.cat=String(o.cat||'').slice(0,40);if(o.date&&!isD(o.date))o.date=''}
   if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0;o.done=!!o.done;o.final=Number.isFinite(+o.final)?+o.final:0;o.aportes=Number.isInteger(+o.aportes)&&+o.aportes>=0?+o.aportes:0}
+  if(c==='debts'){['bal','rate','pay','init'].forEach(k=>{o[k]=Number.isFinite(+o[k])&&+o[k]>=0&&+o[k]<1e9?+o[k]:0});o.rate=Math.min(o.rate,1000);if(!(o.init>=o.bal))o.init=o.bal;if(!['si','no'].includes(o.payroll))o.payroll='no';
+    o.pays=Array.isArray(o.pays)?o.pays.slice(0,500).map((p,i)=>p&&typeof p==='object'&&isD(p.d)&&Number.isFinite(+p.a)&&+p.a>0&&+p.a<1e9?{id:typeof p.id==='string'&&SAFE.test(p.id)?p.id:'p'+i,d:p.d,a:+p.a,k:p.k==='extra'?'extra':'cuota',cap:Number.isFinite(+p.cap)&&+p.cap>=0?+p.cap:0,...(typeof p.tx==='string'&&SAFE.test(p.tx)?{tx:p.tx}:{})}:null).filter(Boolean):[]}
   if(c==='clients'){
     if(!['mensual','quincenal','semanal'].includes(o.freq))delete o.freq;
     if(o.payWeekdays!=null&&!/^[0-6](,[0-6])*$/.test(String(o.payWeekdays)))delete o.payWeekdays;
@@ -459,6 +461,7 @@ function cleanRec(c,r){
     if(+o.bonus>0)o.bonus=+o.bonus;else delete o.bonus;
     if(!['mensual','quincenal','semanal'].includes(o.bonusFreq))delete o.bonusFreq;
     if(!o.payFrom)delete o.payFrom;
+    if(Array.isArray(o.descs))o.descs=o.descs.slice(0,20).map((x,i)=>x&&typeof x==='object'&&Number.isFinite(+x.m)&&+x.m>0&&+x.m<1e7?{id:typeof x.id==='string'&&SAFE.test(x.id)?x.id:'d'+i,n:String(x.n==null||typeof x.n==='object'?'':x.n).slice(0,60),m:+x.m}:null).filter(Boolean);else delete o.descs;
   }
   if(c==='tx'){if(o.stream!=='bono')delete o.stream;if('auto' in o)o.auto=!!o.auto;if(!Number.isFinite(+o.bruto)||+o.bruto<=0)delete o.bruto;if(!['mensual','quincenal','bimestral'].includes(o.repeat))o.repeat='';if(o.for==='')delete o.for;if(typeof o.from!=='string'||!SAFE.test(o.from))delete o.from;o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
   if(c==='shop'||c==='tasks')o.done=!!o.done;
@@ -506,7 +509,7 @@ const KIND={Personal:'info',Finanzas:'warn',Salud:'ok',Casa:'mute',Otros:'mute',
 const KINDS=['brand','info','warn','bad','accent'];
 const nextKind=()=>{const n=Object.fromEntries(KINDS.map(k=>[k,0]));S.clients.forEach(c=>{if(KINDS.includes(c.kind))n[c.kind]++});return KINDS.reduce((a,k)=>n[k]<n[a]?k:a,KINDS[0])};
 const TXCATS={ingreso:['Dinero extra','Regalo','Venta','Otros ingresos'],
-  gasto:['Casa','Super','Transporte','Salud','Ocio','Servicios','Belleza y ropa','Trabajo','Otros'],
+  gasto:['Casa','Super','Transporte','Salud','Ocio','Servicios','Deudas','Belleza y ropa','Trabajo','Otros'],
   ahorro:['Ahorro','Emergencia','Metas']};
 const SHOPCATS=['Frutas y verduras','Carnes y pescado','Lácteos y huevos','Despensa','Limpieza','Higiene y belleza','Otros'];
 const STATUS=['Prospecto','Activo','En pausa','Terminado'];
@@ -558,7 +561,7 @@ const when=(d,t=today())=>{const n=diffDays(t,d);return n<0?`hace ${-n} día${n<
 
 /* ============ Estado de UI ============ */
 const nowYM=today().slice(0,7);
-const ui={tab:'home',sub:'',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',cel:[],fper:'mes',mt:'todos',mq:'',mAll:false,pubcal:false,pcal:nowYM,psel:today()};
+const ui={tab:'home',sub:'',dx:'',dxd:'',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',cel:[],fper:'mes',mt:'todos',mq:'',mAll:false,pubcal:false,pcal:nowYM,psel:today()};
 function syncProj(){
   PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
   ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
@@ -633,7 +636,10 @@ const perMonth=c=>perMonthF(c.freq,c);
 /* salario: se escribe el bruto MENSUAL y se reparte por pago; ofrenda u otro: se escribe lo de cada vez */
 const grossMonth=c=>isSal(c)?num(c.fee):num(c.fee)*perMonth(c);
 const grossPay=c=>isSal(c)?r2(num(c.fee)/perMonth(c)):num(c.fee);
-const payAmt=c=>isSal(c)?r2(grossPay(c)*(1-PLAN)):num(c.fee);
+const descsOf=c=>isSal(c)&&Array.isArray(c.descs)?c.descs:[];
+const descMonth=c=>descsOf(c).reduce((a,x)=>a+num(x.m),0);
+/* salario neto real por pago = bruto − 11 % − otros descuentos de planilla (repartidos entre los pagos del mes) */
+const payAmt=c=>isSal(c)?Math.max(0,r2(grossPay(c)*(1-PLAN)-descMonth(c)/perMonth(c))):num(c.fee);
 const bonusOn=c=>isSal(c)&&c.bonusOn==='si'&&num(c.bonus)>0;
 const bonusFreq=c=>c.bonusFreq||'mensual';
 const bonusMonth=c=>bonusOn(c)?num(c.bonus)*perMonthF(bonusFreq(c),c):0;
@@ -679,7 +685,7 @@ function cobro(c){
   const P=[...periods(c,'main'),...periods(c,'bono')].sort((a,b)=>a.due.localeCompare(b.due));
   const overdue=P.filter(p=>p.st==='vencido'||p.st==='hoy');
   const paid=S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name&&x.date.startsWith(nowYM)).reduce((a,x)=>a+x.amount,0);
-  return {fee:payAmt(c),gross:grossPay(c),plan:isSal(c),P,overdue,pend:overdue.reduce((a,p)=>a+p.falta,0),next:P.find(p=>p.st==='proximo'),paid};
+  return {fee:payAmt(c),gross:grossPay(c),descPay:descMonth(c)/perMonth(c),plan:isSal(c),P,overdue,pend:overdue.reduce((a,p)=>a+p.falta,0),next:P.find(p=>p.st==='proximo'),paid};
 }
 /* periodo = mes completo, 1.ª quincena (1–15) o 2.ª quincena (16–fin) */
 function win(ym,per){const [y,m]=ym.split('-').map(Number),ld=lastDay(y,m);return per==='q1'?[ym+'-01',ym+'-15']:per==='q2'?[ym+'-16',`${ym}-${pad(ld)}`]:[ym+'-01',`${ym}-${pad(ld)}`]}
@@ -742,7 +748,7 @@ function fixedAhead(to){
       if(nx>to)break;cur=nx;if(nx>t0)sum+=x.amount;
     }
   });
-  return sum;
+  return sum+(to>=t0?debtsAhead():0);
 }
 const alertLi=a=>`<li><button class="al l${a.lvl}" type="button" data-act="${a.act}" data-id="${esc(a.id)}">${ic(a.ic)}<span class="tx">${esc(a.tx)}</span></button></li>`;
 const alertsCard=A=>`<section class="card span2" aria-labelledby="h-al"><h2 id="h-al">Alertas</h2><ul class="list">${A.slice(0,3).map(alertLi).join('')}</ul>${A.length>3?`<details style="margin-top:6px"><summary class="link">Ver ${A.length-3} más</summary><ul class="list">${A.slice(3,12).map(alertLi).join('')}</ul></details>`:''}</section>`;
@@ -880,7 +886,7 @@ function vClient(c){
     ${NEXT[x.status]?`<button class="btn ghost sm" type="button" data-act="adv" data-id="${x.id}" aria-label="Pasar «${esc(x.title)}» a ${NEXT[x.status]}">${NEXT[x.status]} ${ic('right')}</button>`:''}</li>`};
   const ck=cobro(c),st={pagado:['Pagado','ok'],vencido:['Falta','bad'],hoy:['Hoy','warn'],proximo:['Próximo','info']};
   const freqTxt=!ck.fee?'':c.freq==='semanal'?`Pago semanal: ${wdList(c).map(n=>WDAYS[n]).join(' y ')}`:c.freq==='quincenal'?'Pago quincenal: los 15 y el último día del mes':`Pago mensual: el día ${c.payDay||1}`;
-  const planTxt=(isSal(c)?`Salario bruto mensual ${money(num(c.fee))} − 11 % de seguros (${money(num(c.fee)*PLAN)}) = ${money(num(c.fee)*(1-PLAN))} netos al mes; ${money(ck.fee)} netos en cada pago.`:`${tipoTxt}: ${money(ck.fee)} cada vez, sin descuentos.`)+(bonusOn(c)?` Bono o comisión: ${money(num(c.bonus))} ${{semanal:'cada semana',quincenal:'cada quincena',mensual:'cada mes'}[bonusFreq(c)]}, sin descuento.`:'')+(c.auto==='si'?' Se suma solo a tus ingresos en cada fecha de pago; si algún pago no llegó, edítalo o bórralo abajo.':'');
+  const planTxt=(isSal(c)?`Salario bruto mensual ${money(num(c.fee))} − 11 % de seguros (${money(num(c.fee)*PLAN)})${descMonth(c)>0?` − otros descuentos (${money(descMonth(c))})`:''} = ${money(Math.max(0,num(c.fee)*(1-PLAN)-descMonth(c)))} netos al mes; ${money(ck.fee)} netos en cada pago.`:`${tipoTxt}: ${money(ck.fee)} cada vez, sin descuentos.`)+(bonusOn(c)?` Bono o comisión: ${money(num(c.bonus))} ${{semanal:'cada semana',quincenal:'cada quincena',mensual:'cada mes'}[bonusFreq(c)]}, sin descuento.`:'')+(c.auto==='si'?' Se suma solo a tus ingresos en cada fecha de pago; si algún pago no llegó, edítalo o bórralo abajo.':'');
   const mine=S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,10);
   const pagosHtml=((ck.fee||bonusOn(c))?`<p class="note" style="margin-bottom:4px">${freqTxt}.</p><p class="note" style="margin-bottom:8px">${planTxt}</p><ul class="list">${ck.P.slice().reverse().map(q=>`<li class="row"><button class="row-main" type="button" ${q.st==='pagado'?'disabled':`data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}"`}><span class="t">${esc(q.label)}</span><span class="s">${q.paid?`Recibido ${money(q.paid)} de ${money(ck.fee)}`:`Monto ${money(ck.fee)}`}</span></button>${pill(st[q.st][0],st[q.st][1])}${q.st==='pagado'?'':`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}">Cobrar</button>`}</li>`).join('')}</ul>`
     :`<p class="note" style="margin-bottom:8px">Toca «Ajustar» y elige si es salario, ofrenda u otro, cuánto es y cada cuánto, para llevar el control de sus pagos.</p>`)+
@@ -891,6 +897,7 @@ function vClient(c){
   `<p style="margin:-6px 0 16px">${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')} ${(ck.fee||bonusOn(c))?pill(ck.pend>0?'Falta cobrar '+money(ck.pend):'Pagos al día',ck.pend>0?'warn':'ok'):''}</p>
   <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Publicaciones por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div>${(ck.fee||bonusOn(c))?`<div class="stat card"><span>Falta cobrar</span><b class="${ck.pend>0?'neg':''}">${money(ck.pend)}</b></div>`:''}</div>
   ${sec('h-c','Pagos',`<button class="link" type="button" data-act="edit-client" data-id="${c.id}">Ajustar</button>`,pagosHtml)}
+  ${isSal(c)?sec('h-ds','Otros descuentos de planilla',addBtn('Descuento','add-desc',c.id),`<p class="note" style="margin-bottom:8px">Préstamos, seguros u otros que te quitan cada mes del salario. Se restan del salario neto.</p>${descsOf(c).length?`<ul class="list">${descsOf(c).map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-desc" data-id="${esc(x.id)}" data-cid="${c.id}"><span class="t">${esc(x.n||'Descuento')}</span><span class="s">cada mes</span></button><span class="amt neg">− ${money(x.m)}</span></li>`).join('')}</ul><p class="note" style="margin-top:8px">Total: ${money(descMonth(c))} al mes · salario neto real: <b>${money(Math.max(0,num(c.fee)*(1-PLAN)-descMonth(c)))}</b></p>`:empty('No tienes otros descuentos anotados.')}`):''}
   ${sec('h-d','Datos y redes',`<button class="link" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`,
     (links?`<div class="actions" style="margin-bottom:12px">${links}</div>`:'')+(info.length?`<ul class="list">${info.map(([k,v])=>`<li class="kv"><span class="k">${k}</span><span class="v">${esc(v)}</span></li>`).join('')}</ul>`:'')+((!links&&!info.length)?empty('Aún no hay datos. Toca «Editar» para agregar su página web, redes y contacto.'):''))}
   ${sec('h-t','Tareas','',`<form class="quick" data-quick="task"><label class="sr" for="qt">Nueva tarea</label><input id="qt" name="n" placeholder="Escribe una tarea y toca Agregar" autocomplete="off"><button class="btn" type="submit">${ic('plus')}Agregar</button></form>
@@ -970,17 +977,17 @@ function fixedCard(){
 }
 /* Panamá: el empleado paga 9.75 % de Seguro Social y 1.25 % de Seguro Educativo = 11 % */
 function salaryCalc(g){const ss=g*.0975,se=g*.0125,net=g-ss-se;return {ss,se,tot:ss+se,net,q:net/2}}
-function salaryRows(g){const r=salaryCalc(g);return `<ul class="list"><li class="kv"><span class="k">Salario bruto mensual</span><span class="v">${money(g)}</span></li><li class="kv"><span class="k">Seguro Social (9.75 %)</span><span class="v neg">− ${money(r.ss)}</span></li><li class="kv"><span class="k">Seguro Educativo (1.25 %)</span><span class="v neg">− ${money(r.se)}</span></li><li class="kv"><span class="k">Total descuentos (11 %)</span><span class="v neg">− ${money(r.tot)}</span></li><li class="kv"><span class="k"><b>Salario neto mensual</b></span><span class="v pos"><b>${money(r.net)}</b></span></li><li class="kv"><span class="k">Neto por quincena</span><span class="v">${money(r.q)}</span></li></ul>`}
+function salaryRows(g,ds=[]){const r=salaryCalc(g),dt=ds.reduce((a,x)=>a+x.m,0),net=Math.max(0,r.net-dt);return `<ul class="list"><li class="kv"><span class="k">Salario bruto mensual</span><span class="v">${money(g)}</span></li><li class="kv"><span class="k">Seguro Social (9.75 %)</span><span class="v neg">− ${money(r.ss)}</span></li><li class="kv"><span class="k">Seguro Educativo (1.25 %)</span><span class="v neg">− ${money(r.se)}</span></li><li class="kv"><span class="k">Total descuentos (11 %)</span><span class="v neg">− ${money(r.tot)}</span></li>${ds.map(x=>`<li class="kv"><span class="k">${esc(x.n||'Otro descuento')}</span><span class="v neg">− ${money(x.m)}</span></li>`).join('')}${ds.length?`<li class="kv"><span class="k">Total otros descuentos</span><span class="v neg">− ${money(dt)}</span></li>`:''}<li class="kv"><span class="k"><b>Salario neto mensual</b></span><span class="v pos"><b>${money(net)}</b></span></li><li class="kv"><span class="k">Neto por quincena</span><span class="v">${money(net/2)}</span></li></ul>`}
 function salaryCard(){
   const PL=S.clients.filter(c=>isSal(c)&&num(c.fee)>0&&c.status!=='Terminado'),EX=S.clients.filter(c=>!isSal(c)&&num(c.fee)>0&&c.status==='Activo');
   const gross=PL.length?PL.reduce((a,c)=>a+grossMonth(c),0):num(S.set.gross);
-  const bonos=PL.reduce((a,c)=>a+bonusMonth(c),0),extra=EX.reduce((a,c)=>a+grossMonth(c),0),net=gross-gross*PLAN;
+  const ds=PL.flatMap(c=>descsOf(c)),dsum=ds.reduce((a,x)=>a+num(x.m),0),bonos=PL.reduce((a,c)=>a+bonusMonth(c),0),extra=EX.reduce((a,c)=>a+grossMonth(c),0),net=Math.max(0,gross-gross*PLAN-dsum);
   const src=PL.length?`<p class="note" style="margin-bottom:10px">Calculado con tu salario en: ${PL.map(c=>`<button class="link" type="button" data-act="go-client" data-id="${esc(c.name)}">${esc(c.name)}</button>`).join(', ')}. Para cambiar el monto, edita el cliente.</p>`:'';
   const otros=bonos+extra;
   return `<section class="card" aria-labelledby="h-sa"><div class="card-h"><h2 id="h-sa">Mi salario (Panamá)</h2>${PL.length?'':`<button class="link" type="button" data-act="salary">${gross?'Cambiar':'Calcular'}</button>`}</div>
-   ${gross>0?src+salaryRows(gross):`<p class="note">Si un cliente te paga un salario, en su ficha elige «Salario» y aquí verás tu salario neto sin escribirlo dos veces. También puedes calcularlo a mano con «Calcular».</p>`}
+   ${gross>0?src+salaryRows(gross,ds):`<p class="note">Si un cliente te paga un salario, en su ficha elige «Salario» y aquí verás tu salario neto sin escribirlo dos veces. También puedes calcularlo a mano con «Calcular».</p>`}
    ${otros>0?`<ul class="list" style="margin-top:10px">${bonos>0?`<li class="kv"><span class="k">Bonos y comisiones al mes (sin descuento)</span><span class="v">${money(bonos)}</span></li>`:''}${extra>0?`<li class="kv"><span class="k">Ofrendas y otros ingresos al mes</span><span class="v">${money(extra)}</span></li>`:''}${gross>0?`<li class="kv"><span class="k"><b>Total que te llega al mes</b></span><span class="v pos"><b>${money(net+otros)}</b></span></li>`:''}</ul>`:''}
-   ${gross>0?`<p class="note" style="margin-top:8px">Solo descuenta los seguros (11 %). El impuesto sobre la renta aplica únicamente si ganas más de $11,000 al año.</p>`:''}</section>`;
+   ${gross>0?`<p class="note" style="margin-top:8px">Descuenta los seguros (11 %)${dsum>0?' y tus otros descuentos de planilla':''}. Para agregar descuentos como un préstamo, abre la ficha de tu cliente en Trabajo. El impuesto sobre la renta aplica únicamente si ganas más de $11,000 al año.</p>`:''}</section>`;
 }
 function salarySheet(){
   sheet({title:'Mi salario',data:{gross:S.set.gross||''},fields:[{k:'gross',l:'Salario bruto mensual',t:'number',ph:'0.00'}],
@@ -988,6 +995,112 @@ function salarySheet(){
     setup(f){const pv=$('#salprev'),run=()=>{const g=num(f.elements.gross.value);pv.innerHTML=g>0?salaryRows(g):'Escribe tu salario bruto para ver el cálculo.'};f.elements.gross.addEventListener('input',run);f.elements.gross.setAttribute('inputmode','decimal');run()},
     onSave:v=>{S.set={...S.set,gross:v.gross>0?v.gross:0,u:Date.now()}}});
 }
+/* ---- Deudas ---- */
+const ymAdd=n=>{const [y,m]=nowYM.split('-').map(Number),t=y*12+(m-1)+n;return `${Math.floor(t/12)}-${pad(t%12+1)}`};
+const finLbl=n=>n<=0?'este mes':`${mLabel(ymAdd(n))} (en ${plural(n,'mes','meses')})`;
+/* una deuda: meses y total de intereses pagando la cuota (+ abono extra) cada mes */
+function simDebt(bal,rate,pay,extra=0){
+  const r=rate/1200,p=pay+extra;let b=bal,m=0,int=0;
+  if(!(b>0.005))return {ok:true,m:0,int:0};
+  while(b>0.005&&m<1200){const i=b*r;if(p<=i+1e-9)return {ok:false,m:0,int:0};int+=i;b+=i;b-=Math.min(p,b);m++}
+  return {ok:b<=0.005,m,int};
+}
+/* varias deudas: lo que sobra al liquidar una pasa a la siguiente (según el orden del método) */
+function simPlan(list,extra,order){
+  const D=list.map(d=>({id:d.id,name:d.name,rate:d.rate,pay:d.pay,b:d.bal,m:0,done:false}));
+  const total=D.reduce((a,d)=>a+d.pay,0)+extra;let months=0,int=0;
+  while(D.some(d=>!d.done)&&months<1200){
+    months++;
+    D.forEach(d=>{if(!d.done){const i=d.b*d.rate/1200;d.b+=i;int+=i}});
+    let pool=total;
+    D.forEach(d=>{if(!d.done){const p=Math.min(d.pay,d.b);d.b-=p;pool-=p}});
+    for(const d of D.filter(d=>!d.done&&d.b>0.005).sort(order)){if(pool<=0)break;const p=Math.min(pool,d.b);d.b-=p;pool-=p}
+    D.forEach(d=>{if(!d.done&&d.b<=0.005){d.done=true;d.b=0;d.m=months}});
+  }
+  return {months,int,ok:D.every(d=>d.done),D};
+}
+const debtsOpen=()=>S.debts.filter(d=>d.bal>0.005);
+const debtsInfo=()=>{const A=debtsOpen();return {n:A.length,bal:A.reduce((a,d)=>a+d.bal,0),pay:A.reduce((a,d)=>a+d.pay,0),mine:A.filter(d=>d.payroll!=='si').reduce((a,d)=>a+d.pay,0)}};
+/* cuota del mes que aún falta pagar de las deudas que NO van por planilla (las de planilla ya están en el salario neto) */
+const debtsAhead=()=>debtsOpen().filter(d=>d.payroll!=='si').reduce((a,d)=>{
+  const paid=d.pays.filter(p=>p.k==='cuota'&&p.d.startsWith(nowYM)).reduce((s,p)=>s+p.a,0);
+  return a+Math.max(0,Math.min(d.pay,d.bal*(1+d.rate/1200))-paid)},0);
+function revertPay(d,p){d.bal=r2(d.bal+(p.cap||0));if(p.tx)remove(S.tx,p.tx);d.pays=d.pays.filter(x=>x.id!==p.id)}
+function applyPay(d,k,a,date){
+  const int=d.bal*d.rate/1200,cap=k==='cuota'?Math.min(d.bal,Math.max(0,a-int)):Math.min(d.bal,a);
+  const p={id:uid(),d:date,a,k,cap:r2(cap)};
+  if(d.payroll!=='si'){const id=uid();S.tx.unshift({id,type:'gasto',amount:a,cat:'Deudas',desc:(k==='extra'?'Abono extra: ':'Pago: ')+d.name,date});p.tx=id}
+  d.bal=r2(d.bal-cap);d.pays.unshift(p);d.pays=d.pays.slice(0,500);
+  return {int:r2(Math.min(int,a)),cap:p.cap};
+}
+function debtSheet(id){
+  const d=S.debts.find(x=>x.id===id);
+  sheet({title:d?'Editar deuda':'Nueva deuda',required:'name',data:d?{...d}:{payroll:'no'},
+    pre:'<p class="note" style="margin-bottom:14px">Escribe los datos como aparecen en tu estado de cuenta. Puedes cambiarlos cuando quieras.</p>',
+    fields:[{k:'name',l:'Nombre de la deuda',ph:'Préstamo, tarjeta, carro'},{k:'bal',l:'Saldo actual (lo que debes hoy)',t:'number',ph:'0.00'},{k:'rate',l:'Tasa de interés anual (%)',t:'number',ph:'Ej. 12'},{k:'pay',l:'Cuota mensual',t:'number',ph:'0.00'},{k:'end',l:'Fecha de fin (si la sabes)',t:'date'},
+      {k:'payroll',l:'¿Se paga por descuento de planilla?',t:'select',o:[['no','No, yo la pago'],['si','Sí, me la descuentan del salario']]}],
+    onSave:v=>{
+      if(!(v.bal>=0)||!(v.pay>0)){toast('Pon el saldo y la cuota mensual');return false}
+      if(S.debts.some(x=>x.id!==(d&&d.id)&&x.name.toLowerCase()===v.name.toLowerCase())){toast('Ya tienes una deuda con ese nombre');return false}
+      const rate=Math.min(Math.max(0,v.rate||0),1000);
+      upsert(S.debts,{...v,rate,id:d?d.id:uid(),init:d?Math.max(d.init||0,v.bal):v.bal,pays:d?d.pays:[]})},
+    onDelete:d?()=>remove(S.debts,d.id):null});
+}
+function debtPaySheet(id,k,pid){
+  const d=S.debts.find(x=>x.id===id);if(!d)return;
+  const old=pid?d.pays.find(p=>p.id===pid):null;k=old?old.k:k;
+  sheet({title:old?'Editar pago':k==='extra'?`Abono extra a ${esc(d.name)}`:`Pago de ${esc(d.name)}`,required:'a',
+    pre:`<p class="note" style="margin-bottom:14px">${k==='extra'?'Un abono extra baja el saldo completo.':'En un pago de la cuota, una parte va a intereses y el resto baja el saldo.'}${d.payroll==='si'?' Como se paga por planilla, no se anota como gasto.':' Se anota también como gasto en tus movimientos.'}</p>`,
+    data:old?{a:old.a,d:old.d}:{a:k==='cuota'?Math.min(d.pay,r2(d.bal*(1+d.rate/1200))):'',d:today()},
+    fields:[{k:'a',l:'Monto pagado',t:'number',ph:'0.00'},{k:'d',l:'Fecha',t:'date'}],
+    onSave:v=>{
+      if(!(v.a>0)){toast('Pon el monto pagado');return false}
+      if(old)revertPay(d,old);
+      const r=applyPay(d,k,v.a,v.d||today());
+      toast(k==='cuota'?`Listo: ${money(r.int)} fueron intereses y el saldo bajó ${money(r.cap)}`:`Listo: el saldo bajó ${money(r.cap)}`)},
+    onDelete:old?()=>{revertPay(d,old);toast('Pago eliminado y saldo devuelto')}:null});
+}
+function debtSimHtml(){
+  const A=debtsOpen(),x=num(ui.dx),d=A.find(z=>z.id===ui.dxd)||A[0];
+  if(!d)return '';
+  const b=simDebt(d.bal,d.rate,d.pay),n=simDebt(d.bal,d.rate,d.pay,x);
+  if(!b.ok)return `<p class="note">Con la cuota de ${money(d.pay)} no alcanza ni para los intereses de ${esc(d.name)}. ${x>0&&n.ok?`Con ${money(x)} extra al mes terminarías ${finLbl(n.m)}.`:'Prueba escribir un abono extra.'}</p>`;
+  if(!(x>0))return `<p class="note">Sin abono extra terminarías ${finLbl(b.m)} y pagarías ${money(b.int)} de intereses.</p>`;
+  if(!n.ok)return `<p class="note">Con ese abono todavía no se alcanza a pagar.</p>`;
+  return `<ul class="list"><li class="kv"><span class="k">Terminarías</span><span class="v">${finLbl(n.m)}</span></li><li class="kv"><span class="k">Meses que te ahorras</span><span class="v pos">${b.m-n.m}</span></li><li class="kv"><span class="k">Intereses que te ahorras</span><span class="v pos">${money(Math.max(0,b.int-n.int))}</span></li></ul><p class="note" style="margin-top:8px">Sin abono: ${finLbl(b.m)} y ${money(b.int)} de intereses. Con ${money(x)} extra: ${money(n.int)} de intereses.</p>`;
+}
+function debtCmpHtml(){
+  const A=debtsOpen();if(A.length<2)return '';
+  const x=num(ui.dx),L=A.map(d=>({id:d.id,name:d.name,bal:d.bal,rate:d.rate,pay:d.pay}));
+  const av=simPlan(L,x,(a,b)=>b.rate-a.rate||a.b-b.b),sn=simPlan(L,x,(a,b)=>a.b-b.b||b.rate-a.rate);
+  const col=(t,r)=>`<div class="stat card"><span>${t}</span>${r.ok?`<b>${finLbl(r.months)}</b><span class="note">Intereses: ${money(r.int)}</span>`:`<b>No se alcanza</b><span class="note">con esas cuotas</span>`}<ul class="list" style="margin-top:8px">${r.D.map(d=>`<li class="kv"><span class="k">${esc(d.name)}</span><span class="v">${d.done?mLabel(ymAdd(d.m)):'—'}</span></li>`).join('')}</ul></div>`;
+  let veredicto='';
+  if(av.ok&&sn.ok){const dif=sn.int-av.int;veredicto=dif>0.5?`<b>Avalancha ahorra más:</b> pagas ${money(dif)} menos de intereses${sn.months-av.months>0?` y terminas ${plural(sn.months-av.months,'mes','meses')} antes`:''}.`:dif<-0.5?`<b>Bola de nieve ahorra más:</b> pagas ${money(-dif)} menos de intereses.`:`<b>Los dos métodos salen casi igual</b>${x>0?'':'. La diferencia aparece cuando tienes dinero extra: escribe un abono extra arriba para verla'}.`}
+  return `<div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${col('Avalancha (mayor tasa primero)',av)}${col('Bola de nieve (menor saldo primero)',sn)}</div><p style="margin-top:12px">${veredicto}</p><p class="note" style="margin-top:6px">Se paga la cuota de cada deuda y todo lo que sobra, más tu abono extra de arriba, va a la que toca según el método. Cuando una se liquida, su cuota pasa a la siguiente. Incluye las deudas que se pagan por planilla.</p>`;
+}
+document.addEventListener('input',e=>{if(e.target.id==='dbx'){ui.dx=e.target.value;$('#dbres').innerHTML=debtSimHtml();const c=$('#dbcmp');if(c)c.innerHTML=debtCmpHtml()}});
+document.addEventListener('change',e=>{if(e.target.id==='dbsel'){ui.dxd=e.target.value;$('#dbres').innerHTML=debtSimHtml()}});
+function vDebts(){
+  const A=debtsOpen(),P=S.debts.filter(d=>d.bal<=0.005),I=debtsInfo();
+  const card=d=>{
+    const pct=d.init>0?Math.min(100,Math.max(0,(d.init-d.bal)/d.init*100)):0,s=simDebt(d.bal,d.rate,d.pay);
+    return `<section class="card" aria-label="${esc(d.name)}"><div class="card-h"><h2>${esc(d.name)}</h2>${d.payroll==='si'?'<span class="pill k-info">Por planilla</span>':''}</div>
+    <div class="gmain"><div><span>Debes ${money(d.bal)}</span> <span class="amt">· de ${money(d.init)}</span></div><div class="track" role="meter" aria-label="Avance de ${esc(d.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div></div>
+    <p class="note" style="margin-top:8px">${d.rate>0?`${d.rate} % anual · `:'Sin intereses · '}cuota ${money(d.pay)} al mes</p>
+    <p style="margin-top:6px">${s.ok?`Terminas aprox. <b>${finLbl(s.m)}</b>`:'La cuota no alcanza ni para los intereses.'}${d.end?`<span class="note"> · tu fecha de fin: ${mLabel(d.end.slice(0,7))}</span>`:''}</p>
+    ${d.payroll==='si'?`<p class="note" style="margin-top:6px">Se descuenta de tu salario, así que no se resta otra vez de tu presupuesto. Para que tu salario neto la cuente, agrégala en «Otros descuentos de planilla» de tu cliente.</p>`:''}
+    <div class="actions" style="margin-top:10px"><button class="btn sm" type="button" data-act="pay-debt" data-id="${d.id}" data-k="cuota">Pagar cuota</button><button class="btn ghost sm" type="button" data-act="pay-debt" data-id="${d.id}" data-k="extra">Abono extra</button><button class="btn ghost sm" type="button" data-act="edit-debt" data-id="${d.id}">Editar</button></div>
+    ${d.pays.length?`<details style="margin-top:10px"><summary class="link">Pagos (${d.pays.length})</summary><ul class="list">${d.pays.slice(0,12).map(p=>`<li class="row"><button class="row-main" type="button" data-act="edit-dpay" data-id="${d.id}" data-pid="${esc(p.id)}"><span class="t">${money(p.a)} · ${p.k==='extra'?'abono extra':'cuota'}</span><span class="s">${longDate(p.d)} · bajó ${money(p.cap)}</span></button></li>`).join('')}</ul></details>`:''}</section>`};
+  const sel=A.length?`<label class="f" style="margin-bottom:10px"><span>¿Con cuál deuda?</span><select id="dbsel">${A.map(d=>`<option value="${esc(d.id)}" ${(ui.dxd||A[0].id)===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select></label>`:'';
+  return det('Deudas','Lo que debes',addBtn('Deuda','add-debt'))+
+  (A.length?hero('Debes en total',money(I.bal),`Cuotas al mes: ${money(I.pay)}${I.pay-I.mine>0?` (${money(I.pay-I.mine)} por planilla, ${money(I.mine)} las pagas tú)`:''}`):`<section class="card">${empty(S.debts.length?'¡Ya no debes nada! Todas tus deudas están pagadas.':'Todavía no tienes deudas anotadas. Toca «Deuda» para agregar la primera.')}</section>`)+
+  `<div class="grid" style="margin-top:16px">${A.map(card).join('')}
+  ${A.length?`<section class="card span2" aria-labelledby="h-sim"><h2 id="h-sim">Si abono extra cada mes</h2>${sel}<label class="f"><span>Abono extra al mes</span><input id="dbx" type="text" inputmode="decimal" placeholder="0.00" value="${esc(ui.dx||'')}" autocomplete="off"></label><div id="dbres" aria-live="polite" style="margin-top:10px">${debtSimHtml()}</div></section>`:''}
+  ${A.length>1?`<section class="card span2" aria-labelledby="h-cmp"><h2 id="h-cmp">¿Qué deuda pagar primero?</h2><div id="dbcmp">${debtCmpHtml()}</div></section>`:''}
+  ${P.length?`<section class="card span2"><h2>Pagadas</h2><ul class="list">${P.map(d=>`<li class="row"><span class="dot k-ok" aria-hidden="true">${ic('check')}</span><button class="row-main" type="button" data-act="edit-debt" data-id="${d.id}"><span class="t">${esc(d.name)}</span><span class="s">Pagaste ${money(d.init)}</span></button></li>`).join('')}</ul></section>`:''}
+  </div>`+(A.length?`<p class="note" style="margin-top:14px">Todo esto es una estimación con los datos que escribiste (intereses mensuales sobre el saldo). No es asesoría financiera; tu banco puede calcular distinto.</p>`:'');
+}
+
 const foldCard=(inner,title,hint)=>`<details class="card fold span2"><summary><span class="ft">${title}</span><span class="note">${hint}</span></summary><div class="foldb">${inner}</div></details>`;
 function movHtml(){
   const [wa,wb]=win(ui.month,ui.fper);
@@ -1011,11 +1124,12 @@ const goalsInfo=()=>{const A=S.goals.filter(g=>!g.done);return {n:A.length,done:
 const salaryInfo=()=>{
   const PL=S.clients.filter(c=>isSal(c)&&num(c.fee)>0&&c.status!=='Terminado'),EX=S.clients.filter(c=>!isSal(c)&&num(c.fee)>0&&c.status==='Activo');
   const gross=PL.length?PL.reduce((a,c)=>a+grossMonth(c),0):num(S.set.gross);
-  return {gross,net:gross-gross*PLAN+PL.reduce((a,c)=>a+bonusMonth(c),0)+EX.reduce((a,c)=>a+grossMonth(c),0)};
+  return {gross,net:Math.max(0,gross-gross*PLAN-PL.reduce((a,c)=>a+descMonth(c),0))+PL.reduce((a,c)=>a+bonusMonth(c),0)+EX.reduce((a,c)=>a+grossMonth(c),0)};
 };
 function vMoney(){
   if(ui.sub==='mov')return vMov();
   if(ui.sub==='fix')return det('Gastos fijos','Lo que se repite')+`<div class="det1">${fixedCard()}</div>`;
+  if(ui.sub==='debts')return vDebts();
   if(ui.sub==='goals')return det('Ahorro y metas','Lo que estás juntando')+`<div class="grid">${goalsCard()}${wonCard()}</div>`;
   if(ui.sub==='sal')return det('Mi salario','Panamá')+`<div class="det1">${salaryCard()}</div>`;
   if(ui.sub==='year'){
@@ -1026,7 +1140,7 @@ function vMoney(){
     <section class="card span2" aria-label="Año">${yr?`<div class="scroll-x"><table class="t"><thead><tr><th scope="col">Mes</th><th scope="col">Ingresos</th><th scope="col">Gastos</th><th scope="col">Libre</th></tr></thead><tbody>${yr}</tbody></table></div>`:empty('Todavía no hay movimientos este año.')}</section></div>`;
   }
   /* resumen */
-  const tt=totals(nowYM),bs=budgetState(),cs=spendInfo(),fx=fixedInfo(),gi=goalsInfo(),sl=salaryInfo();
+  const tt=totals(nowYM),bs=budgetState(),cs=spendInfo(),fx=fixedInfo(),gi=goalsInfo(),sl=salaryInfo(),di=debtsInfo();
   const year=nowYM.slice(0,4);let yIn=0,yOut=0;for(let i=1;i<=12;i++){const t=totals(`${year}-${pad(i)}`);yIn+=t.ingreso;yOut+=t.gasto}
   const nMov=S.tx.filter(t=>t.date.startsWith(nowYM)).length;
   const queda=cs?cs.rem:tt.libre;
@@ -1039,6 +1153,7 @@ function vMoney(){
   </div>
   <div class="tiles">${tile('Movimientos',`${plural(nMov,'movimiento','movimientos')} este mes · gastaste ${money(tt.gasto)}`,'open-sub','mov')}
   ${tile('Gastos fijos',fx.n?`${plural(fx.n,'activo','activos')} · ${money(fx.sum)}/mes`:'Aún no tienes','open-sub','fix')}
+  ${tile('Deudas',di.n?`${plural(di.n,'deuda','deudas')} · debes ${money(di.bal)}`:'Sin deudas anotadas','open-sub','debts')}
   ${tile('Ahorro y metas',gi.n?`${plural(gi.n,'meta','metas')} · ${money(gi.saved)} ahorrado`:(gi.done?'Todas tus metas logradas':'Todavía no tienes metas'),'open-sub','goals')}
   ${tile('Mi salario',sl.gross>0?`Te llegan ${money(sl.net)} al mes`:'Calcula tu salario neto','open-sub','sal')}
   ${tile('Resumen del año',`${year} · entró ${money(yIn)} · salió ${money(yOut)}`,'open-sub','year')}</div>`;
@@ -1344,7 +1459,7 @@ function cobroSheet(cid,txId,forDue){
   const def=t?(t.for?(t.stream==='bono'?'b:':'')+t.for:''):(forDue||(k.overdue[0]&&encFor(k.overdue[0]))||(k.next&&encFor(k.next))||'');
   const q=k.P.find(x=>encFor(x)===def),isBono=q&&q.s==='bono';
   sheet({title:t?'Editar pago':`Cobro a ${c.name}`,required:'amount',
-    pre:k.plan&&!isBono?`<p class="note" style="margin-bottom:14px">Salario: bruto ${money(k.gross)} menos 11 % de seguros (Seguro Social 9.75 % + Educativo 1.25 %) = <b>${money(k.fee)} netos</b>. Anota lo que realmente te depositaron.</p>`:'',
+    pre:k.plan&&!isBono?`<p class="note" style="margin-bottom:14px">Salario: bruto ${money(k.gross)} menos 11 % de seguros (Seguro Social 9.75 % + Educativo 1.25 %)${k.descPay>0?` y ${money(k.descPay)} de otros descuentos de planilla`:''} = <b>${money(k.fee)} netos</b>. Anota lo que realmente te depositaron.</p>`:'',
     data:t?{amount:t.amount,date:t.date,for:def,desc:t.desc||''}:{amount:q&&q.falta>0?q.falta:k.fee||'',date:today(),for:def,desc:''},
     fields:[{k:'amount',l:k.plan?'Monto neto recibido':'Monto recibido',t:'number',ph:'0.00'},{k:'date',l:'Fecha en que te pagaron',t:'date'},{k:'for',l:'¿A qué pago corresponde?',t:'select',o:opts},{k:'desc',l:'Nota (opcional)'}],
     onSave:v=>{if(!(v.amount>0)){toast('Pon el monto recibido');return false}
@@ -1352,10 +1467,25 @@ function cobroSheet(cid,txId,forDue){
       const rec={type:'ingreso',amount:v.amount,cat:c.name,date:v.date||today(),desc:v.desc||`Cobro: ${c.name}`,for:fd||''};
       if(!rec.for)delete rec.for;
       if(bn)rec.stream='bono';
-      if(k.plan&&!bn)rec.bruto=Math.round(v.amount/(1-PLAN)*100)/100;
+      if(k.plan&&!bn)rec.bruto=Math.round((v.amount+k.descPay)/(1-PLAN)*100)/100;
       if(t){const n={...t,...rec};if(!rec.for)delete n.for;if(!bn)delete n.stream;if(!(k.plan&&!bn))delete n.bruto;S.tx[S.tx.indexOf(t)]=n}else S.tx.unshift({id:uid(),...rec});
       ui.month=rec.date.slice(0,7);toast(t?'Pago actualizado':'Cobro registrado')},
     onDelete:t?()=>{remove(S.tx,t.id);toast('Pago eliminado')}:null});
+}
+function descSheet(cid,did){
+  const c=S.clients.find(x=>x.id===cid);if(!c)return;
+  const d=(c.descs||[]).find(x=>x.id===did);
+  /* los pagos automáticos de este mes en adelante se ajustan al nuevo neto (solo los que ella no tocó) */
+  const refresh=old=>{const nw=payAmt(c);S.tx.forEach(t=>{if(t.auto===true&&t.type==='ingreso'&&t.cat===c.name&&t.stream!=='bono'&&t.date>=nowYM+'-01'&&Math.abs(t.amount-old)<0.005)t.amount=nw})};
+  sheet({title:d?'Editar descuento':'Nuevo descuento de planilla',required:'n',data:d?{n:d.n,m:d.m}:{},
+    pre:'<p class="note" style="margin-bottom:14px">Algo que te quitan cada mes del salario, además del 11 % de seguros. Escribe cuánto es al mes.</p>',
+    fields:[{k:'n',l:'¿Qué es?',ph:'Préstamo, seguro'},{k:'m',l:'Monto al mes',t:'number',ph:'0.00'}],
+    onSave:v=>{
+      if(!(v.m>0)){toast('Pon el monto mensual');return false}
+      const old=payAmt(c);
+      c.descs=[...(c.descs||[]).filter(x=>x.id!==(d&&d.id)),{id:d?d.id:uid(),n:v.n.slice(0,60),m:v.m}];
+      refresh(old);toast('Salario neto actualizado: '+money(payAmt(c))+' por pago')},
+    onDelete:d?()=>{const old=payAmt(c);c.descs=(c.descs||[]).filter(x=>x.id!==d.id);refresh(old)}:null});
 }
 function clientSheet(id){
   const c=S.clients.find(x=>x.id===id);
@@ -1382,12 +1512,12 @@ function clientSheet(id){
       {k:'contact',l:'Contacto',ph:'Teléfono o correo'},{k:'notes',l:'Notas',t:'textarea'}],
     setup(form){
       const box=document.createElement('div');box.className='note';box.style.margin='-6px 0 14px';box.setAttribute('aria-live','polite');form.elements.bonusFreq.closest('label').after(box);
-      const val=k=>form.elements[k].value,per={semanal:'semana',quincenal:'quincena',mensual:'mes'};
+      const val=k=>form.elements[k].value,per={semanal:'semana',quincenal:'quincena',mensual:'mes'},dm0=c&&Array.isArray(c.descs)?c.descs.reduce((a,x)=>a+num(x.m),0):0;
       const run=()=>{
         const f=num(val('fee')),tmp={fee:f,tipo:val('tipo'),freq:val('freq'),payWeekdays:val('payWeekdays')};
         if(!(f>0)){box.textContent=tmp.tipo==='salario'?'Escribe tu salario bruto mensual y te muestro los descuentos.':'Escribe cuánto es cada vez y te muestro el cálculo.';return}
         let h;
-        if(tmp.tipo==='salario'){const pm=perMonth(tmp),n=f*(1-PLAN);h=`Salario bruto <b>${money(f)}</b> − Seguro Social 9.75 % (${money(f*.0975)}) − Seguro Educativo 1.25 % (${money(f*.0125)}) = <b>${money(n)}</b> netos al mes. Cada ${per[tmp.freq]} recibes <b>${money(r2(f/pm)*(1-PLAN))}</b> netos.`;
+        if(tmp.tipo==='salario'){const pm=perMonth(tmp),n=Math.max(0,f*(1-PLAN)-dm0);h=`Salario bruto <b>${money(f)}</b> − Seguro Social 9.75 % (${money(f*.0975)}) − Seguro Educativo 1.25 % (${money(f*.0125)})${dm0>0?` − otros descuentos (${money(dm0)})`:''} = <b>${money(n)}</b> netos al mes. Cada ${per[tmp.freq]} recibes <b>${money(Math.max(0,r2(f/pm)*(1-PLAN)-dm0/pm))}</b> netos.`;
           const bn=num(val('bonus'));if(val('bonusOn')==='si'&&bn>0)h+=` Más bono o comisión: <b>${money(bn)}</b> cada ${per[val('bonusFreq')]}, sin descuento.`}
         else h=`Cada vez: <b>${money(f)}</b>, sin descuentos. Al mes, aproximadamente <b>${money(f*perMonth(tmp))}</b>.`;
         box.innerHTML=h;
@@ -1448,7 +1578,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-12.3 resumen y pantallas en cada pestaña';
+const APP_V='2026-10-12.4 descuentos de planilla y deudas';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
@@ -1551,7 +1681,7 @@ async function sync(manual){
       if(g.status===200){const j=await g.json();sha=j.sha;merge(JSON.parse(unb64(j.content)))}
       else if(g.status!==404)throw new Error(g.status===401?'El token no es válido o venció':g.status===403?'GitHub negó el acceso o hay demasiadas consultas':`GitHub respondió ${g.status}`);
       stamp();persist();
-      const body=JSON.stringify({v:2,events:S.events,tx:S.tx,shop:S.shop,clients:S.clients,tasks:S.tasks,ideas:S.ideas,posts:S.posts,goals:S.goals,inbox:S.inbox,set:{name:S.set.name,budget:S.set.budget,gross:S.set.gross,alertPct:S.set.alertPct,leadDays:S.set.leadDays,u:S.set.u},del:S.del},null,1);
+      const body=JSON.stringify({v:2,events:S.events,tx:S.tx,shop:S.shop,clients:S.clients,tasks:S.tasks,ideas:S.ideas,posts:S.posts,goals:S.goals,debts:S.debts,inbox:S.inbox,set:{name:S.set.name,budget:S.set.budget,gross:S.set.gross,alertPct:S.set.alertPct,leadDays:S.set.leadDays,u:S.set.u},del:S.del},null,1);
       const h=hs(body);
       if(sha&&SY.sha===sha&&SY.h===h){SY.err='';break}
       const pr=await fetchT(ghUrl(),{method:'PUT',headers:ghHead(),body:JSON.stringify({message:'sync: datos de Todo en Orden',content:b64(body),branch:br,...(sha?{sha}:{})})});
@@ -1611,6 +1741,7 @@ function openSearch(){
         S.tx.forEach(t=>add('Movimiento',t.desc||t.cat,[t.cat,t.type,money(t.amount),t.date].join(' '),'edit-tx',t.id));
         S.shop.forEach(x=>add('Súper',x.name,x.qty||'','edit-shop',x.id));
         S.goals.forEach(g=>add('Meta',g.name,'','goto-tab','money'));
+        S.debts.forEach(d=>add('Deuda',d.name,'','open-debts',d.id));
         box.innerHTML=R.length?`<ul class="list">${R.slice(0,30).map(r=>`<li class="row"><button class="row-main" type="button" data-act="${r.act}" data-id="${esc(r.id)}"><span class="t">${esc(r.title)}</span><span class="s">${esc(r.tipo)}${r.sub?' · '+esc(r.sub.slice(0,60)):''}</span></button></li>`).join('')}</ul>`:'<p class="note">No encontré nada.</p>';
       };
       input.addEventListener('input',run);run();
@@ -1737,6 +1868,13 @@ document.addEventListener('click',e=>{
     case 'add-fixed':txSheet(null,'gasto');break;
     case 'edit-goal':goalSheet(id);break;
     case 'no-goal':closeSheet();toast('Listo. Tu alcancía queda lista para cuando quieras otra meta');render();break;
+    case 'add-desc':descSheet(id);break;
+    case 'edit-desc':descSheet(el.dataset.cid,id);break;
+    case 'add-debt':debtSheet();break;
+    case 'edit-debt':debtSheet(id);break;
+    case 'pay-debt':debtPaySheet(id,el.dataset.k);break;
+    case 'edit-dpay':debtPaySheet(id,'',el.dataset.pid);break;
+    case 'open-debts':closeSheet();nav({tab:'money',sub:'debts'});break;
     case 'goal-add':{const g=S.goals.find(x=>x.id===id);if(!g)break;
       amountSheet(`Aporte a ${g.name}`,'',n=>{if(!n)return false;S.tx.unshift({id:uid(),type:'ahorro',amount:n,cat:g.name,desc:`Aporte a ${g.name}`,date:today()});toast('Aporte registrado')});break}
     case 'search':openSearch();break;
