@@ -349,6 +349,16 @@ fieldset.f legend{display:block;font-size:.88rem;font-weight:700;color:var(--mut
 .fold .ft{font-family:var(--f-display);font-weight:700;font-size:1.35rem;margin-right:auto}
 .fold>summary .note{text-align:right}
 .foldb{padding:0 18px 18px}
+.tiles{display:grid;gap:12px;grid-template-columns:minmax(0,1fr);margin-top:16px}
+@media (min-width:760px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:14px 18px;border:1px solid var(--line);border-left:4px solid var(--sec);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);text-align:left;color:var(--ink);cursor:pointer}
+.tile .tt{display:flex;flex-direction:column;flex:1;min-width:0;gap:2px}
+.tile b{font-family:var(--f-display);font-weight:700;font-size:1.35rem;line-height:1.15}
+.tile>svg{color:var(--sec);flex:none}
+.tile:active{transform:scale(.985)}
+.hero .big-n{font-size:2.1rem;overflow-wrap:anywhere}
+.det1>.card>h2,.det1>.card>.card-h h2{display:none}
+.det1>.card>.card-h{justify-content:flex-end}
 .fold .foldb .card{border:0;box-shadow:none;background:none;padding:0;margin:0}
 .fold .foldb .card>h2,.fold .foldb .card-h h2{display:none}
 .fold .foldb .card-h{justify-content:flex-end;margin-bottom:8px}
@@ -548,7 +558,7 @@ const when=(d,t=today())=>{const n=diffDays(t,d);return n<0?`hace ${-n} día${n<
 
 /* ============ Estado de UI ============ */
 const nowYM=today().slice(0,7);
-const ui={tab:'home',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',cel:[],fper:'mes',mt:'todos',mq:'',mAll:false,pubcal:false,pcal:nowYM,psel:today()};
+const ui={tab:'home',sub:'',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',cel:[],fper:'mes',mt:'todos',mq:'',mAll:false,pubcal:false,pcal:nowYM,psel:today()};
 function syncProj(){
   PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
   ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
@@ -701,6 +711,12 @@ function importantDates(p,days=30){
 const editAct=k=>k==='ev'?'edit-ev':k==='post'?'edit-post':'edit-task';
 const page=(title,sub,actions='')=>`<div class="page-head"><div><p class="eyebrow">${esc(sub)}</p><h1>${esc(title)}</h1></div><div class="actions">${actions}</div></div>`;
 const addBtn=(label,act,id='',extra='')=>`<button class="btn sm" type="button" data-act="${act}" data-id="${esc(id)}" ${extra}>${ic('plus')}${label}</button>`;
+/* ---- Patrón de todas las pestañas: resumen arriba + tarjetas que abren una pantalla con «atrás» ---- */
+const backLbl=()=>(TABS.find(t=>t[0]===ui.tab)||[0,'Atrás'])[1];
+const det=(title,sub,actions='')=>`<button class="link back" type="button" data-act="back">${ic('left')}${esc(backLbl())}</button>`+page(title,sub,actions);
+const tile=(title,line,act='open-sub',id='')=>`<button class="tile" type="button" data-act="${act}" data-id="${esc(id)}"><span class="tt"><b>${title}</b><span class="note">${line}</span></span>${ic('right')}</button>`;
+const hero=(label,val,note='',cls='')=>`<section class="card hero"><p class="eyebrow">${label}</p><b class="big-n ${cls}">${val}</b>${note?`<p class="note">${note}</p>`:''}</section>`;
+const plural=(n,a,b)=>`${n} ${n===1?a:b}`;
 function itemRow(i){
   const lab=`${i.done?'Desmarcar':'Marcar como hecho'}: ${i.title}`;
   return `<li class="row ${i.done?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${i.done}" aria-label="${esc(lab)}" data-act="toggle" data-kind="${i.kind}" data-id="${i.id}" data-d="${i.d}">${i.done?ic('check'):''}</button>
@@ -730,51 +746,44 @@ function fixedAhead(to){
 }
 const alertLi=a=>`<li><button class="al l${a.lvl}" type="button" data-act="${a.act}" data-id="${esc(a.id)}">${ic(a.ic)}<span class="tx">${esc(a.tx)}</span></button></li>`;
 const alertsCard=A=>`<section class="card span2" aria-labelledby="h-al"><h2 id="h-al">Alertas</h2><ul class="list">${A.slice(0,3).map(alertLi).join('')}</ul>${A.length>3?`<details style="margin-top:6px"><summary class="link">Ver ${A.length-3} más</summary><ul class="list">${A.slice(3,12).map(alertLi).join('')}</ul></details>`:''}</section>`;
+const spendInfo=()=>{const t=today(),b=num(S.set.budget);if(!(b>0))return null;const [y,m]=nowYM.split('-').map(Number),ld=lastDay(y,m),left=ld-(+t.slice(8))+1,fixed=fixedAhead(`${nowYM}-${pad(ld)}`),rem=b-totals(nowYM).gasto-fixed;return {b,rem,left,fixed,per:Math.max(0,rem)/left}};
+function vAvisos(){
+  const A=alerts();
+  const setup=(!SY.token)?`<section class="card span2" aria-labelledby="h-sync"><h2 id="h-sync">Conecta tu sincronización</h2><p class="note" style="margin-bottom:12px">Así verás lo mismo en tu celular y en tu computadora, y tus datos quedan respaldados.</p><button class="btn" type="button" data-act="sync">Configurar ahora</button></section>`:'';
+  return det('Avisos','Lo que necesita tu atención')+`<div class="grid">${setup}${A.length?`<section class="card span2" aria-label="Avisos"><ul class="list">${A.slice(0,40).map(alertLi).join('')}</ul></section>`:(setup?'':`<section class="card span2">${empty('Nada pendiente. ¡Todo en orden!')}</section>`)}</div>`;
+}
 function vHome(){
+  if(ui.sub==='avisos')return vAvisos();
   const t=today(),h=new Date().getHours();
   const hi=h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
-  const items=itemsOn(t),A=alerts(),tt=totals(nowYM),bs=budgetState();
-  const up=[];for(let i=1;i<=7;i++){const d=addDays(t,i);itemsOn(d).forEach(x=>up.push(x))}
-  const pend=S.shop.filter(s=>!s.done).length;
-  const proj=p=>{
-    const open=S.tasks.filter(x=>x.project===p&&!x.done).length,por=S.posts.filter(x=>x.project===p&&x.status!=='Publicado').length;
-    const nx=importantDates(p,30)[0];
-    return `<section class="card" aria-label="${esc(p)}"><div class="card-h"><h2>${esc(p)}</h2><button class="link" type="button" data-act="goto-proj" data-id="${esc(p)}">Abrir</button></div>
-      <div class="stats"><div class="stat"><span>Tareas</span><b>${open}</b></div><div class="stat"><span>Posts por salir</span><b>${por}</b></div></div>
-      <p class="note" style="margin-top:10px">${nx?`Próxima fecha: <b>${esc(nx.title)}</b>, ${when(nx.d)}`:'Sin fechas próximas'}</p></section>`;
-  };
-  const cob=S.clients.filter(c=>c.status==='Activo'&&(payAmt(c)>0||bonusOn(c))).map(c=>({c,k:cobro(c)})).filter(x=>x.k.overdue.length||(x.k.next&&diffDays(t,x.k.next.due)<=3));
-  const cobrarCard=cob.length?`<section class="card" aria-labelledby="h-cb"><div class="card-h"><h2 id="h-cb">Cobros</h2></div><ul class="list">${cob.map(({c,k})=>{const o=k.overdue[0],q=o||k.next;
-    return `<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${o?(o.st==='hoy'?'Hoy toca cobrar ':'Vencido del '+shortDate(o.due)+' · falta ')+money(k.pend):'Próximo cobro: '+q.label+' ('+when(q.due)+')'}</span></button>${o?`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(o)}">Cobrar</button>`:pill(money(k.fee),'info')}</li>`}).join('')}</ul></section>`:'';
-  const per=t.slice(8)<=15?'q1':'q2',cq=cobrosEn(nowYM,per),[qa,qb]=win(nowYM,per);
-  const qList=S.tx.filter(x=>x.date>=qa&&x.date<=qb),qIn=qList.filter(x=>x.type==='ingreso').reduce((a,x)=>a+x.amount,0),qOut=qList.filter(x=>x.type==='gasto').reduce((a,x)=>a+x.amount,0),qSave=qList.filter(x=>x.type==='ahorro').reduce((a,x)=>a+x.amount,0);
-  const quinCard=`<section class="card" aria-labelledby="h-qn"><div class="card-h"><h2 id="h-qn">Esta quincena</h2><button class="link" type="button" data-act="goto-tab" data-id="money">Finanzas</button></div><p class="note" style="margin-bottom:10px">${perLabel(nowYM,per)}</p>
-   <div class="stats"><div class="stat"><span>Recibido</span><b>${money(qIn)}</b></div><div class="stat"><span>Gastos</span><b>${money(qOut)}</b></div><div class="stat"><span>Disponible</span><b class="${qIn-qOut-qSave<0?'neg':''}">${money(qIn-qOut-qSave)}</b></div></div>
-   ${cq.esperado>0?`<p class="note" style="margin-top:10px">Cobros de clientes: ${money(cq.cobrado)} de ${money(cq.esperado)} esperados${cq.esperado-cq.cobrado>0?` · faltan ${money(cq.esperado-cq.cobrado)}`:' · ¡todo cobrado!'}</p>`:''}</section>`;
-  const cs=(()=>{const b=num(S.set.budget);if(!(b>0))return null;const [y,m]=nowYM.split('-').map(Number),ld=lastDay(y,m),left=ld-(+t.slice(8))+1,fixed=fixedAhead(`${nowYM}-${pad(ld)}`),rem=b-totals(nowYM).gasto-fixed;return {rem,left,fixed,per:Math.max(0,rem)/left}})();
-  const spendCard=cs?`<section class="card span2" aria-labelledby="h-pg"><p class="eyebrow" id="h-pg">Hoy puedes gastar</p><b class="big-n ${cs.rem<0?'neg':''}">${money(cs.per)}</b><p class="note">${cs.rem<0?`Ya te pasaste del presupuesto por ${money(-cs.rem)}.`:`Te quedan ${money(cs.rem)} del mes para ${cs.left} día${cs.left===1?'':'s'}${cs.fixed>0?`, ya apartando ${money(cs.fixed)} de gastos fijos que faltan`:''}.`}</p></section>`:`<section class="card span2"><p class="note" style="margin-bottom:10px">Define tu presupuesto del mes y te digo cuánto puedes gastar cada día.</p><button class="btn sm" type="button" data-act="budget">Definir presupuesto</button></section>`;
+  const items=itemsOn(t),nAv=alerts().length+(SY.token?0:1),cs=spendInfo();
   const inboxCard=S.inbox.length?`<section class="card span2" aria-labelledby="h-ib"><div class="card-h"><h2 id="h-ib">Por confirmar (${S.inbox.length})</h2></div><ul class="list">${S.inbox.slice(0,6).map(i=>`<li class="row"><button class="row-main" type="button" data-act="inbox" data-id="${esc(i.id)}"><span class="t">${esc(i.desc||'Pago con Apple Pay')}</span><span class="s">${[i.date?shortDate(i.date):'',i.card?esc(i.card):''].filter(Boolean).join(' · ')}</span></button><span class="amt neg">${money(i.amount)}</span></li>`).join('')}</ul></section>`:'';
-  const setup=(!SY.token)?`<section class="card span2" aria-labelledby="h-sync"><h2 id="h-sync">Conecta tu sincronización</h2><p class="note" style="margin-bottom:12px">Así verás lo mismo en tu celular y en tu computadora, y tus datos quedan respaldados.</p><button class="btn" type="button" data-act="sync">Configurar ahora</button></section>`:'';
-  return page(`${hi}${S.set.name?', '+S.set.name:''}`,longDate(t),addBtn('Evento','add-ev',t)+addBtn('Gasto','add-tx','gasto')+addBtn('Tarea','add-task','')) +
-  `<div class="grid">${setup}
-  ${inboxCard}
-  ${spendCard}
-  ${A.length?alertsCard(A):''}
-  <section class="card" aria-labelledby="h-hoy"><div class="card-h"><h2 id="h-hoy">Hoy</h2><button class="link" type="button" data-act="goto-tab" data-id="agenda">Ver agenda</button></div>
-   ${items.length?`<ul class="list">${items.map(itemRow).join('')}</ul>`:empty('Día libre, sin pendientes.')}</section>
-  ${quinCard}
-  <section class="card" aria-labelledby="h-mes"><div class="card-h"><h2 id="h-mes">Mi mes, ${MESES[+nowYM.slice(5)-1]}</h2><button class="link" type="button" data-act="goto-tab" data-id="money">Finanzas</button></div>
-   <div class="stats"><div class="stat"><span>Ingresos</span><b>${money(tt.ingreso)}</b></div><div class="stat"><span>Gastos</span><b>${money(tt.gasto)}</b></div><div class="stat"><span>Ahorro</span><b>${money(tt.ahorro)}</b></div><div class="stat"><span>Disponible</span><b class="${tt.libre<0?'neg':''}">${money(tt.libre)}</b></div></div>
-   ${bs.b?`<div style="margin-top:14px">${meter(bs)}</div>`:`<p class="note" style="margin-top:12px">Define tu presupuesto mensual en Ajustes para recibir avisos.</p>`}</section>
-  ${cobrarCard}
-  ${PROJ.map(proj).join('')}
-  <section class="card" aria-labelledby="h-prox"><h2 id="h-prox">Próximos 7 días</h2>
-   ${up.length?`<ul class="list">${up.slice(0,6).map(i=>`<li class="row"><button class="row-main" type="button" data-act="${editAct(i.kind)}" data-id="${i.id}"><span class="t">${esc(i.title)}</span><span class="s">${longDate(i.d)}${i.time?' · '+i.time:''}</span></button>${pill(i.cat,KIND[i.cat]||'mute')}</li>`).join('')}</ul>`:empty('Nada programado.')}</section>
-  <section class="card" aria-labelledby="h-sup"><div class="card-h"><h2 id="h-sup">Súper</h2><button class="link" type="button" data-act="goto-tab" data-id="shop">Abrir lista</button></div><p><b style="font-family:var(--f-display);font-size:2rem">${pend}</b> producto${pend===1?'':'s'} por comprar</p></section>
-  </div>`;
+  const spendCard=cs?`<section class="card span2 hero" aria-labelledby="h-pg"><div class="card-h"><p class="eyebrow" id="h-pg">Hoy puedes gastar</p><button class="link" type="button" data-act="goto-tab" data-id="money">Finanzas</button></div><b class="big-n ${cs.rem<0?'neg':''}">${money(cs.per)}</b><p class="note">${cs.rem<0?`Ya te pasaste del presupuesto por ${money(-cs.rem)}.`:`Te quedan ${money(cs.rem)} del mes para ${cs.left} día${cs.left===1?'':'s'}${cs.fixed>0?`, ya apartando ${money(cs.fixed)} de gastos fijos que faltan`:''}.`}</p></section>`:`<section class="card span2"><p class="note" style="margin-bottom:10px">Define tu presupuesto del mes y te digo cuánto puedes gastar cada día.</p><button class="btn sm" type="button" data-act="budget">Definir presupuesto</button></section>`;
+  return page(`${hi}${S.set.name?', '+S.set.name:''}`,longDate(t),addBtn('Evento','add-ev',t)+addBtn('Gasto','add-tx','gasto')+addBtn('Tarea','add-task',''))+
+  `<div class="grid">${spendCard}
+  <section class="card span2" aria-labelledby="h-hoy"><div class="card-h"><h2 id="h-hoy">Hoy</h2><button class="link" type="button" data-act="goto-tab" data-id="agenda">Ver agenda</button></div>
+   ${items.length?`<ul class="list">${items.map(itemRow).join('')}</ul>`:empty('Día libre, sin pendientes.')}
+   ${nAv?`<button class="btn ghost sm" type="button" data-act="open-sub" data-id="avisos" style="margin-top:12px">${ic('bell')}Ver ${plural(nAv,'aviso','avisos')}</button>`:''}</section>
+  ${inboxCard}</div>`;
 }
 
+const upNext=n=>{const t=today(),up=[];for(let i=1;i<=n;i++){const d=addDays(t,i);itemsOn(d).forEach(x=>up.push(x))}return up};
+const impNext=n=>{const t=today(),L=[];for(let i=0;i<=n;i++){const d=addDays(t,i);S.events.filter(e=>e.important==='Sí'&&occurs(e,d)).forEach(e=>L.push({d,title:e.title,cat:e.cat,id:e.id}))}return L};
+const dayRow=i=>`<li class="row"><button class="row-main" type="button" data-act="${editAct(i.kind)}" data-id="${i.id}"><span class="t">${esc(i.title)}</span><span class="s">${longDate(i.d)}${i.time?' · '+i.time:''}</span></button>${pill(i.cat,KIND[i.cat]||'mute')}</li>`;
 function vAgenda(){
+  const t=today();
+  if(ui.sub==='cal')return vCal();
+  if(ui.sub==='prox')return det('Próximos 7 días','Agenda')+`<section class="card">${(()=>{const up=upNext(7);return up.length?`<ul class="list">${up.map(dayRow).join('')}</ul>`:empty('Nada programado.')})()}</section>`;
+  if(ui.sub==='imp')return det('Fechas importantes','Los próximos 60 días')+`<section class="card">${(()=>{const L=impNext(60);return L.length?`<ul class="list">${L.map(i=>`<li class="row"><button class="row-main" type="button" data-act="edit-ev" data-id="${i.id}"><span class="t">${esc(i.title)}</span><span class="s">${longDate(i.d)} · ${when(i.d)}</span></button>${pill(i.cat,KIND[i.cat]||'mute')}</li>`).join('')}</ul>`:empty('No hay fechas importantes próximas. Al crear un evento puedes marcarlo como importante.')})()}</section>`;
+  const hoy=itemsOn(t),nx=hoy.find(i=>!i.done),up=upNext(7),imp=impNext(60);
+  let mes=0;{const [y,m]=nowYM.split('-').map(Number);for(let d=1;d<=lastDay(y,m);d++)mes+=itemsOn(`${nowYM}-${pad(d)}`).length}
+  return page('Agenda',longDate(t),addBtn('Evento','add-ev',t)+addBtn('Tarea','add-task','',`data-due="${t}"`))+
+  hero('Hoy',plural(hoy.length,'pendiente','pendientes'),nx?`Sigue: ${esc(nx.title)}${nx.time?' a las '+nx.time:''}`:(hoy.length?'Ya terminaste lo de hoy.':'Día libre.'))+
+  `<div class="tiles">${tile('Calendario',`${plural(mes,'pendiente','pendientes')} en ${MESES[+nowYM.slice(5)-1]}`,'open-sub','cal')}
+  ${tile('Próximos 7 días',up.length?plural(up.length,'pendiente','pendientes'):'Nada programado','open-sub','prox')}
+  ${tile('Fechas importantes',imp.length?`${plural(imp.length,'fecha','fechas')} en 60 días`:'Ninguna próxima','open-sub','imp')}</div>`;
+}
+function vCal(){
   const [y,m]=ui.cal.split('-').map(Number);
   const first=new Date(y,m-1,1),off=(first.getDay()+6)%7,dim=new Date(y,m,0).getDate();
   let cells=['L','M','M','J','V','S','D'].map(w=>`<div class="wd" aria-hidden="true">${w}</div>`).join('');
@@ -784,7 +793,7 @@ function vAgenda(){
     cells+=`<button class="day ${s===today()?'today':''}" type="button" aria-pressed="${s===ui.sel}" aria-label="${longDate(s)}${its.length?', '+its.length+' pendiente'+(its.length>1?'s':''):''}" data-act="pickday" data-id="${s}">${d}<span class="dots" aria-hidden="true">${its.slice(0,3).map(i=>`<i class="d-${KIND[i.cat]||'mute'}"></i>`).join('')}</span></button>`;
   }
   const its=itemsOn(ui.sel);
-  return page('Agenda','Todo en un solo calendario',addBtn('Evento','add-ev',ui.sel)+addBtn('Tarea','add-task','',`data-due="${ui.sel}"`))+
+  return det('Calendario','Todo en un solo calendario',addBtn('Evento','add-ev',ui.sel)+addBtn('Tarea','add-task','',`data-due="${ui.sel}"`))+
   `<div class="split"><section class="card" aria-label="Calendario"><div class="card-h"><div class="mnav"><button class="iconbtn" type="button" data-act="cal-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ui.cal)}</b><button class="iconbtn" type="button" data-act="cal-next" aria-label="Mes siguiente">${ic('right')}</button></div></div><div class="cal">${cells}</div></section>
   <section class="card" aria-labelledby="h-dia"><h2 id="h-dia" style="text-transform:capitalize">${longDate(ui.sel)}</h2>${its.length?`<ul class="list">${its.map(itemRow).join('')}</ul>`:empty('Nada este día.')}</section></div>`;
 }
@@ -797,7 +806,33 @@ function safeHref(v,base){
     return /^https?:$/.test(u.protocol)?u.href:null}catch(e){return null}
 }
 /* ---- Trabajo: lista de clientes y una pantalla por cliente ---- */
-function vWork(){return ui.pubcal?vPubCal():ui.open&&clientOf(ui.open)?vClient(clientOf(ui.open)):vClients()}
+function vWork(){
+  if(ui.pubcal)return vPubCal();
+  if(ui.open&&clientOf(ui.open))return vClient(clientOf(ui.open));
+  if(ui.sub==='clients')return vClients();
+  if(ui.sub==='cobros')return vCobros();
+  if(ui.sub==='ideas')return vIdeas();
+  return vWorkMain();
+}
+const cobList=()=>{const t=today();return S.clients.filter(c=>c.status==='Activo'&&(payAmt(c)>0||bonusOn(c))).map(c=>({c,k:cobro(c)})).filter(x=>x.k.overdue.length||(x.k.next&&diffDays(t,x.k.next.due)<=3))};
+function vWorkMain(){
+  const act=S.clients.filter(c=>c.status==='Activo').length,tareas=S.tasks.filter(x=>!x.done).length,cob=cobList(),por=S.posts.filter(x=>x.status!=='Publicado').length,gen=S.ideas.filter(i=>i.project==='General').length;
+  return page('Trabajo','Mis clientes')+
+  hero('Tareas por hacer',tareas,plural(act,'cliente activo','clientes activos'))+
+  `<div class="tiles">${tile('Clientes',S.clients.length?`${plural(S.clients.length,'cliente','clientes')} · ${act} activo${act===1?'':'s'}`:'Agrega el primero','open-sub','clients')}
+  ${tile('Cobros',cob.length?`${plural(cob.length,'cliente por cobrar','clientes por cobrar')}`:'Todo al día','open-sub','cobros')}
+  ${tile('Calendario de publicaciones',por?`${plural(por,'publicación','publicaciones')} por salir`:'Nada por salir','open-pubcal')}
+  ${tile('Ideas generales',gen?plural(gen,'idea','ideas'):'Sin ideas todavía','open-sub','ideas')}</div>`;
+}
+function vCobros(){
+  const t=today(),cob=cobList();
+  return det('Cobros','Lo que toca cobrar')+`<section class="card" aria-label="Cobros">${cob.length?`<ul class="list">${cob.map(({c,k})=>{const o=k.overdue[0],q=o||k.next;
+    return `<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${o?(o.st==='hoy'?'Hoy toca cobrar ':'Vencido del '+shortDate(o.due)+' · falta ')+money(k.pend):'Próximo cobro: '+q.label+' ('+when(q.due)+')'}</span></button>${o?`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(o)}">Cobrar</button>`:pill(money(k.fee),'info')}</li>`}).join('')}</ul>`:empty('No hay cobros pendientes ni cercanos.')}</section>`;
+}
+function vIdeas(){
+  const gen=S.ideas.filter(i=>i.project==='General');
+  return det('Ideas generales','Ideas que no son de un cliente',addBtn('Idea','add-idea','General'))+`<section class="card" aria-label="Ideas">${gen.length?`<ul class="list">${gen.map(i=>`<li class="row"><button class="row-main" type="button" data-act="edit-idea" data-id="${i.id}"><span class="t">${i.fav?'★ ':''}${esc(i.title)}</span>${i.note?`<span class="s">${esc(i.note.slice(0,90))}</span>`:''}</button></li>`).join('')}</ul>`:empty('Todavía no hay ideas. Toca «Idea» para guardar la primera.')}</section>`;
+}
 function vPubCal(){
   const [y,m]=ui.pcal.split('-').map(Number);
   const first=new Date(y,m-1,1),off=(first.getDay()+6)%7,dim=new Date(y,m,0).getDate();
@@ -809,7 +844,7 @@ function vPubCal(){
   }
   const its=S.posts.filter(x=>x.date===ui.psel).sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'));
   const sin=S.posts.filter(x=>!x.date&&x.status!=='Publicado').length;
-  return `<button class="link back" type="button" data-act="close-pubcal">${ic('left')}Todos los clientes</button>`+
+  return `<button class="link back" type="button" data-act="back">${ic('left')}Atrás</button>`+
   page('Calendario','Publicaciones de todos tus clientes',addBtn('Publicación','add-post','',`data-date="${ui.psel}"`))+
   `<div class="split"><section class="card" aria-label="Calendario de publicaciones"><div class="card-h"><div class="mnav"><button class="iconbtn" type="button" data-act="pc-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ui.pcal)}</b><button class="iconbtn" type="button" data-act="pc-next" aria-label="Mes siguiente">${ic('right')}</button></div></div><div class="cal">${cells}</div>
    <div class="chips" style="margin:14px 0 0">${S.clients.map(c=>`<span class="pill k-${KIND[c.name]||'mute'}">${esc(c.name)}</span>`).join('')}</div></section>
@@ -823,13 +858,10 @@ function vClients(){
     const bits=[`${n} tarea${n===1?'':'s'}`,po+(po===1?' publicación':' publicaciones')+' por salir'];
     return `<li><button class="cli" type="button" data-act="open-client" data-id="${esc(c.name)}"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span>
       <span class="row-main"><span class="t">${esc(c.name)}</span><span class="s">${bits.join(' · ')}</span>${nx?`<span class="s">Próxima fecha: ${esc(nx.title)}, ${when(nx.d)}</span>`:''}</span>${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}${ic('right')}</button></li>`}).join('');
-  const gen=S.ideas.filter(i=>i.project==='General');
-  const genCard=gen.length?`<section class="card" aria-labelledby="h-ig" style="margin-top:16px"><div class="card-h"><h2 id="h-ig">Ideas generales</h2>${addBtn('Idea','add-idea','General')}</div><ul class="list">${gen.map(i=>`<li class="row"><button class="row-main" type="button" data-act="edit-idea" data-id="${i.id}"><span class="t">${i.fav?'★ ':''}${esc(i.title)}</span>${i.note?`<span class="s">${esc(i.note.slice(0,90))}</span>`:''}</button></li>`).join('')}</ul></section>`:'';
-  return page('Trabajo','Mis clientes')+
+  return det('Clientes','Mis clientes')+
    `<button class="btn big" type="button" data-act="add-client">${ic('plus')}Agregar cliente</button>`+
-   `<div class="actions" style="margin-bottom:16px"><button class="btn ghost" type="button" data-act="open-pubcal">${ic('calendar')}Calendario de publicaciones</button></div>`+
-   (S.clients.length?`<ul class="list clist" aria-label="Clientes">${cards}</ul><p class="note" style="margin-top:14px">Toca un cliente para ver todo lo suyo: datos, tareas, publicaciones e ideas.</p>`
-     :`<div class="card">${empty('Todavía no tienes clientes. Toca «Agregar cliente» para empezar.')}</div>`)+genCard;
+   (S.clients.length?`<ul class="list clist" aria-label="Clientes" style="margin-top:16px">${cards}</ul><p class="note" style="margin-top:14px">Toca un cliente para ver todo lo suyo: datos, tareas, publicaciones e ideas.</p>`
+     :`<div class="card" style="margin-top:16px">${empty('Todavía no tienes clientes. Toca «Agregar cliente» para empezar.')}</div>`);
 }
 function vClient(c){
   const p=c.name,tasks=S.tasks.filter(t=>t.project===p),pend=tasks.filter(t=>!t.done).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9')),done=tasks.filter(t=>t.done);
@@ -854,7 +886,7 @@ function vClient(c){
     :`<p class="note" style="margin-bottom:8px">Toca «Ajustar» y elige si es salario, ofrenda u otro, cuánto es y cada cuánto, para llevar el control de sus pagos.</p>`)+
     (mine.length?`<h3 class="gh" style="font-family:var(--f-body)">Pagos recibidos</h3><ul class="list">${mine.map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-tx" data-id="${x.id}"><span class="t">${money(x.amount)}${x.bruto?' netos':''}</span><span class="s">${x.bruto?'Bruto '+money(x.bruto)+' · ':''}${longDate(x.date)}${x.for?' · pago del '+shortDate(x.for):''}${x.stream==='bono'?' · bono':''}</span></button><button class="link" type="button" data-act="edit-tx" data-id="${x.id}" aria-label="Editar o borrar este pago">Editar</button></li>`).join('')}</ul>`:'');
   const sec=(id,title,btn,body)=>`<section class="card cs" aria-labelledby="${id}"><div class="card-h"><h2 id="${id}">${title}</h2>${btn}</div>${body}</section>`;
-  return `<button class="link back" type="button" data-act="back-clients">${ic('left')}Todos los clientes</button>`+
+  return `<button class="link back" type="button" data-act="back">${ic('left')}Atrás</button>`+
   page(p,'Cliente',`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}">Registrar cobro</button><button class="btn ghost sm" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`)+
   `<p style="margin:-6px 0 16px">${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')} ${(ck.fee||bonusOn(c))?pill(ck.pend>0?'Falta cobrar '+money(ck.pend):'Pagos al día',ck.pend>0?'warn':'ok'):''}</p>
   <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Publicaciones por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div>${(ck.fee||bonusOn(c))?`<div class="stat card"><span>Falta cobrar</span><b class="${ck.pend>0?'neg':''}">${money(ck.pend)}</b></div>`:''}</div>
@@ -974,47 +1006,81 @@ function movHtml(){
   return `<ul class="list">${rows}</ul>${L.length>shown.length?`<button class="btn ghost" type="button" data-act="mv-all" style="margin-top:12px">Ver los ${L.length} movimientos</button>`:''}`;
 }
 document.addEventListener('input',e=>{if(e.target.id==='mvq'){ui.mq=e.target.value;ui.mAll=false;$('#mvlist').innerHTML=movHtml()}});
+const fixedInfo=()=>{const T=S.tx.filter(t=>t.repeat&&REPT[t.repeat]),mult={quincenal:2,mensual:1,bimestral:.5};return {n:T.length,sum:T.filter(t=>t.type==='gasto').reduce((a,t)=>a+t.amount*mult[t.repeat],0)}};
+const goalsInfo=()=>{const A=S.goals.filter(g=>!g.done);return {n:A.length,done:S.goals.length-A.length,saved:A.reduce((a,g)=>a+S.tx.filter(t=>t.type==='ahorro'&&t.cat===g.name).reduce((s,t)=>s+t.amount,0),0)}};
+const salaryInfo=()=>{
+  const PL=S.clients.filter(c=>isSal(c)&&num(c.fee)>0&&c.status!=='Terminado'),EX=S.clients.filter(c=>!isSal(c)&&num(c.fee)>0&&c.status==='Activo');
+  const gross=PL.length?PL.reduce((a,c)=>a+grossMonth(c),0):num(S.set.gross);
+  return {gross,net:gross-gross*PLAN+PL.reduce((a,c)=>a+bonusMonth(c),0)+EX.reduce((a,c)=>a+grossMonth(c),0)};
+};
 function vMoney(){
+  if(ui.sub==='mov')return vMov();
+  if(ui.sub==='fix')return det('Gastos fijos','Lo que se repite')+`<div class="det1">${fixedCard()}</div>`;
+  if(ui.sub==='goals')return det('Ahorro y metas','Lo que estás juntando')+`<div class="grid">${goalsCard()}${wonCard()}</div>`;
+  if(ui.sub==='sal')return det('Mi salario','Panamá')+`<div class="det1">${salaryCard()}</div>`;
+  if(ui.sub==='year'){
+    const year=nowYM.slice(0,4);let yr='';
+    for(let i=1;i<=12;i++){const k=`${year}-${pad(i)}`,t=totals(k);if(!t.ingreso&&!t.gasto&&!t.ahorro)continue;
+      yr+=`<tr><td><button class="link" type="button" data-act="goto-month" data-id="${k}">${MESES[i-1]}</button></td><td class="pos">${money(t.ingreso)}</td><td class="neg">${money(t.gasto)}</td><td>${money(t.libre)}</td></tr>`}
+    return det('Resumen del año '+year,'Mes por mes')+`<div class="grid"><section class="card span2" aria-label="Últimos 6 meses"><h2>Últimos 6 meses</h2>${chartMonths(nowYM)}</section>
+    <section class="card span2" aria-label="Año">${yr?`<div class="scroll-x"><table class="t"><thead><tr><th scope="col">Mes</th><th scope="col">Ingresos</th><th scope="col">Gastos</th><th scope="col">Libre</th></tr></thead><tbody>${yr}</tbody></table></div>`:empty('Todavía no hay movimientos este año.')}</section></div>`;
+  }
+  /* resumen */
+  const tt=totals(nowYM),bs=budgetState(),cs=spendInfo(),fx=fixedInfo(),gi=goalsInfo(),sl=salaryInfo();
+  const year=nowYM.slice(0,4);let yIn=0,yOut=0;for(let i=1;i<=12;i++){const t=totals(`${year}-${pad(i)}`);yIn+=t.ingreso;yOut+=t.gasto}
+  const nMov=S.tx.filter(t=>t.date.startsWith(nowYM)).length;
+  const queda=cs?cs.rem:tt.libre;
+  return page('Finanzas',MESES[+nowYM.slice(5)-1]+' '+year)+
+  `<div class="grid">
+  <section class="card hero" aria-labelledby="h-qm"><div class="card-h"><p class="eyebrow" id="h-qm">Te queda este mes</p><button class="link" type="button" data-act="budget">${S.set.budget?'Cambiar presupuesto':'Definir presupuesto'}</button></div><b class="big-n ${queda<0?'neg':''}">${money(queda)}</b>
+   <p class="note">${cs?`De tu presupuesto de ${money(cs.b)}, ya con los gastos fijos que faltan.`:'Ingresos menos gastos y ahorro de este mes.'}</p>${bs.b?`<div style="margin-top:12px">${meter(bs)}</div>`:''}</section>
+  ${cs?`<section class="card hero" aria-labelledby="h-hp"><p class="eyebrow" id="h-hp">Hoy puedes gastar</p><b class="big-n ${cs.rem<0?'neg':''}">${money(cs.per)}</b><p class="note">${cs.rem<0?`Ya te pasaste del presupuesto por ${money(-cs.rem)}.`:`Para ${plural(cs.left,'día','días')} que quedan del mes.`}</p></section>`
+  :`<section class="card hero"><p class="eyebrow">Hoy puedes gastar</p><p class="note" style="margin:6px 0 12px">Define tu presupuesto del mes y te digo cuánto puedes gastar cada día.</p><button class="btn sm" type="button" data-act="budget">Definir presupuesto</button></section>`}
+  </div>
+  <div class="tiles">${tile('Movimientos',`${plural(nMov,'movimiento','movimientos')} este mes · gastaste ${money(tt.gasto)}`,'open-sub','mov')}
+  ${tile('Gastos fijos',fx.n?`${plural(fx.n,'activo','activos')} · ${money(fx.sum)}/mes`:'Aún no tienes','open-sub','fix')}
+  ${tile('Ahorro y metas',gi.n?`${plural(gi.n,'meta','metas')} · ${money(gi.saved)} ahorrado`:(gi.done?'Todas tus metas logradas':'Todavía no tienes metas'),'open-sub','goals')}
+  ${tile('Mi salario',sl.gross>0?`Te llegan ${money(sl.net)} al mes`:'Calcula tu salario neto','open-sub','sal')}
+  ${tile('Resumen del año',`${year} · entró ${money(yIn)} · salió ${money(yOut)}`,'open-sub','year')}</div>`;
+}
+function vMov(){
   const ym=ui.month,[wa,wb]=win(ym,ui.fper),list=S.tx.filter(t=>t.date>=wa&&t.date<=wb).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
-  const tt=(()=>{const r={ingreso:0,gasto:0,ahorro:0};list.forEach(t=>r[t.type]+=t.amount);r.libre=r.ingreso-r.gasto-r.ahorro;return r})(),bs=budgetState(),cq=cobrosEn(ym,ui.fper);
-  const year=ym.slice(0,4);let yr='';
-  for(let i=1;i<=12;i++){const k=`${year}-${pad(i)}`,t=totals(k);if(!t.ingreso&&!t.gasto&&!t.ahorro)continue;
-    yr+=`<tr><td><button class="link" type="button" data-act="goto-month" data-id="${k}">${MESES[i-1]}</button></td><td class="pos">${money(t.ingreso)}</td><td class="neg">${money(t.gasto)}</td><td>${money(t.libre)}</td></tr>`}
-  return page('Finanzas','Mis números',addBtn('Dinero extra','add-tx','ingreso')+addBtn('Gasto','add-tx','gasto')+addBtn('Ahorro','add-tx','ahorro'))+
+  const tt=(()=>{const r={ingreso:0,gasto:0,ahorro:0};list.forEach(t=>r[t.type]+=t.amount);r.libre=r.ingreso-r.gasto-r.ahorro;return r})(),cq=cobrosEn(ym,ui.fper);
+  return det('Movimientos','Todo lo que entra y sale',addBtn('Dinero extra','add-tx','ingreso')+addBtn('Gasto','add-tx','gasto')+addBtn('Ahorro','add-tx','ahorro'))+
   `<div class="mnav" style="margin-bottom:16px"><button class="iconbtn" type="button" data-act="m-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ym)}</b><button class="iconbtn" type="button" data-act="m-next" aria-label="Mes siguiente">${ic('right')}</button></div>
   <div class="chips" role="group" aria-label="Periodo" style="margin-bottom:12px">${[['mes','Todo el mes'],['q1','1.ª quincena (1 al 15)'],['q2','2.ª quincena (16 al fin)']].map(([k,l])=>`<button class="chip" type="button" aria-pressed="${ui.fper===k}" data-act="fper" data-id="${k}">${l}</button>`).join('')}</div>
   <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Ingresos</span><b>${money(tt.ingreso)}</b>${cq.esperado-cq.cobrado>0.004?`<span class="note">Faltan por llegar ${money(cq.esperado-cq.cobrado)}</span>`:''}</div><div class="stat card"><span>Gastos</span><b>${money(tt.gasto)}</b></div><div class="stat card"><span>Ahorro</span><b>${money(tt.ahorro)}</b></div><div class="stat card"><span>Disponible</span><b class="${tt.libre<0?'neg':''}">${money(tt.libre)}</b></div></div>
   <div class="grid">
-  ${cq.rows.length?`<section class="card span2" aria-labelledby="h-cc"><div class="card-h"><h2 id="h-cc">Cobros de clientes · ${perLabel(ym,ui.fper)}</h2></div><ul class="list">${cq.rows.map(({c,n,esperado,cobrado,falta})=>`<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${n} pago${n===1?'':'s'} · cobrado ${money(cobrado)} de ${money(esperado)}</span></button>${pill(falta>0.004?'Falta '+money(falta):'Cobrado',falta>0.004?'warn':'ok')}</li>`).join('')}</ul><p class="note" style="margin-top:8px">Total esperado ${money(cq.esperado)} · cobrado ${money(cq.cobrado)}</p></section>`:''}
   <section class="card span2" aria-labelledby="h-mov"><h2 id="h-mov">Movimientos</h2><div class="mvtools"><label class="sr" for="mvq">Buscar un movimiento</label><input id="mvq" type="search" placeholder="Buscar por nombre, categoría o monto" value="${esc(ui.mq)}" autocomplete="off"><div class="chips" role="group" aria-label="Tipo de movimiento">${[['todos','Todos'],['gasto','Gastos'],['ingreso','Ingresos'],['ahorro','Ahorro']].map(([k,l])=>`<button class="chip" type="button" aria-pressed="${ui.mt===k}" data-act="mvt" data-id="${k}">${l}</button>`).join('')}</div></div><div id="mvlist">${movHtml()}</div></section>
-  ${goalsCard()}
-  ${wonCard()}
-  <section class="card" aria-labelledby="h-pr"><div class="card-h"><h2 id="h-pr">Presupuesto</h2><button class="link" type="button" data-act="budget">${S.set.budget?'Cambiar':'Definir'}</button></div>
-   ${bs.b?(ym===nowYM?meter(bs):`<p class="note">El presupuesto se mide en el mes actual.</p>`):`<p class="note">Define cuánto quieres gastar al mes y te aviso cuando se esté acabando.</p>`}</section>
+  ${cq.rows.length?`<section class="card span2" aria-labelledby="h-cc"><div class="card-h"><h2 id="h-cc">Cobros de clientes · ${perLabel(ym,ui.fper)}</h2></div><ul class="list">${cq.rows.map(({c,n,esperado,cobrado,falta})=>`<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${n} pago${n===1?'':'s'} · cobrado ${money(cobrado)} de ${money(esperado)}</span></button>${pill(falta>0.004?'Falta '+money(falta):'Cobrado',falta>0.004?'warn':'ok')}</li>`).join('')}</ul><p class="note" style="margin-top:8px">Total esperado ${money(cq.esperado)} · cobrado ${money(cq.cobrado)}</p></section>`:''}
   ${list.some(t=>t.type==='gasto')?foldCard(`<section class="card bars">${breakdown(list,'gasto')}</section>`,'¿En qué gasté?',money(tt.gasto)):''}
   ${list.some(t=>t.type==='ingreso')?foldCard(`<section class="card bars">${breakdown(list,'ingreso')}</section>`,'¿De dónde entró?',money(tt.ingreso)):''}
-  ${foldCard(fixedCard(),'Gastos fijos',S.tx.filter(t=>t.repeat&&REPT[t.repeat]).length+' activos')}
-  ${foldCard(salaryCard(),'Mi salario (Panamá)','ver el cálculo')}
-  ${foldCard(`<section class="card">${chartMonths(ym)}</section>`,'Últimos 6 meses','gráfica')}
-  ${yr?foldCard(`<section class="card"><div class="scroll-x"><table class="t"><thead><tr><th scope="col">Mes</th><th scope="col">Ingresos</th><th scope="col">Gastos</th><th scope="col">Libre</th></tr></thead><tbody>${yr}</tbody></table></div></section>`,'Resumen del año '+year,'por mes'):''}
   </div>`;
 }
 
 function vShop(){
-  const pend=S.shop.filter(s=>!s.done).length;
-  const groups=SHOPCATS.map(c=>{
-    const its=S.shop.filter(s=>(s.cat||'Otros')===c).sort((a,b)=>a.done-b.done);
-    return its.length?`<li class="gh">${c}</li>`+its.map(s=>`<li class="row ${s.done?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${s.done}" aria-label="${s.done?'Desmarcar':'Marcar como comprado'}: ${esc(s.name)}" data-act="shop-toggle" data-id="${s.id}">${s.done?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-shop" data-id="${s.id}"><span class="t">${esc(s.name)}</span>${s.qty?`<span class="s">${esc(s.qty)}</span>`:''}</button></li>`).join(''):'';
-  }).join('');
+  const pend=S.shop.filter(s=>!s.done).length,hechos=S.shop.length-pend;
   const favs=S.favs.filter(f=>!S.shop.some(s=>s.name.toLowerCase()===f.name.toLowerCase()));
-  return page('Lista del súper',`${pend} por comprar`)+
-  `<form class="quick" id="shopForm"><label class="sr" for="shopName">Producto</label><input id="shopName" name="n" placeholder="Agregar producto" autocomplete="off"><label class="sr" for="shopCat">Sección</label><select id="shopCat" name="c">${SHOPCATS.map(c=>`<option>${c}</option>`).join('')}</select><button class="btn" type="submit">${ic('plus')}Agregar</button></form>
-  ${favs.length?`<p class="note" style="margin-bottom:6px">Lo que siempre compras</p><div class="chips">${favs.map(f=>`<button class="chip" type="button" data-act="shop-fav" data-n="${esc(f.name)}">+ ${esc(f.name)}</button>`).join('')}</div>`:''}
-  <section class="card" aria-label="Lista">${groups?`<ul class="list">${groups}</ul>`:empty('Tu lista está vacía.')}</section>
-  <div class="actions" style="margin-top:14px"><button class="btn ghost" type="button" data-act="shop-clear">Quitar comprados</button><button class="btn" type="button" data-act="shop-expense">Registrar gasto del súper</button></div>`;
+  if(ui.sub==='lista'){
+    const groups=SHOPCATS.map(c=>{
+      const its=S.shop.filter(s=>(s.cat||'Otros')===c).sort((a,b)=>a.done-b.done);
+      return its.length?`<li class="gh">${c}</li>`+its.map(s=>`<li class="row ${s.done?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${s.done}" aria-label="${s.done?'Desmarcar':'Marcar como comprado'}: ${esc(s.name)}" data-act="shop-toggle" data-id="${s.id}">${s.done?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-shop" data-id="${s.id}"><span class="t">${esc(s.name)}</span>${s.qty?`<span class="s">${esc(s.qty)}</span>`:''}</button></li>`).join(''):'';
+    }).join('');
+    return det('Lista del súper',`${pend} por comprar`)+
+    `<form class="quick" id="shopForm"><label class="sr" for="shopName">Producto</label><input id="shopName" name="n" placeholder="Agregar producto" autocomplete="off"><label class="sr" for="shopCat">Sección</label><select id="shopCat" name="c">${SHOPCATS.map(c=>`<option>${c}</option>`).join('')}</select><button class="btn" type="submit">${ic('plus')}Agregar</button></form>
+    <section class="card" aria-label="Lista">${groups?`<ul class="list">${groups}</ul>`:empty('Tu lista está vacía.')}</section>
+    <div class="actions" style="margin-top:14px"><button class="btn ghost" type="button" data-act="shop-clear">Quitar comprados</button></div>`;
+  }
+  if(ui.sub==='favs')return det('Lo que siempre compras','Toca un producto para agregarlo a la lista')+
+    `<section class="card" aria-label="Favoritos">${favs.length?`<div class="chips">${favs.map(f=>`<button class="chip" type="button" data-act="shop-fav" data-n="${esc(f.name)}">+ ${esc(f.name)}</button>`).join('')}</div>`:empty(S.favs.length?'Todo lo que siempre compras ya está en tu lista.':'Aquí aparecerán los productos que compres seguido. Se guardan solos al quitar los comprados.')}</section>`;
+  return page('Súper',`${pend} por comprar`)+
+  hero('Por comprar',pend,pend===1?'producto en tu lista':'productos en tu lista')+
+  `<div class="tiles">${tile('Lista del súper',S.shop.length?`${pend} por comprar · ${hechos} comprado${hechos===1?'':'s'}`:'Tu lista está vacía','open-sub','lista')}
+  ${tile('Lo que siempre compras',S.favs.length?plural(S.favs.length,'producto guardado','productos guardados'):'Aún no hay','open-sub','favs')}
+  ${tile('Registrar gasto del súper','Anota cuánto gastaste hoy','shop-expense')}</div>`;
 }
 
-const TABS=[['home','Inicio','home',vHome],['agenda','Agenda','calendar',vAgenda],['work','Trabajo','briefcase',vWork],['money','Finanzas','chart',vMoney],['shop','Súper','cart',vShop]];
+const TABS=[['home','Inicio','home',vHome],['money','Finanzas','chart',vMoney],['shop','Súper','cart',vShop],['agenda','Agenda','calendar',vAgenda],['work','Trabajo','briefcase',vWork]];
 const norm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const lastCat=()=>{try{return localStorage.getItem('miespacio.lastcat')||''}catch(e){return ''}};
 const merchKey=x=>norm(x).replace(/[^a-z0-9 ]/g,'').trim().slice(0,40);
@@ -1117,6 +1183,40 @@ function applyRecurring(){
   });
   if(n){stamp();persist();autoSync()}
 }
+/* Navegación: cada pantalla de detalle es un paso del historial, así el botón «atrás» del celular también funciona */
+let pendingTab='';
+const navSnap=()=>({t:ui.tab,s:ui.sub,o:ui.open,p:ui.pubcal});
+function nav(patch){
+  Object.assign(ui,patch);
+  try{history.pushState({d:((history.state&&history.state.d)||0)+1,ne:navSnap()},'')}catch(e){}
+  render(true);
+}
+function goBack(){
+  const d=history.state&&history.state.d;
+  if(d){history.back();return}
+  if(ui.open)ui.open='';else if(ui.pubcal)ui.pubcal=false;else ui.sub='';
+  render(true);
+}
+function gotoTab(id){
+  const d=(history.state&&history.state.d)||0;
+  if(d){pendingTab=id;history.go(-d);setTimeout(()=>{if(pendingTab)applyTab()},400);return}
+  ui.tab=id;ui.sub='';ui.open='';ui.pubcal=false;
+  try{history.replaceState({t:id},'')}catch(e){}
+  render(true);
+}
+function applyTab(){
+  ui.tab=pendingTab;pendingTab='';ui.sub='';ui.open='';ui.pubcal=false;
+  try{history.replaceState({t:ui.tab},'')}catch(e){}
+  render(true);
+}
+window.addEventListener('popstate',e=>{
+  const s=e.state;closeSheet();
+  if(s&&s.ne){ui.tab=s.ne.t;ui.sub=s.ne.s;ui.open=s.ne.o;ui.pubcal=s.ne.p}
+  else{ui.sub='';ui.open='';ui.pubcal=false;if(s&&s.t)ui.tab=s.t}
+  if(pendingTab){applyTab();return}
+  render(true);
+});
+try{history.replaceState({t:ui.tab},'')}catch(e){}
 function render(focus){
   const y=scrollY;syncProj();applyRecurring();applyAutoPays();ui.cel.push(...checkGoals());document.body.dataset.tab=ui.tab;
   $('#main').innerHTML=TABS.find(t=>t[0]===ui.tab)[3]();
@@ -1348,7 +1448,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-12.1 gasto rápido y bandeja de Apple Pay';
+const APP_V='2026-10-12.3 resumen y pantallas en cada pestaña';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Presupuesto mensual de gastos',t:'number',ph:'0.00'},
@@ -1588,9 +1688,11 @@ document.addEventListener('click',e=>{
   const a=el.dataset.act,id=el.dataset.id;
   switch(a){
     case 'close':closeSheet();break;
-    case 'goto-tab':closeSheet();if(id==='work'&&ui.tab==='work'){ui.open='';ui.pubcal=false}ui.tab=id;render(true);break;
-    case 'goto-proj':ui.tab='work';ui.proj=id;ui.open=id;render(true);break;
-    case 'goto-work':ui.tab='work';render(true);break;
+    case 'goto-tab':closeSheet();gotoTab(id);break;
+    case 'open-sub':nav({sub:id});break;
+    case 'back':goBack();break;
+    case 'goto-proj':nav({tab:'work',sub:'clients',proj:id,open:id});break;
+    case 'goto-work':closeSheet();gotoTab('work');break;
     case 'settings':settingsSheet();break;
     case 'sync':sync(true);break;
     case 'add-ev':evSheet(null,id);break;
@@ -1608,7 +1710,7 @@ document.addEventListener('click',e=>{
     case 'pickday':ui.sel=id;render();break;
     case 'm-prev':ui.month=shiftM(ui.month,-1);render();break;
     case 'm-next':ui.month=shiftM(ui.month,1);render();break;
-    case 'goto-month':ui.month=id;render(true);break;
+    case 'goto-month':nav({month:id,sub:'mov'});break;
     case 'add-tx':txSheet(null,id);break;
     case 'edit-tx':{const t=S.tx.find(x=>x.id===id),c=t&&t.type==='ingreso'&&S.clients.find(x=>x.name===t.cat);c?cobroSheet(c.id,t.id):txSheet(id);break}
     case 'quick':quickSheet();break;
@@ -1626,9 +1728,8 @@ document.addEventListener('click',e=>{
     case 'shop-expense':
       amountSheet('¿Cuánto gastaste en el súper?','',n=>{if(!n)return false;
         S.tx.unshift({id:uid(),type:'gasto',amount:n,cat:'Super',desc:'Compra del súper',date:today()});toast('Gasto registrado')});break;
-    case 'open-client':ui.open=id;ui.proj=id;render(true);break;
-    case 'back-clients':ui.open='';render(true);break;
-    case 'go-client':closeSheet();ui.tab='work';ui.pubcal=false;ui.open=id;ui.proj=id;render(true);break;
+    case 'open-client':nav({open:id,proj:id});break;
+    case 'go-client':closeSheet();nav({tab:'work',sub:'clients',pubcal:false,open:id,proj:id});break;
     case 'pay-client':cobroSheet(id,null,el.dataset.for||'');break;
     case 'add-goal':goalSheet();break;
     case 'fper':ui.fper=id;render();break;
@@ -1644,8 +1745,7 @@ document.addEventListener('click',e=>{
     case 'add-client':clientSheet();break;
     case 'edit-client':clientSheet(id);break;
     case 'add-post':postSheet(null,el.dataset.date||'');break;
-    case 'open-pubcal':ui.pubcal=true;render(true);break;
-    case 'close-pubcal':ui.pubcal=false;render(true);break;
+    case 'open-pubcal':nav({pubcal:true});break;
     case 'pc-prev':ui.pcal=shiftM(ui.pcal,-1);render();break;
     case 'pc-next':ui.pcal=shiftM(ui.pcal,1);render();break;
     case 'pc-day':ui.psel=id;render();break;
