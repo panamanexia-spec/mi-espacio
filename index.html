@@ -50,7 +50,7 @@
   --info:#2955c9; --info-soft:#dde5fa; --info-t:#1f449f;
   --mute:#675b64; --mute-soft:#efe6e3; --mute-t:#52474f;
   --c-in:#0b78b8; --c-out:#c4193a;
-  --s-home:#c2297e; --i-home:#ffffff; --s-agenda:#0b78b8; --i-agenda:#ffffff; --s-work:#b85a00; --i-work:#ffffff; --s-money:#c4193a; --i-money:#ffffff; --s-shop:#5b57d6; --i-shop:#ffffff;
+  --s-home:#c2297e; --i-home:#ffffff; --s-agenda:#0a70ad; --i-agenda:#ffffff; --s-work:#a65000; --i-work:#ffffff; --s-money:#c4193a; --i-money:#ffffff; --s-shop:#5b57d6; --i-shop:#ffffff;
   --shadow:0 1px 2px rgba(26,19,24,.06),0 12px 28px -16px rgba(26,19,24,.28);
   --focus:#3b2bd6;
 }
@@ -66,7 +66,7 @@
   --info:#2955c9; --info-soft:#dde5fa; --info-t:#1f449f;
   --mute:#675b64; --mute-soft:#efe6e3; --mute-t:#52474f;
   --c-in:#0b78b8; --c-out:#c4193a;
-  --s-home:#c2297e; --i-home:#ffffff; --s-agenda:#0b78b8; --i-agenda:#ffffff; --s-work:#b85a00; --i-work:#ffffff; --s-money:#c4193a; --i-money:#ffffff; --s-shop:#5b57d6; --i-shop:#ffffff;
+  --s-home:#c2297e; --i-home:#ffffff; --s-agenda:#0a70ad; --i-agenda:#ffffff; --s-work:#a65000; --i-work:#ffffff; --s-money:#c4193a; --i-money:#ffffff; --s-shop:#5b57d6; --i-shop:#ffffff;
   --shadow:0 1px 2px rgba(26,19,24,.06),0 12px 28px -16px rgba(26,19,24,.28);
   --focus:#3b2bd6;
   }
@@ -126,20 +126,20 @@ main{padding:20px 16px 120px;max-width:1120px;margin:0 auto;outline:0}
 .card>h2,.card-h h2{font-size:1.2rem}
 .card-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
 .card>h2{margin-bottom:12px}
-.link{color:var(--brand-t);font-weight:700;font-size:.9rem;text-decoration:underline;text-underline-offset:3px;min-height:44px;display:inline-flex;align-items:center}
+.link{color:var(--brand-t);font-weight:700;font-size:.9rem;text-decoration:underline;text-underline-offset:3px;min-height:44px;min-width:44px;justify-content:center;display:inline-flex;align-items:center}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;font-weight:700;background:var(--brand);color:var(--brand-ink);border:2px solid var(--brand)}
 .btn:hover{filter:brightness(1.06)}
 .btn.ghost{background:transparent;color:var(--brand-t);border-color:var(--line)}
 .btn.ghost:hover{background:var(--surface2)}
 .btn.danger{background:transparent;color:var(--bad-t);border-color:var(--bad)}
-.btn.sm{min-height:40px;padding:0 14px;font-size:.9rem}
+.btn.sm{min-height:44px;padding:0 14px;font-size:.9rem}
 .iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .pill{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--ps);color:var(--pt);white-space:nowrap}
 .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pt)}
 .k-brand{--ps:var(--brand-soft);--pt:var(--brand-t)}.k-accent{--ps:var(--accent-soft);--pt:var(--accent-t)}
 .k-ok{--ps:var(--ok-soft);--pt:var(--ok-t)}.k-warn{--ps:var(--warn-soft);--pt:var(--warn-t)}
 .k-bad{--ps:var(--bad-soft);--pt:var(--bad-t)}.k-info{--ps:var(--info-soft);--pt:var(--info-t)}.k-mute{--ps:var(--mute-soft);--pt:var(--mute-t)}
-.syncbtn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:.85rem;font-weight:600;color:var(--muted)}
+.syncbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:.85rem;font-weight:600;color:var(--muted)}
 .syncbtn[data-s="ok"]{color:var(--ok-t)}.syncbtn[data-s="err"]{color:var(--bad-t);border-color:var(--bad)}
 .syncbtn[data-s="busy"] svg{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -165,7 +165,7 @@ main{padding:20px 16px 120px;max-width:1120px;margin:0 auto;outline:0}
 .amt{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .dot{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:700;background:var(--mute-soft);color:var(--mute-t);flex:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:.9rem;color:var(--ink)}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:.9rem;color:var(--ink)}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:16px;max-width:100%}
 .seg button{min-height:44px;padding:0 18px;border-radius:999px;font-weight:700;color:var(--muted)}
@@ -185,7 +185,7 @@ main{padding:20px 16px 120px;max-width:1120px;margin:0 auto;outline:0}
 .cli>svg{flex:none;color:var(--muted)}
 .cs{margin-bottom:16px}
 .more{margin:6px 0 14px;border:1px dashed var(--line);border-radius:var(--r-sm);padding:10px 14px}
-.more summary{font-weight:700;color:var(--brand-t);min-height:36px;display:flex;align-items:center}
+.more summary{font-weight:700;color:var(--brand-t);min-height:44px;display:flex;align-items:center}
 .kv{display:flex;gap:14px;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
 .kv:last-child{border-bottom:0}
 .kv .k{color:var(--muted);font-weight:600;flex:none}
@@ -349,8 +349,10 @@ fieldset.f legend{display:block;font-size:.88rem;font-weight:700;color:var(--mut
 .fold .ft{font-family:var(--f-display);font-weight:700;font-size:1.35rem;margin-right:auto}
 .fold>summary .note{text-align:right}
 .foldb{padding:0 18px 18px}
+.stat.card{display:block;width:100%}button.stat{text-align:left;color:var(--ink);font:inherit;cursor:pointer;min-height:44px}
 .herob{display:block;width:100%;text-align:left;color:var(--ink);font:inherit;cursor:pointer;min-height:44px}
-.herob>*{display:block}.herob .link{margin-top:10px;font-weight:700}
+.herob>*{display:block}.herob .link{margin-top:6px;min-height:0;font-weight:700}
+.big-s{font-family:var(--f-body);font-size:1.6rem;font-weight:800;display:block;line-height:1.15;margin:0 0 6px}
 .prow{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:.95rem}
 .pbt{display:block;height:10px;border-radius:6px;background:var(--mute-soft);margin-top:6px;overflow:hidden}
 .pbt i{display:block;height:100%;border-radius:6px 0 0 6px;background:var(--sec)}
@@ -449,9 +451,9 @@ function cleanRec(c,r){
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
   if(c==='inbox'){o.amount=+o.amount;if(!(o.amount>0&&o.amount<1e7))return null;o.desc=String(o.desc||'').slice(0,80);o.card=String(o.card||'').slice(0,30);o.cat=String(o.cat||'').slice(0,40);if(o.date&&!isD(o.date))o.date=''}
   if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0;o.done=!!o.done;o.final=Number.isFinite(+o.final)?+o.final:0;o.aportes=Number.isInteger(+o.aportes)&&+o.aportes>=0?+o.aportes:0}
-  if(c==='bills'){o.amt=Number.isFinite(+o.amt)&&+o.amt>=0&&+o.amt<1e9?+o.amt:0;if(!['15','fin','dia'].includes(o.when))o.when='15';o.day=Number.isInteger(+o.day)&&+o.day>=1&&+o.day<=31?+o.day:1;if(!['quincenal','mensual','bimestral'].includes(o.freq))o.freq='mensual';if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.active!=='no')o.active='si';if(!isD(o.from))o.from=ymd0();if(typeof o.lg!=='string'||!SAFE.test(o.lg))delete o.lg}
-  if(c==='debts'){['bal','rate','pay','init'].forEach(k=>{o[k]=Number.isFinite(+o[k])&&+o[k]>=0&&+o[k]<1e9?+o[k]:0});o.rate=Math.min(o.rate,1000);if(!(o.init>=o.bal))o.init=o.bal;if(!['si','no'].includes(o.payroll))o.payroll='no';
-    o.pays=Array.isArray(o.pays)?o.pays.slice(0,500).map((p,i)=>p&&typeof p==='object'&&isD(p.d)&&Number.isFinite(+p.a)&&+p.a>0&&+p.a<1e9?{id:typeof p.id==='string'&&SAFE.test(p.id)?p.id:'p'+i,d:p.d,a:+p.a,k:p.k==='extra'?'extra':'cuota',...(p.x?{x:1}:{}),cap:Number.isFinite(+p.cap)&&+p.cap>=0?+p.cap:0,...(typeof p.tx==='string'&&SAFE.test(p.tx)?{tx:p.tx}:{})}:null).filter(Boolean):[]}
+  if(c==='bills'){o.amt=Number.isFinite(+o.amt)&&+o.amt>=0&&+o.amt<1e9?+o.amt:0;if(!['15','fin','dia'].includes(o.when))o.when='15';o.day=Number.isInteger(+o.day)&&+o.day>=1&&+o.day<=31?+o.day:1;if(!['quincenal','mensual','bimestral'].includes(o.freq))o.freq='mensual';if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.active!=='no')o.active='si';if(!isD(o.from))o.from=ymd0();if(o.varia!=='si')delete o.varia;if(Number.isInteger(+o.lim)&&+o.lim>=1&&+o.lim<=31)o.lim=+o.lim;else delete o.lim;if(o.split==='si'&&Number.isFinite(+o.part1)&&+o.part1>0&&+o.part1<o.amt)o.part1=+o.part1;else{delete o.split;delete o.part1}if(typeof o.lg!=='string'||!SAFE.test(o.lg))delete o.lg}
+  if(c==='debts'){['bal','rate','pay','init'].forEach(k=>{o[k]=Number.isFinite(+o[k])&&+o[k]>=0&&+o[k]<1e9?+o[k]:0});o.rate=Math.min(o.rate,1000);if(!(o.init>=o.bal))o.init=o.bal;if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.late!=='si')o.late='no';
+    o.pays=Array.isArray(o.pays)?o.pays.slice(0,500).map((p,i)=>p&&typeof p==='object'&&isD(p.d)&&Number.isFinite(+p.a)&&+p.a>0&&+p.a<1e9?{id:typeof p.id==='string'&&SAFE.test(p.id)?p.id:'p'+i,d:p.d,a:+p.a,k:p.k==='extra'?'extra':p.k==='plan'?'plan':'cuota',...(p.x?{x:1}:{}),cap:Number.isFinite(+p.cap)&&+p.cap>=0?+p.cap:0,...(typeof p.tx==='string'&&SAFE.test(p.tx)?{tx:p.tx}:{})}:null).filter(Boolean):[]}
   if(c==='clients'){
     if(!['mensual','quincenal','semanal'].includes(o.freq))delete o.freq;
     if(o.payWeekdays!=null&&!/^[0-6](,[0-6])*$/.test(String(o.payWeekdays)))delete o.payWeekdays;
@@ -469,7 +471,7 @@ function cleanRec(c,r){
     if(!o.payFrom)delete o.payFrom;
     if(!['seguro','variable'].includes(o.stab))delete o.stab;
     if(Number.isFinite(+o.comm)&&+o.comm>0&&+o.comm<1e7){o.comm=+o.comm;if(!['15','fin'].includes(o.commWhen))o.commWhen='fin'}else{delete o.comm;delete o.commWhen}
-    if(Array.isArray(o.descs))o.descs=o.descs.slice(0,20).map((x,i)=>x&&typeof x==='object'&&Number.isFinite(+x.m)&&+x.m>0&&+x.m<1e7?{id:typeof x.id==='string'&&SAFE.test(x.id)?x.id:'d'+i,n:String(x.n==null||typeof x.n==='object'?'':x.n).slice(0,60),m:x.q?+x.m:Math.round(+x.m/2*100)/100,q:1}:null).filter(Boolean);else delete o.descs;
+    if(Array.isArray(o.descs))o.descs=o.descs.slice(0,20).map((x,i)=>x&&typeof x==='object'&&Number.isFinite(+x.m)&&+x.m>0&&+x.m<1e7?{id:typeof x.id==='string'&&SAFE.test(x.id)?x.id:'d'+i,n:String(x.n==null||typeof x.n==='object'?'':x.n).slice(0,60),m:x.q?+x.m:Math.round(+x.m/2*100)/100,q:1,...(isD(x.from)?{from:x.from}:{}),...(isD(x.to)?{to:x.to}:{})}:null).filter(Boolean);else delete o.descs;
   }
   if(c==='tx'){if(o.xtra){o.xtra=true;o.src='extra'}else delete o.xtra;if(o.src!=='extra')delete o.src;if(typeof o.bill!=='string'||!SAFE.test(o.bill))delete o.bill;if(!['bono','comm'].includes(o.stream))delete o.stream;if('auto' in o)o.auto=!!o.auto;if(!Number.isFinite(+o.bruto)||+o.bruto<=0)delete o.bruto;if(!['mensual','quincenal','bimestral'].includes(o.repeat))o.repeat='';if(o.for==='')delete o.for;if(typeof o.from!=='string'||!SAFE.test(o.from))delete o.from;o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
   if(c==='shop'||c==='tasks')o.done=!!o.done;
@@ -580,7 +582,7 @@ const when=(d,t=today())=>{const n=diffDays(t,d);return n<0?`hace ${-n} día${n<
 
 /* ============ Estado de UI ============ */
 const nowYM=today().slice(0,7);
-const ui={tab:'home',sub:'',pm:nowYM,dx:'',dxd:'',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',cel:[],fper:'mes',mt:'todos',mq:'',mAll:false,pubcal:false,pcal:nowYM,psel:today()};
+const ui={tab:'home',sub:'',debt:'',dq:'',pm:nowYM,dx:'',dxd:'',cal:nowYM,sel:today(),month:nowYM,proj:'',open:'',cel:[],fper:'mes',mt:'todos',mq:'',mAll:false,pubcal:false,pcal:nowYM,psel:today()};
 function syncProj(){
   PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
   ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
@@ -640,11 +642,11 @@ function alerts(){
   S.clients.filter(c=>c.status==='Activo').forEach(c=>{
     cobro(c).overdue.slice(0,2).forEach(q=>A.push({lvl:q.st==='hoy'?2:3,ic:'chart',tx:q.st==='hoy'?`Hoy toca cobrar ${money(q.falta)} a ${c.name}${q.s==='bono'?' (bono)':q.s==='comm'?' (comisión)':''}`:`Falta cobrar ${money(q.falta)} a ${c.name}${q.s==='bono'?' (bono)':q.s==='comm'?' (comisión)':''} (del ${shortDate(q.due)})`,act:'go-client',id:c.name}))});
   capRows(nowYM).forEach(q=>{if(q.pct>=100)A.push({lvl:3,ic:'chart',tx:`Pasaste el tope de ${q.cat}: ${money(q.spent)} de ${money(q.cap)}`,act:'open-mov',id:'x'});else if(q.pct>=80)A.push({lvl:2,ic:'chart',tx:`${q.cat}: llevas ${Math.round(q.pct)} % de tu tope (${money(q.spent)} de ${money(q.cap)})`,act:'open-mov',id:'x'})});
-  billItems(addDays(t,-60),t).filter(i=>!i.paid).forEach(i=>A.push({lvl:i.st==='vencido'?3:2,ic:'bell',tx:`${i.st==='vencido'?'Vencido':'Hoy toca pagar'}: ${i.b.name} ${money(i.b.amt)} (${shortDate(i.date)})`,act:'open-pay',id:'x'}));
+  billItems(addDays(t,-60),t).filter(i=>!i.paid).forEach(i=>A.push({lvl:i.st==='vencido'?3:2,ic:'bell',tx:`${i.st==='vencido'?'Vencido':'Toca pagar'}: ${i.b.name} ${i.b.varia==='si'?'≈ ':''}${money(i.b.amt)} (${shortDate(i.date)}${i.lim?`, límite ${shortDate(i.lim)}`:''})`,act:'open-pay',id:'x'}));
   const bs=budgetState();
   if(bs.lvl==='warn')A.push({lvl:2,ic:'chart',tx:`Tope de gasto: llevas ${Math.round(bs.pct)} % del mes`,act:'open-mov',id:'x'});
   if(bs.lvl==='bad')A.push({lvl:3,ic:'chart',tx:`Pasaste tu tope de gasto del mes (${Math.round(bs.pct)} %)`,act:'open-mov',id:'x'});
-  return A.sort((a,b)=>b.lvl-a.lvl);
+  return A.filter((a,i)=>A.findIndex(b=>b.tx===a.tx&&b.act===a.act&&b.id===a.id)===i).sort((a,b)=>b.lvl-a.lvl);
 }
 const lastDay=(y,m)=>new Date(y,m,0).getDate();
 const PLAN=.11; /* Panamá: 9.75 % Seguro Social + 1.25 % Seguro Educativo */
@@ -657,15 +659,16 @@ const perMonth=c=>perMonthF(c.freq,c);
 /* salario: se escribe el bruto MENSUAL y se reparte por pago; ofrenda u otro: se escribe lo de cada vez */
 const grossMonth=c=>isSal(c)?num(c.fee):num(c.fee)*perMonth(c);
 const grossPay=c=>isSal(c)?r2(num(c.fee)/perMonth(c)):num(c.fee);
-const descsOf=c=>isSal(c)&&Array.isArray(c.descs)?c.descs:[];
-const descMonth=c=>descsOf(c).reduce((a,x)=>a+num(x.m),0)*2; /* cada descuento se escribe por quincena */
+const descsOf=(c,d)=>{d=d||today();return isSal(c)&&Array.isArray(c.descs)?c.descs.filter(x=>(!x.from||d>=x.from)&&(!x.to||d<=x.to)):[]};
+const descMonth=(c,d)=>descsOf(c,d).reduce((a,x)=>a+num(x.m),0)*2; /* cada descuento se escribe por quincena y puede tener fecha de inicio y de fin */
 /* salario neto real por pago = bruto − 11 % − otros descuentos de planilla (repartidos entre los pagos del mes) */
-const payAmt=c=>isSal(c)?Math.max(0,r2(grossPay(c)*(1-PLAN)-descMonth(c)/perMonth(c))):num(c.fee);
+const payAmtAt=(c,d)=>isSal(c)?Math.max(0,r2(grossPay(c)*(1-PLAN)-descMonth(c,d)/perMonth(c))):num(c.fee);
+const payAmt=c=>payAmtAt(c,today());
 const bonusOn=c=>isSal(c)&&c.bonusOn==='si'&&num(c.bonus)>0;
 const bonusFreq=c=>c.bonusFreq||'mensual';
 const bonusMonth=c=>bonusOn(c)?num(c.bonus)*perMonthF(bonusFreq(c),c):0;
 /* cada cliente puede tener dos fuentes de pago: la principal y el bono o comisión (sin descuento) */
-function streams(c){const o=[];if(payAmt(c)>0)o.push({k:'main',fee:payAmt(c),o:c,pre:''});if(isSal(c)&&num(c.comm)>0)o.push({k:'comm',fee:num(c.comm),o:{...c,freq:'mensual',payDay:c.commWhen==='15'?15:31},pre:'Comisión · '});if(bonusOn(c))o.push({k:'bono',fee:num(c.bonus),o:{...c,freq:bonusFreq(c),payDay:c.freq==='mensual'?c.payDay:31},pre:'Bono · '});return o}
+function streams(c){const o=[];if(isSal(c)?grossPay(c)>0:payAmt(c)>0)o.push({k:'main',fee:payAmt(c),feeAt:d=>payAmtAt(c,d),o:c,pre:''});if(isSal(c)&&num(c.comm)>0)o.push({k:'comm',fee:num(c.comm),o:{...c,freq:'mensual',payDay:c.commWhen==='15'?15:31},pre:'Comisión · '});if(bonusOn(c))o.push({k:'bono',fee:num(c.bonus),o:{...c,freq:bonusFreq(c),payDay:c.freq==='mensual'?c.payDay:31},pre:'Bono · '});return o}
 const encFor=q=>({bono:'b:',comm:'c:'}[q.s]||'')+q.due;
 /* fechas de pago entre dos fechas: semanal (uno o varios días de la semana), quincenal (15 y fin de mes) o mensual (un día del mes) */
 function dueDates(c,from,to){
@@ -698,9 +701,9 @@ function periods(c,sk='main'){
   const fee=sm.fee,o=sm.o,t=today(),from=payStart(c);
   const past=dueDates(o,from,t),fut=dueDates(o,addDays(t,1),addDays(t,45)).slice(0,2);
   const all=[...past.slice(-8),...fut],paidBy=paidMap(c,sk,dueDates(o,addDays(from,-20),addDays(t,60)),from);
-  return all.map(due=>{const paid=paidBy[due]||0,falta=Math.max(0,fee-paid);
-    const st=paid>=fee-0.005?'pagado':due<t?'vencido':due===t?'hoy':'proximo';
-    return {due,paid,falta,st,s:sk,fee,label:sm.pre+dueLabel(o,due)}});
+  return all.map(due=>{const f=sm.feeAt?sm.feeAt(due):fee,paid=paidBy[due]||0,falta=Math.max(0,f-paid);
+    const st=paid>=f-0.005?'pagado':due<t?'vencido':due===t?'hoy':'proximo';
+    return {due,paid,falta,st,s:sk,fee:f,label:sm.pre+dueLabel(o,due)}});
 }
 function cobro(c){
   const P=[...periods(c,'main'),...periods(c,'comm'),...periods(c,'bono')].sort((a,b)=>a.due.localeCompare(b.due));
@@ -739,10 +742,10 @@ const editAct=k=>k==='ev'?'edit-ev':k==='post'?'edit-post':'edit-task';
 const page=(title,sub,actions='')=>`<div class="page-head"><div><p class="eyebrow">${esc(sub)}</p><h1>${esc(title)}</h1></div><div class="actions">${actions}</div></div>`;
 const addBtn=(label,act,id='',extra='')=>`<button class="btn sm" type="button" data-act="${act}" data-id="${esc(id)}" ${extra}>${ic('plus')}${label}</button>`;
 /* ---- Patrón de todas las pestañas: resumen arriba + tarjetas que abren una pantalla con «atrás» ---- */
-const backLbl=()=>(TABS.find(t=>t[0]===ui.tab)||[0,'Atrás'])[1];
+const backLbl=()=>'Atrás';
 const det=(title,sub,actions='')=>`<button class="link back" type="button" data-act="back">${ic('left')}${esc(backLbl())}</button>`+page(title,sub,actions);
 const tile=(title,line,act='open-sub',id='')=>`<button class="tile" type="button" data-act="${act}" data-id="${esc(id)}"><span class="tt"><b>${title}</b><span class="note">${line}</span></span>${ic('right')}</button>`;
-const hero=(label,val,note='',cls='',act='')=>act?`<button type="button" class="card hero herob" data-act="${act}"><span class="eyebrow">${label}</span><b class="big-n ${cls}">${val}</b>${note?`<span class="note">${note}</span>`:''}<span class="link">Toca para ver cómo se calcula ›</span></button>`:`<section class="card hero"><p class="eyebrow">${label}</p><b class="big-n ${cls}">${val}</b>${note?`<p class="note">${note}</p>`:''}</section>`;
+const hero=(label,val,note='',cls='',act='',id='')=>act?`<button type="button" class="card hero herob" data-act="${act}" data-id="${esc(id)}"><span class="eyebrow">${label}</span><b class="big-n ${cls}">${val}</b>${note?`<span class="note">${note}</span>`:''}<span class="link">${act==='open-cuenta'?'Toca para ver cómo se calcula':'Toca para ver el detalle'} ›</span></button>`:`<section class="card hero"><p class="eyebrow">${label}</p><b class="big-n ${cls}">${val}</b>${note?`<p class="note">${note}</p>`:''}</section>`;
 const plural=(n,a,b)=>`${n} ${n===1?a:b}`;
 function itemRow(i){
   const lab=`${i.done?'Desmarcar':'Marcar como hecho'}: ${i.title}`;
@@ -787,9 +790,15 @@ function billDates(b,from,to){
   return out;
 }
 const billPaid=(b,d)=>S.tx.find(x=>x.id===billTxId(b,d))||(b.lg&&S.tx.find(x=>(x.id===b.lg&&d===b.from)||(x.from===b.lg&&x.date===d)))||null;
+/* fecha límite: el día `lim` de ese mes (o del siguiente si ya pasó el día de pago) */
+const billLimit=(b,d)=>{if(!b.lim)return '';let y=+d.slice(0,4),m=+d.slice(5,7);if(b.lim<+d.slice(8)){m++;if(m>12){m=1;y++}}return `${y}-${pad(m)}-${pad(Math.min(b.lim,lastDay(y,m)))}`};
+const splitOk=b=>b.split==='si'&&b.part1>0&&b.part1<b.amt;
 function billItems(from,to){
   const t=today(),out=[];
-  S.bills.filter(b=>b.active!=='no'&&b.payroll!=='si').forEach(b=>billDates(b,from,to).forEach(d=>{const tx=billPaid(b,d);out.push({b,date:d,tx,paid:!!tx,st:tx?'pagado':d<t?'vencido':d===t?'hoy':'proximo'})}));
+  S.bills.filter(b=>b.active!=='no'&&b.payroll!=='si').forEach(b=>billDates(b,from,to).forEach(d=>{
+    const tx=billPaid(b,d),lim=billLimit(b,d),end=lim||d;
+    out.push({b,date:d,lim,tx,paid:!!tx,ap:splitOk(b)&&d>t?b.part1:b.amt,st:tx?'pagado':end<t?'vencido':d<t?'toca':d===t?'hoy':'proximo'});
+  }));
   return out.sort((a,b)=>a.date.localeCompare(b.date)||a.b.name.localeCompare(b.b.name));
 }
 const qWindow=t=>{const ym=t.slice(0,7),ld=lastDay(+ym.slice(0,4),+ym.slice(5,7));return +t.slice(8)<=15?[ym+'-01',ym+'-15']:[ym+'-16',`${ym}-${pad(ld)}`]};
@@ -809,7 +818,7 @@ function nextPay(){
 /* Hoy puedes gastar = (disponible del salario − pagos sin check que vencen hasta el próximo cobro) ÷ días hasta ese cobro */
 function cuenta(){
   const t=today(),pk=pocket('salario'),next=nextPay(),days=Math.max(1,diffDays(t,next));
-  const items=billItems(addDays(t,-60),next).filter(i=>!i.paid),apart=items.reduce((a,i)=>a+i.b.amt,0),net=r2(pk.avail-apart);
+  const items=billItems(addDays(t,-60),next).filter(i=>!i.paid),apart=items.reduce((a,i)=>a+i.ap,0),net=r2(pk.avail-apart);
   return {pk,next,days,items,apart,net,per:net>0?net/days:0,falta:net<0?-net:0};
 }
 /* salario por quincena: neto de la del 15 y de la de fin de mes, con desglose */
@@ -819,7 +828,7 @@ function salCols(ym){
     if(sm.k!=='main'&&sm.k!=='comm')return;
     dueDates(sm.o,`${ym}-01`,`${ym}-${pad(ld)}`).forEach(d=>{
       const col=cols[+d.slice(8)<=15?0:1];col.n++;
-      if(sm.k==='main'){const g=grossPay(c),pm=perMonth(c);col.gross+=g;col.ss+=g*.0975;col.se+=g*.0125;descsOf(c).forEach(x=>{const k=x.n||'Descuento';col.descs[k]=(col.descs[k]||0)+num(x.m)*2/pm});col.net+=payAmt(c)}
+      if(sm.k==='main'){const g=grossPay(c),pm=perMonth(c);col.gross+=g;col.ss+=g*.0975;col.se+=g*.0125;descsOf(c,d).forEach(x=>{const k=x.n||'Descuento';col.descs[k]=(col.descs[k]||0)+num(x.m)*2/pm});col.net+=payAmtAt(c,d)}
       else{col.comm+=sm.fee;col.net+=sm.fee}
     });
   }));
@@ -856,7 +865,7 @@ function vAgenda(){
   const hoy=itemsOn(t),nx=hoy.find(i=>!i.done),up=upNext(7),imp=impNext(60);
   let mes=0;{const [y,m]=nowYM.split('-').map(Number);for(let d=1;d<=lastDay(y,m);d++)mes+=itemsOn(`${nowYM}-${pad(d)}`).length}
   return page('Agenda',longDate(t),addBtn('Evento','add-ev',t)+addBtn('Tarea','add-task','',`data-due="${t}"`))+
-  hero('Hoy',plural(hoy.length,'pendiente','pendientes'),nx?`Sigue: ${esc(nx.title)}${nx.time?' a las '+nx.time:''}`:(hoy.length?'Ya terminaste lo de hoy.':'Día libre.'))+
+  hero('Pendientes de hoy',plural(hoy.length,'pendiente','pendientes'),nx?`Sigue: ${esc(nx.title)}${nx.time?' a las '+nx.time:''}`:(hoy.length?'Ya terminaste lo de hoy.':'Día libre.'),'','open-sub','cal')+
   `<div class="tiles">${tile('Calendario',`${plural(mes,'pendiente','pendientes')} en ${MESES[+nowYM.slice(5)-1]}`,'open-sub','cal')}
   ${tile('Próximos 7 días',up.length?plural(up.length,'pendiente','pendientes'):'Nada programado','open-sub','prox')}
   ${tile('Fechas importantes',imp.length?`${plural(imp.length,'fecha','fechas')} en 60 días`:'Ninguna próxima','open-sub','imp')}</div>`;
@@ -896,7 +905,7 @@ const cobList=()=>{const t=today();return S.clients.filter(c=>c.status==='Activo
 function vWorkMain(){
   const act=S.clients.filter(c=>c.status==='Activo').length,tareas=S.tasks.filter(x=>!x.done).length,cob=cobList(),por=S.posts.filter(x=>x.status!=='Publicado').length,gen=S.ideas.filter(i=>i.project==='General').length;
   return page('Trabajo','Mis clientes')+
-  hero('Tareas por hacer',tareas,plural(act,'cliente activo','clientes activos'))+
+  hero('Tareas por hacer',tareas,plural(act,'cliente activo','clientes activos'),'','open-sub','clients')+
   `<div class="tiles">${tile('Clientes',S.clients.length?`${plural(S.clients.length,'cliente','clientes')} · ${act} activo${act===1?'':'s'}`:'Agrega el primero','open-sub','clients')}
   ${tile('Cobros',cob.length?`${plural(cob.length,'cliente por cobrar','clientes por cobrar')}`:'Todo al día','open-sub','cobros')}
   ${tile('Calendario de publicaciones',por?`${plural(por,'publicación','publicaciones')} por salir`:'Nada por salir','open-pubcal')}
@@ -967,9 +976,9 @@ function vClient(c){
   return `<button class="link back" type="button" data-act="back">${ic('left')}Atrás</button>`+
   page(p,'Cliente',`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}">Registrar cobro</button><button class="btn ghost sm" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`)+
   `<p style="margin:-6px 0 16px">${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')} ${(ck.fee||bonusOn(c))?pill(isSal(c)?'Va a Mi salario':'Va a Dinero extra',isSal(c)?'ok':'info'):''} ${(ck.fee||bonusOn(c))?pill(ck.pend>0?'Falta cobrar '+money(ck.pend):'Pagos al día',ck.pend>0?'warn':'ok'):''}</p>
-  <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Publicaciones por salir</span><b>${por}</b></div><div class="stat card"><span>Cobrado este mes</span><b>${money(cobrado)}</b></div>${(ck.fee||bonusOn(c))?`<div class="stat card"><span>Falta cobrar</span><b class="${ck.pend>0?'neg':''}">${money(ck.pend)}</b></div>`:''}</div>
+  <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Tareas pendientes</span><b>${pend.length}</b></div><div class="stat card"><span>Publicaciones por salir</span><b>${por}</b></div><div class="stat card"><span>Lo que ya te pagó este mes</span><b>${money(cobrado)}</b></div>${(ck.fee||bonusOn(c))?`<div class="stat card"><span>Falta cobrar</span><b class="${ck.pend>0?'neg':''}">${money(ck.pend)}</b></div>`:''}</div>
   ${sec('h-c','Pagos',`<button class="link" type="button" data-act="edit-client" data-id="${c.id}">Ajustar</button>`,pagosHtml)}
-  ${isSal(c)?sec('h-ds','Otros descuentos de planilla',addBtn('Descuento','add-desc',c.id),`<p class="note" style="margin-bottom:8px">Préstamos, seguros u otros que te quitan en cada quincena del salario. Se restan del salario neto.</p>${descsOf(c).length?`<ul class="list">${descsOf(c).map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-desc" data-id="${esc(x.id)}" data-cid="${c.id}"><span class="t">${esc(x.n||'Descuento')}</span><span class="s">cada quincena</span></button><span class="amt neg">− ${money(x.m)}</span></li>`).join('')}</ul><p class="note" style="margin-top:8px">Total: ${money(descMonth(c)/2)} por quincena · salario neto al mes: <b>${money(payAmt(c)*perMonth(c)+num(c.comm))}</b></p>`:empty('No tienes otros descuentos anotados.')}`):''}
+  ${isSal(c)?sec('h-ds','Otros descuentos de planilla',addBtn('Descuento','add-desc',c.id),`<p class="note" style="margin-bottom:8px">Préstamos, seguros u otros que te quitan en cada quincena del salario. Se restan del salario neto.</p>${(c.descs||[]).length?`<ul class="list">${(c.descs||[]).map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-desc" data-id="${esc(x.id)}" data-cid="${c.id}"><span class="t">${esc(x.n||'Descuento')}</span><span class="s">cada quincena${x.from?` · desde el ${shortDate(x.from)}`:''}${x.to?` · hasta el ${shortDate(x.to)}`:''}</span></button><span class="amt neg">− ${money(x.m)}</span></li>`).join('')}</ul><p class="note" style="margin-top:8px">Total: ${money(descMonth(c)/2)} por quincena · salario neto al mes: <b>${money(payAmt(c)*perMonth(c)+num(c.comm))}</b></p>`:empty('No tienes otros descuentos anotados.')}`):''}
   ${sec('h-d','Datos y redes',`<button class="link" type="button" data-act="edit-client" data-id="${c.id}">Editar</button>`,
     (links?`<div class="actions" style="margin-bottom:12px">${links}</div>`:'')+(info.length?`<ul class="list">${info.map(([k,v])=>`<li class="kv"><span class="k">${k}</span><span class="v">${esc(v)}</span></li>`).join('')}</ul>`:'')+((!links&&!info.length)?empty('Aún no hay datos. Toca «Editar» para agregar su página web, redes y contacto.'):''))}
   ${sec('h-t','Tareas','',`<form class="quick" data-quick="task"><label class="sr" for="qt">Nueva tarea</label><input id="qt" name="n" placeholder="Escribe una tarea y toca Agregar" autocomplete="off"><button class="btn" type="submit">${ic('plus')}Agregar</button></form>
@@ -1076,40 +1085,95 @@ const debtsOpen=()=>S.debts.filter(d=>d.bal>0.005);
 const debtsInfo=()=>{const A=debtsOpen();return {n:A.length,bal:A.reduce((a,d)=>a+d.bal,0),pay:A.reduce((a,d)=>a+d.pay,0),mine:A.filter(d=>d.payroll!=='si').reduce((a,d)=>a+d.pay,0)}};
 /* cuota del mes que aún falta pagar de las deudas que NO van por planilla (las de planilla ya están en el salario neto) */
 function revertPay(d,p){d.bal=r2(d.bal+(p.cap||0));if(p.tx)remove(S.tx,p.tx);d.pays=d.pays.filter(x=>x.id!==p.id)}
+/* ---- Deudas en lenguaje sencillo ---- */
 function applyPay(d,k,a,date,x){
   const int=d.bal*d.rate/1200,cap=k==='cuota'?Math.min(d.bal,Math.max(0,a-int)):Math.min(d.bal,a);
   const p={id:uid(),d:date,a,k,cap:r2(cap),...(x?{x:1}:{})};
-  if(d.payroll!=='si'){const id=uid();S.tx.unshift({id,type:'gasto',amount:a,cat:'Deudas',desc:(k==='extra'?'Abono extra: ':'Pago: ')+d.name,date,...(x?{src:'extra'}:{})});p.tx=id}
+  if(k!=='plan'&&!(k==='cuota'&&d.payroll==='si')){const id=uid();S.tx.unshift({id,type:'gasto',amount:a,cat:'Deudas',desc:(k==='extra'?'Abono: ':'Pago: ')+d.name,date,...(x?{src:'extra'}:{})});p.tx=id}
   d.bal=r2(d.bal-cap);d.pays.unshift(p);d.pays=d.pays.slice(0,500);
   return {int:r2(Math.min(int,a)),cap:p.cap};
 }
 function debtSheet(id){
   const d=S.debts.find(x=>x.id===id);
-  sheet({title:d?'Editar deuda':'Nueva deuda',required:'name',data:d?{...d}:{payroll:'no'},
-    pre:'<p class="note" style="margin-bottom:14px">Escribe los datos como aparecen en tu estado de cuenta. Puedes cambiarlos cuando quieras.</p>',
-    fields:[{k:'name',l:'Nombre de la deuda',ph:'Préstamo, tarjeta, carro'},{k:'bal',l:'Saldo actual (lo que debes hoy)',t:'number',ph:'0.00'},{k:'rate',l:'Tasa de interés anual (%)',t:'number',ph:'Ej. 12'},{k:'pay',l:'Cuota mensual',t:'number',ph:'0.00'},{k:'end',l:'Fecha de fin (si la sabes)',t:'date'},
-      {k:'payroll',l:'¿Se paga por descuento de planilla?',t:'select',o:[['no','No, yo la pago'],['si','Sí, me la descuentan del salario']]}],
+  sheet({title:d?'Editar deuda':'Nueva deuda',required:'name',data:d?{...d}:{payroll:'no',late:'no',since:today()},
+    pre:'<p class="note" style="margin-bottom:14px">Solo el nombre y el saldo son obligatorios. Lo demás ayuda a calcular y a sugerirte qué pagar primero.</p>',
+    fields:[{k:'name',l:'¿Cómo se llama la deuda?',ph:'Préstamo, tarjeta, carro'},{k:'bal',l:'Saldo (lo que debes hoy)',t:'number',ph:'0.00'},{k:'pay',l:'Cuota normal al mes (si tiene)',t:'number',ph:'0.00'},
+      {k:'late',l:'¿Tiene recargos o atrasos?',t:'select',o:[['no','No'],['si','Sí, tiene recargos o atrasos']]},
+      {k:'rate',l:'Tasa de interés anual % (si la sabes)',t:'number',ph:'Ej. 12'},
+      {k:'payroll',l:'¿Se paga por descuento de planilla?',t:'select',o:[['no','No, yo la pago'],['si','Sí, me la descuentan del salario']]},
+      {k:'since',l:'¿Desde cuándo la tienes?',t:'date'}],
     onSave:v=>{
-      if(!(v.bal>=0)||!(v.pay>0)){toast('Pon el saldo y la cuota mensual');return false}
+      if(!(v.bal>=0)){toast('Pon el saldo');return false}
       if(S.debts.some(x=>x.id!==(d&&d.id)&&x.name.toLowerCase()===v.name.toLowerCase())){toast('Ya tienes una deuda con ese nombre');return false}
-      const rate=Math.min(Math.max(0,v.rate||0),1000);
-      upsert(S.debts,{...v,rate,id:d?d.id:uid(),init:d?Math.max(d.init||0,v.bal):v.bal,pays:d?d.pays:[]})},
+      upsert(S.debts,{...v,pay:v.pay>0?v.pay:0,rate:Math.min(Math.max(0,v.rate||0),1000),id:d?d.id:uid(),init:d?Math.max(d.init||0,v.bal):v.bal,pays:d?d.pays:[]})},
     onDelete:d?()=>remove(S.debts,d.id):null});
+}
+function abonoSheet(id){
+  const d=S.debts.find(x=>x.id===id);if(!d)return;
+  sheet({title:`Registrar abono: ${esc(d.name)}`,required:'a',data:{a:'',d:today(),src:lastSrc()},
+    pre:`<p class="note" style="margin-bottom:14px">El abono resta del saldo (debes ${money(d.bal)}) y se anota como gasto en el bolsillo que elijas.</p>`,
+    fields:[{k:'a',l:'¿Cuánto abonas?',t:'number',ph:'0.00'},{k:'d',l:'Fecha',t:'date'},{k:'src',l:'¿De dónde salió?',t:'pick',o:SRCS}],
+    onSave:v=>{
+      if(!(v.a>0)){toast('Pon cuánto abonas');return false}
+      const cap=Math.min(d.bal,v.a),id2=uid(),date=v.d||today();
+      S.tx.unshift({id:id2,type:'gasto',amount:v.a,cat:'Deudas',desc:'Abono: '+d.name,date,...(v.src==='extra'?{src:'extra'}:{})});
+      d.pays.unshift({id:uid(),d:date,a:v.a,k:'extra',cap:r2(cap),tx:id2});d.pays=d.pays.slice(0,500);d.bal=r2(d.bal-cap);
+      rememberSrc(v.src);toast(`Listo: el saldo bajó ${money(cap)}`)}});
 }
 function debtPaySheet(id,k,pid){
   const d=S.debts.find(x=>x.id===id);if(!d)return;
   const old=pid?d.pays.find(p=>p.id===pid):null;k=old?old.k:k;
-  sheet({title:old?'Editar pago':k==='extra'?`Abono extra a ${esc(d.name)}`:`Pago de ${esc(d.name)}`,required:'a',
-    pre:`<p class="note" style="margin-bottom:14px">${k==='extra'?'Un abono extra baja el saldo completo.':'En un pago de la cuota, una parte va a intereses y el resto baja el saldo.'}${d.payroll==='si'?' Como se paga por planilla, no se anota como gasto.':' Se anota también como gasto en tus movimientos.'}</p>`,
-    data:old?{a:old.a,d:old.d}:{a:k==='cuota'?Math.min(d.pay,r2(d.bal*(1+d.rate/1200))):'',d:today()},
-    fields:[{k:'a',l:'Monto pagado',t:'number',ph:'0.00'},{k:'d',l:'Fecha',t:'date'}],
+  sheet({title:old?'Editar abono':k==='plan'?`Descuento de planilla: ${esc(d.name)}`:`Pago de ${esc(d.name)}`,required:'a',
+    pre:`<p class="note" style="margin-bottom:14px">${k==='plan'?'Lo que te descontaron del salario baja el saldo. No se anota como gasto porque ya está en tu salario neto.':k==='cuota'?'En un pago de la cuota, una parte va a intereses y el resto baja el saldo.':'Un abono baja el saldo completo y se anota como gasto.'}</p>`,
+    data:old?{a:old.a,d:old.d}:{a:k==='plan'&&d.pay>0?r2(d.pay/2):'',d:today()},
+    fields:[{k:'a',l:'Monto',t:'number',ph:'0.00'},{k:'d',l:'Fecha',t:'date'}],
     onSave:v=>{
-      if(!(v.a>0)){toast('Pon el monto pagado');return false}
+      if(!(v.a>0)){toast('Pon el monto');return false}
       if(old)revertPay(d,old);
       const r=applyPay(d,k,v.a,v.d||today());
       toast(k==='cuota'?`Listo: ${money(r.int)} fueron intereses y el saldo bajó ${money(r.cap)}`:`Listo: el saldo bajó ${money(r.cap)}`)},
-    onDelete:old?()=>{revertPay(d,old);toast('Pago eliminado y saldo devuelto')}:null});
+    onDelete:old?()=>{revertPay(d,old);toast('Abono eliminado y saldo devuelto')}:null});
 }
+function debtOrder(){
+  const A=debtsOpen(),late=A.filter(d=>d.late==='si').sort((a,b)=>a.bal-b.bal),rest=A.filter(d=>d.late!=='si').sort((a,b)=>a.bal-b.bal);
+  return [...late.map(d=>({d,why:'Tiene recargos o atrasos: crecen rápido y pueden traerte problemas, conviene pagarla primero.'})),
+    ...rest.slice(0,1).map(d=>({d,why:'Es la de saldo más pequeño: la terminas pronto y liberas dinero cada mes.'})),
+    ...rest.slice(1).sort((a,b)=>b.rate-a.rate||a.bal-b.bal).map(d=>({d,why:d.rate>0?`Tiene una tasa de ${d.rate} %: mientras más alta, más intereses pagas.`:'No tiene intereses: puede ir al final.'}))];
+}
+function dqHtml(d){
+  const raw=ui.dq===''?(d.pay>0?r2(d.pay/2):0):num(ui.dq),x=num(raw);
+  if(!(x>0))return '<p class="note">Escribe cuánto abonarías por quincena y te digo cuándo terminas.</p>';
+  const s=simDebt(d.bal,d.rate,2*x);
+  return s.ok?`<p>Si abonas <b>${money(x)}</b> por quincena, terminas <b>${finLbl(s.m)}</b>.</p><p class="note">Pagarías ${money(s.int)} de intereses. Es una estimación.</p>`:`<p class="note">Con ${money(x)} por quincena no alcanza ni para los intereses. Prueba con un monto más grande.</p>`;
+}
+document.addEventListener('input',e=>{if(e.target.id==='dbq'){ui.dq=e.target.value;const r=$('#dbqres'),d=S.debts.find(z=>z.id===ui.debt);if(r&&d)r.innerHTML=dqHtml(d)}});
+function vDebt(d){
+  const pct=d.init>0?Math.min(100,Math.max(0,(d.init-d.bal)/d.init*100)):0;
+  return det(d.name,'Deuda',`<button class="btn sm" type="button" data-act="edit-debt" data-id="${d.id}">Editar</button>`)+
+  `<section class="card hero"><span class="eyebrow">Lo que debes hoy</span><b class="big-n">${money(d.bal)}</b>
+   <div class="pbt" role="meter" aria-label="Avance de ${esc(d.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}" style="margin-top:10px"><i style="width:${pct}%"></i></div>
+   <p class="note" style="margin-top:8px">Llevas pagado ${money(Math.max(0,d.init-d.bal))} de ${money(d.init)}</p>
+   <p class="note" style="margin-top:10px">${d.late==='si'?'<span class="pill k-bad">Con recargos o atrasos</span> ':''}${d.payroll==='si'?'<span class="pill k-info">Por planilla</span> ':''}${d.rate>0?`${d.rate} % anual · `:''}${d.pay>0?`cuota ${money(d.pay)} al mes`:'sin cuota fija'}${d.since?` · desde ${mLabel(d.since.slice(0,7))}`:''}</p></section>
+  <div class="actions" style="margin:16px 0"><button class="btn" type="button" data-act="abono-debt" data-id="${d.id}">Registrar abono</button>${d.payroll==='si'?`<button class="btn ghost" type="button" data-act="plan-debt" data-id="${d.id}">Se descontó de la planilla</button>`:''}</div>
+  <section class="card" aria-labelledby="h-dq"><h2 id="h-dq">¿Cuándo termino?</h2><label class="f"><span>Abono por quincena</span><input id="dbq" type="text" inputmode="decimal" placeholder="${d.pay>0?r2(d.pay/2):'0.00'}" value="${esc(ui.dq)}" autocomplete="off"></label><div id="dbqres" aria-live="polite" style="margin-top:10px">${dqHtml(d)}</div></section>
+  ${d.pays.length?`<section class="card" aria-labelledby="h-ab" style="margin-top:16px"><h2 id="h-ab">Abonos</h2><ul class="list">${d.pays.slice(0,20).map(p=>`<li class="row"><button class="row-main" type="button" data-act="edit-dpay" data-id="${d.id}" data-pid="${esc(p.id)}"><span class="t">${money(p.a)} · ${p.k==='plan'?'descuento de planilla':p.k==='extra'?'abono':'cuota'}</span><span class="s">${longDate(p.d)} · bajó ${money(p.cap)}</span></button></li>`).join('')}</ul></section>`:''}
+  <p class="note" style="margin-top:14px">Los cálculos son una estimación con los datos que escribiste; no es asesoría financiera.</p>`;
+}
+function vDebts(){
+  const A=debtsOpen(),P=S.debts.filter(d=>d.bal<=0.005),I=debtsInfo(),O=debtOrder();
+  const sel=A.length?`<label class="f" style="margin-bottom:10px"><span>¿Con cuál deuda?</span><select id="dbsel">${A.map(d=>`<option value="${esc(d.id)}" ${(ui.dxd||A[0].id)===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select></label>`:'';
+  return det('Deudas','Lo que debes',addBtn('Deuda','add-debt'))+
+  (A.length?hero('Debes en total',money(I.bal),I.pay>0?`Cuotas al mes: ${money(I.pay)}`:''):`<section class="card">${empty(S.debts.length?'¡Ya no debes nada! Todas tus deudas están pagadas.':'Todavía no tienes deudas anotadas. Toca «Deuda» para agregar la primera.')}</section>`)+
+  `<div class="grid" style="margin-top:16px">
+  ${A.length?`<section class="card span2" aria-labelledby="h-ord"><h2 id="h-ord">Qué pagar primero</h2><ol class="list" style="list-style:none;padding:0;margin:0">${O.map((o,i)=>`<li class="row"><span class="dot" aria-hidden="true">${i+1}</span><button class="row-main" type="button" data-act="open-debt" data-id="${o.d.id}"><span class="t">${esc(o.d.name)} · ${money(o.d.bal)}</span><span class="s">${o.why}</span></button>${o.d.late==='si'?pill('Atraso','bad'):''}</li>`).join('')}</ol><p class="note" style="margin-top:8px">Toca una deuda para ver su pantalla.</p></section>`:''}
+  ${A.length?`<section class="card span2" aria-labelledby="h-sim"><h2 id="h-sim">Si abono extra cada mes</h2>${sel}<label class="f"><span>Abono extra al mes</span><input id="dbx" type="text" inputmode="decimal" placeholder="0.00" value="${esc(ui.dx||'')}" autocomplete="off"></label><div id="dbres" aria-live="polite" style="margin-top:10px">${debtSimHtml()}</div></section>`:''}
+  ${A.length>1?`<section class="card span2" aria-labelledby="h-cmp"><h2 id="h-cmp">Avalancha o bola de nieve</h2><div id="dbcmp">${debtCmpHtml()}</div></section>`:''}
+  ${P.length?`<section class="card span2"><h2>Pagadas</h2><ul class="list">${P.map(d=>`<li class="row"><span class="dot k-ok" aria-hidden="true">${ic('check')}</span><button class="row-main" type="button" data-act="open-debt" data-id="${d.id}"><span class="t">${esc(d.name)}</span><span class="s">Pagaste ${money(d.init)}</span></button></li>`).join('')}</ul></section>`:''}
+  </div>`+(A.length?`<p class="note" style="margin-top:14px">Todo esto es una estimación con los datos que escribiste (intereses mensuales sobre el saldo). No es asesoría financiera; tu banco puede calcular distinto.</p>`:'');
+}
+
+
+
 function debtSimHtml(){
   const A=debtsOpen(),x=num(ui.dx),d=A.find(z=>z.id===ui.dxd)||A[0];
   if(!d)return '';
@@ -1130,26 +1194,7 @@ function debtCmpHtml(){
 }
 document.addEventListener('input',e=>{if(e.target.id==='dbx'){ui.dx=e.target.value;$('#dbres').innerHTML=debtSimHtml();const c=$('#dbcmp');if(c)c.innerHTML=debtCmpHtml()}});
 document.addEventListener('change',e=>{if(e.target.id==='dbsel'){ui.dxd=e.target.value;$('#dbres').innerHTML=debtSimHtml()}});
-function vDebts(){
-  const A=debtsOpen(),P=S.debts.filter(d=>d.bal<=0.005),I=debtsInfo();
-  const card=d=>{
-    const pct=d.init>0?Math.min(100,Math.max(0,(d.init-d.bal)/d.init*100)):0,s=simDebt(d.bal,d.rate,d.pay);
-    return `<section class="card" aria-label="${esc(d.name)}"><div class="card-h"><h2>${esc(d.name)}</h2>${d.payroll==='si'?'<span class="pill k-info">Por planilla</span>':''}</div>
-    <div class="prow"><span>Debes ${money(d.bal)}</span><span class="amt">de ${money(d.init)}</span></div><div class="pbt" role="meter" aria-label="Avance de ${esc(d.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
-    <p class="note" style="margin-top:8px">${d.rate>0?`${d.rate} % anual · `:'Sin intereses · '}cuota ${money(d.pay)} al mes</p>
-    <p style="margin-top:6px">${s.ok?`Terminas aprox. <b>${finLbl(s.m)}</b>`:'La cuota no alcanza ni para los intereses.'}${d.end?`<span class="note"> · tu fecha de fin: ${mLabel(d.end.slice(0,7))}</span>`:''}</p>
-    ${d.payroll==='si'?`<p class="note" style="margin-top:6px">Se descuenta de tu salario, así que no se resta otra vez de tu presupuesto. Para que tu salario neto la cuente, agrégala en «Otros descuentos de planilla» de tu cliente.</p>`:''}
-    <div class="actions" style="margin-top:10px"><button class="btn sm" type="button" data-act="pay-debt" data-id="${d.id}" data-k="cuota">Pagar cuota</button><button class="btn ghost sm" type="button" data-act="pay-debt" data-id="${d.id}" data-k="extra">Abono extra</button><button class="btn ghost sm" type="button" data-act="edit-debt" data-id="${d.id}">Editar</button></div>
-    ${d.pays.length?`<details style="margin-top:10px"><summary class="link">Pagos (${d.pays.length})</summary><ul class="list">${d.pays.slice(0,12).map(p=>`<li class="row"><button class="row-main" type="button" data-act="edit-dpay" data-id="${d.id}" data-pid="${esc(p.id)}"><span class="t">${money(p.a)} · ${p.k==='extra'?'abono extra':'cuota'}</span><span class="s">${longDate(p.d)} · bajó ${money(p.cap)}</span></button></li>`).join('')}</ul></details>`:''}</section>`};
-  const sel=A.length?`<label class="f" style="margin-bottom:10px"><span>¿Con cuál deuda?</span><select id="dbsel">${A.map(d=>`<option value="${esc(d.id)}" ${(ui.dxd||A[0].id)===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select></label>`:'';
-  return det('Deudas','Lo que debes',addBtn('Deuda','add-debt'))+
-  (A.length?hero('Debes en total',money(I.bal),`Cuotas al mes: ${money(I.pay)}${I.pay-I.mine>0?` (${money(I.pay-I.mine)} por planilla, ${money(I.mine)} las pagas tú)`:''}`):`<section class="card">${empty(S.debts.length?'¡Ya no debes nada! Todas tus deudas están pagadas.':'Todavía no tienes deudas anotadas. Toca «Deuda» para agregar la primera.')}</section>`)+
-  `<div class="grid" style="margin-top:16px">${A.map(card).join('')}
-  ${A.length?`<section class="card span2" aria-labelledby="h-sim"><h2 id="h-sim">Si abono extra cada mes</h2>${sel}<label class="f"><span>Abono extra al mes</span><input id="dbx" type="text" inputmode="decimal" placeholder="0.00" value="${esc(ui.dx||'')}" autocomplete="off"></label><div id="dbres" aria-live="polite" style="margin-top:10px">${debtSimHtml()}</div></section>`:''}
-  ${A.length>1?`<section class="card span2" aria-labelledby="h-cmp"><h2 id="h-cmp">¿Qué deuda pagar primero?</h2><div id="dbcmp">${debtCmpHtml()}</div></section>`:''}
-  ${P.length?`<section class="card span2"><h2>Pagadas</h2><ul class="list">${P.map(d=>`<li class="row"><span class="dot k-ok" aria-hidden="true">${ic('check')}</span><button class="row-main" type="button" data-act="edit-debt" data-id="${d.id}"><span class="t">${esc(d.name)}</span><span class="s">Pagaste ${money(d.init)}</span></button></li>`).join('')}</ul></section>`:''}
-  </div>`+(A.length?`<p class="note" style="margin-top:14px">Todo esto es una estimación con los datos que escribiste (intereses mensuales sobre el saldo). No es asesoría financiera; tu banco puede calcular distinto.</p>`:'');
-}
+
 
 const foldCard=(inner,title,hint)=>`<details class="card fold span2"><summary><span class="ft">${title}</span><span class="note">${hint}</span></summary><div class="foldb">${inner}</div></details>`;
 function movHtml(){
@@ -1225,19 +1270,27 @@ const FREQT={quincenal:'cada quincena',mensual:'cada mes',bimestral:'cada 2 mese
 const billWhen=b=>b.freq==='quincenal'?'el 15 y a fin de mes':b.when==='15'?'el 15':b.when==='fin'?'a fin de mes':`el día ${b.day}`;
 function billSheet(id){
   const b=S.bills.find(x=>x.id===id);
-  sheet({title:b?'Editar pago programado':'Nuevo pago programado',required:'name',data:b?{...b,day:b.when==='dia'?b.day:''}:{when:'15',day:'',freq:'mensual',payroll:'no',active:'si',cat:TXCATS.gasto[0]},
+  sheet({title:b?'Editar pago programado':'Nuevo pago programado',required:'name',data:b?{...b,day:b.when==='dia'?b.day:'',lim:b.lim||'',part1:b.part1||'',split:b.split||'no',varia:b.varia||'no'}:{when:'15',day:'',freq:'mensual',payroll:'no',active:'si',cat:TXCATS.gasto[0],varia:'no',split:'no',lim:'',part1:''},
     pre:'<p class="note" style="margin-bottom:14px">Un pago programado solo aparta el dinero. Se vuelve gasto cuando le das el check.</p>',
-    fields:[{k:'name',l:'¿Qué pagas?',ph:'Luz, internet, carro'},{k:'amt',l:'Monto',t:'number',ph:'0.00'},{k:'cat',l:'Categoría',t:'select',o:TXCATS.gasto},
+    fields:[{k:'name',l:'¿Qué pagas?',ph:'Luz, internet, carro'},{k:'varia',l:'¿El monto es fijo o cambia?',t:'select',o:[['no','Es fijo'],['si','Cambia cada vez (pongo un estimado)']]},{k:'amt',l:'Monto',t:'number',ph:'0.00',lab:v=>v.varia==='si'?'Monto estimado (se aparta este)':'Monto'},{k:'cat',l:'Categoría',t:'select',o:TXCATS.gasto},
       {k:'freq',l:'¿Cada cuánto?',t:'select',o:[['quincenal','Cada quincena (15 y fin de mes)'],['mensual','Cada mes'],['bimestral','Cada 2 meses']]},
       {k:'when',l:'¿Cuándo se paga?',t:'select',o:[['15','El 15'],['fin','A fin de mes'],['dia','Un día específico']],show:v=>v.freq!=='quincenal'},
       {k:'day',l:'¿Qué día del mes?',t:'number',ph:'Ej. 5',show:v=>v.freq!=='quincenal'&&v.when==='dia'},
+      {k:'lim',l:'Fecha límite: día del mes (opcional)',t:'number',ph:'Ej. 5',show:v=>v.freq!=='quincenal'},
+      {k:'split',l:'¿Apartar una parte desde la quincena del 15?',t:'select',o:[['no','No, todo junto'],['si','Sí, dividir entre las dos quincenas']],show:v=>v.freq!=='quincenal'&&(v.when==='fin'||(v.when==='dia'&&num(v.day)>15))},
+      {k:'part1',l:'¿Cuánto apartar el 15? (el resto, a fin de mes)',t:'number',ph:'0.00',show:v=>v.freq!=='quincenal'&&v.split==='si'&&(v.when==='fin'||(v.when==='dia'&&num(v.day)>15))},
       {k:'payroll',l:'¿Se paga por descuento de planilla?',t:'select',o:[['no','No, yo lo pago'],['si','Sí (ya está en tu salario neto, no se aparta)']]},
       {k:'active',l:'¿Está activo?',t:'select',o:[['si','Sí'],['no','No (en pausa)']]}],
     onSave:v=>{
       if(!(v.amt>0)){toast('Pon el monto');return false}
       const day=Math.round(v.day);
       if(v.freq!=='quincenal'&&v.when==='dia'&&!(day>=1&&day<=31)){toast('Pon el día del mes (1 a 31)');return false}
-      upsert(S.bills,{...v,day:day>=1&&day<=31?day:1,id:b?b.id:uid(),from:b?b.from:today()});toast('Pago programado guardado')},
+      const lim=Math.round(v.lim),sp=v.split==='si'&&v.freq!=='quincenal'&&(v.when==='fin'||(v.when==='dia'&&day>15));
+      if(sp&&!(v.part1>0&&v.part1<v.amt)){toast('Lo que apartas el 15 debe ser menos que el monto total');return false}
+      if(!(lim>=1&&lim<=31))delete v.lim;
+      const rec={...v,day:day>=1&&day<=31?day:1,id:b?b.id:uid(),from:b?b.from:today(),lim:lim>=1&&lim<=31?lim:'',varia:v.varia==='si'?'si':'',split:sp?'si':'',part1:sp?v.part1:''};
+      if(!rec.lim)delete rec.lim;if(!rec.varia)delete rec.varia;if(!rec.split){delete rec.split;delete rec.part1}
+      if(b){const i=S.bills.indexOf(b);const n={...b,...rec};if(!rec.lim)delete n.lim;if(!rec.varia)delete n.varia;if(!rec.split){delete n.split;delete n.part1}S.bills[i]=n}else upsert(S.bills,rec);toast('Pago programado guardado')},
     onDelete:b?()=>remove(S.bills,b.id):null});
 }
 function billCheckSheet(bid,d){
@@ -1249,8 +1302,8 @@ function billCheckSheet(bid,d){
     return;
   }
   sheet({title:`Pagar: ${esc(b.name)}`,required:'amount',data:{amount:b.amt,date:today(),src:lastSrc()},
-    pre:`<p class="note" style="margin-bottom:14px">Pago del ${longDate(d)}. Escribe lo que realmente pagaste.</p>`,
-    fields:[{k:'amount',l:'Monto pagado',t:'number',ph:'0.00'},{k:'date',l:'Fecha en que lo pagaste',t:'date'},{k:'src',l:'¿De dónde salió?',t:'pick',o:SRCS}],
+    pre:`<p class="note" style="margin-bottom:14px">Pago del ${longDate(d)}.${b.varia==='si'?` Este pago cambia cada vez: se apartó el estimado (${money(b.amt)}), escribe el monto real.`:' Escribe lo que realmente pagaste.'}</p>`,
+    fields:[{k:'amount',l:b.varia==='si'?'Monto real pagado':'Monto pagado',t:'number',ph:'0.00'},{k:'date',l:'Fecha en que lo pagaste',t:'date'},{k:'src',l:'¿De dónde salió?',t:'pick',o:SRCS}],
     onSave:v=>{
       if(!(v.amount>0)){toast('Pon el monto');return false}
       const id=billTxId(b,d);delete S.del[id];
@@ -1258,28 +1311,29 @@ function billCheckSheet(bid,d){
       const i=S.tx.findIndex(x=>x.id===id);if(i>=0)S.tx[i]={...S.tx[i],...rec};else S.tx.unshift(rec);
       rememberSrc(v.src);ui.month=rec.date.slice(0,7);toast('Listo: ya es un gasto')}});
 }
-const billRow=i=>`<li class="row ${i.paid?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${i.paid}" aria-label="${i.paid?'Quitar el check de':'Marcar como pagado'}: ${esc(i.b.name)}" data-act="bill-check" data-id="${esc(i.b.id)}" data-d="${i.date}">${i.paid?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(i.b.id)}"><span class="t">${esc(i.b.name)}</span><span class="s">${i.paid?`Pagado el ${shortDate(i.tx.date)}`:`Vence el ${shortDate(i.date)}`}</span></button>${i.st==='vencido'?pill('Vencido','bad'):i.st==='hoy'?pill('Hoy','warn'):''}<span class="amt">${money(i.tx?i.tx.amount:i.b.amt)}</span></li>`;
+const billRow=i=>`<li class="row ${i.paid?'done':''}"><button class="chk" type="button" role="checkbox" aria-checked="${i.paid}" aria-label="${i.paid?'Quitar el check de':'Marcar como pagado'}: ${esc(i.b.name)}" data-act="bill-check" data-id="${esc(i.b.id)}" data-d="${i.date}">${i.paid?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(i.b.id)}"><span class="t">${esc(i.b.name)}</span><span class="s">${i.paid?`Pagado el ${shortDate(i.tx.date)}`:`Pago el ${shortDate(i.date)}${i.lim?` · límite ${shortDate(i.lim)}`:''}${i.ap<i.b.amt?` · aparta ${money(i.ap)}`:''}`}</span></button>${i.st==='vencido'?pill('Vencido','bad'):i.st==='hoy'||i.st==='toca'?pill('Toca pagar','warn'):''}<span class="amt">${i.paid||i.b.varia!=='si'?'':'≈ '}${money(i.tx?i.tx.amount:i.b.amt)}</span></li>`;
 function vPay(){
   const pi=payInfo();
   return det('Por pagar esta quincena',perLabel(nowYM,+today().slice(8)<=15?'q1':'q2'),addBtn('Pago','add-bill'))+
-  `<section class="card" aria-labelledby="h-pq"><p class="eyebrow" id="h-pq">Esta quincena</p><b class="big-n">Pagas ${money(pi.pagas)} · ya pagaste ${money(pi.ya)}</b>
+  `<section class="card" aria-label="Esta quincena"><b class="big-s">Pagas ${money(pi.pagas)} · ya pagaste ${money(pi.ya)}</b>
    <p class="note" style="margin-bottom:12px">Un pago sin check solo está apartado: todavía no es gasto. Al darle check anotas lo que pagaste de verdad.</p>
    ${pi.items.length?`<ul class="list">${pi.items.map(billRow).join('')}</ul>`:empty('No tienes pagos para esta quincena. Toca «Pago» para programar uno.')}
    <button class="btn ghost sm" type="button" data-act="open-sub" data-id="plan" style="margin-top:12px">Ver mi plan de quincenas</button></section>
-  <section class="card" aria-labelledby="h-tp" style="margin-top:16px"><h2 id="h-tp">Todos mis pagos programados</h2>${S.bills.length?`<ul class="list">${S.bills.slice().sort((a,b)=>b.amt-a.amt).map(b=>`<li class="row"><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(b.id)}"><span class="t">${esc(b.name)}</span><span class="s">${FREQT[b.freq]} · ${billWhen(b)}${b.payroll==='si'?' · por planilla':''}${b.active==='no'?' · en pausa':''}</span></button><span class="amt">${money(b.amt)}</span></li>`).join('')}</ul>`:empty('Aquí van tus pagos que se repiten, como luz o internet. Toca «Pago» para agregar el primero.')}</section>`;
+  <section class="card" aria-labelledby="h-tp" style="margin-top:16px"><h2 id="h-tp">Todos mis pagos programados</h2>${S.bills.length?`<ul class="list">${S.bills.slice().sort((a,b)=>b.amt-a.amt).map(b=>`<li class="row"><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(b.id)}"><span class="t">${esc(b.name)}</span><span class="s">${FREQT[b.freq]} · ${billWhen(b)}${b.lim?` · límite el ${b.lim}`:''}${splitOk(b)?' · dividido en 2 quincenas':''}${b.varia==='si'?' · monto variable':''}${b.payroll==='si'?' · por planilla':''}${b.active==='no'?' · en pausa':''}</span></button><span class="amt">${b.varia==='si'?'≈ ':''}${money(b.amt)}</span></li>`).join('')}</ul>`:empty('Aquí van tus pagos que se repiten, como luz o internet. Toca «Pago» para agregar el primero.')}</section>`;
 }
 function vPlan(){
   const ym=ui.pm,ld=lastDay(+ym.slice(0,4),+ym.slice(5,7)),cols=salCols(ym),its=billItems(`${ym}-01`,`${ym}-${pad(ld)}`),lbl=['Pago del 15','Pago de fin de mes'];
+  const rowsFor=i=>{const R=[];its.forEach(x=>{if(!x.paid&&splitOk(x.b)){R.push({x,i:0,amt:x.b.part1,part:' (parte 1)'});R.push({x,i:1,amt:r2(x.b.amt-x.b.part1),part:' (parte 2)'})}else R.push({x,i:+x.date.slice(8)<=15?0:1,amt:x.tx?x.tx.amount:x.b.amt,part:''})});return R.filter(q=>q.i===i)};
   const col=i=>{
-    const L=its.filter(x=>(+x.date.slice(8)<=15?0:1)===i),pay=L.reduce((a,x)=>a+(x.tx?x.tx.amount:x.b.amt),0),entra=cols[i].net,libre=r2(entra-pay);
+    const L=rowsFor(i),pay=L.reduce((a,q)=>a+q.amt,0),entra=cols[i].net,libre=r2(entra-pay);
     return `<section class="card" aria-label="${lbl[i]}"><h2>${lbl[i]}</h2><ul class="list"><li class="kv"><span class="k">Entra (neto de esa quincena)</span><span class="v pos">${money(entra)}</span></li>
-    ${L.map(x=>`<li class="kv"><span class="k">${x.paid?'✓ ':''}${esc(x.b.name)} <span class="note">${shortDate(x.date)}</span></span><span class="v neg">− ${money(x.tx?x.tx.amount:x.b.amt)}</span></li>`).join('')||`<li class="kv"><span class="k note">Sin pagos en esta quincena</span><span class="v"></span></li>`}
+    ${L.map(q=>`<li class="kv"><span class="k">${q.x.paid?'✓ ':''}${esc(q.x.b.name)}${q.part} <span class="note">${shortDate(q.x.date)}</span></span><span class="v neg">− ${q.x.b.varia==='si'&&!q.x.paid?'≈ ':''}${money(q.amt)}</span></li>`).join('')||`<li class="kv"><span class="k note">Sin pagos en esta quincena</span><span class="v"></span></li>`}
     <li class="kv"><span class="k">Se paga</span><span class="v">${money(pay)}</span></li>
     <li class="kv"><span class="k"><b>Queda libre</b></span><span class="v ${libre<0?'neg':'pos'}"><b>${libre<0?'− '+money(-libre):money(libre)}</b></span></li></ul>
     ${libre<0?`<p class="note neg" style="margin-top:8px">Te faltan ${money(-libre)}.</p>`:''}</section>`};
   return det('Mi plan de quincenas','Lo que entra, lo que se paga y lo que queda libre')+
   `<div class="mnav" style="margin-bottom:16px"><button class="iconbtn" type="button" data-act="pm-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ym)}</b><button class="iconbtn" type="button" data-act="pm-next" aria-label="Mes siguiente">${ic('right')}</button></div>
-  <div class="grid">${col(0)}${col(1)}</div><p class="note" style="margin-top:14px">Cada columna junta lo que vence en esa quincena (del 1 al 15, o del 16 a fin de mes) y el neto de tu salario que llega en ella. Los pagos por planilla no aparecen porque ya están descontados.</p>`;
+  <div class="grid">${col(0)}${col(1)}</div><p class="note" style="margin-top:14px">Cada columna junta lo que vence en esa quincena (del 1 al 15, o del 16 a fin de mes) y el neto de tu salario que llega en ella. Un pago dividido aparece en las dos columnas, una parte en cada una. Los pagos por planilla no aparecen porque ya están descontados.</p>`;
 }
 function vCuenta(){
   const c=cuenta(),p=c.pk,row=(k,v,cls='',note='')=>`<li class="kv"><span class="k">${k}${note?`<span class="note" style="display:block">${note}</span>`:''}</span><span class="v ${cls}">${v}</span></li>`;
@@ -1291,7 +1345,7 @@ function vCuenta(){
    ${row('− Ahorro que salió de tu salario','− '+money(p.sav),'neg')}
    ${row('<b>= Tienes hoy del salario</b>',`<b>${p.avail<0?'− '+money(-p.avail):money(p.avail)}</b>`,p.avail<0?'neg':'')}
    ${row('− Apartado para pagos',`− ${money(c.apart)}`,'neg',c.items.length?`Pagos sin check hasta tu próximo cobro:`:'No tienes pagos pendientes hasta tu próximo cobro.')}
-   ${c.items.map(i=>`<li class="kv"><span class="k note">• ${esc(i.b.name)} · ${shortDate(i.date)}${i.st==='vencido'?' (vencido)':''}</span><span class="v note">${money(i.b.amt)}</span></li>`).join('')}
+   ${c.items.map(i=>`<li class="kv"><span class="k note">• ${esc(i.b.name)} · ${shortDate(i.date)}${i.st==='vencido'?' (vencido)':''}${i.ap<i.b.amt?' (solo la parte 1)':''}</span><span class="v note">${money(i.ap)}</span></li>`).join('')}
    ${row('<b>= Te queda después de apartar</b>',`<b>${c.net<0?'− '+money(-c.net):money(c.net)}</b>`,c.net<0?'neg':'')}
    ${row('÷ Días hasta tu próximo cobro',String(c.days),'',`Tu próximo cobro es el ${longDate(c.next)}. Cuenta hoy.`)}
    ${row('<b>= Hoy puedes gastar</b>',`<b>${money(c.per)}</b>`,c.falta>0?'neg':'pos')}
@@ -1299,12 +1353,26 @@ function vCuenta(){
   <p class="note" style="margin-top:10px">Solo cuenta dinero que ya te llegó. Lo que está por llegar, el presupuesto y el Dinero extra no se suman aquí.</p>
   <button class="btn ghost sm" type="button" data-act="open-sub" data-id="pay" style="margin-top:12px">Ver mis pagos de esta quincena</button></section>`;
 }
+/* próximas fechas de pago del salario y lo que llega en cada una */
+const salPL=()=>S.clients.filter(c=>isSal(c)&&num(c.fee)>0&&c.status!=='Terminado');
+function salDates(from,n){const set=new Set();salPL().forEach(c=>{const sm=streams(c).find(x=>x.k==='main');if(sm)dueDates(sm.o,from,addDays(from,75)).forEach(d=>set.add(d))});return [...set].sort().slice(0,n)}
+function salNetOn(d,rd){let tot=0;salPL().forEach(c=>streams(c).forEach(sm=>{if((sm.k==='main'||sm.k==='comm')&&dueDates(sm.o,d,d).length)tot+=sm.feeAt?sm.feeAt(rd||d):sm.fee}));return tot}
+function salNext(){
+  const t=today(),ev=[];
+  salPL().forEach(c=>(c.descs||[]).forEach(x=>{
+    if(x.from&&x.from>t)ev.push({d:salDates(x.from,1)[0]||x.from,txt:`empieza el descuento de ${x.n||'planilla'}`});
+    if(x.to&&x.to>=t){const nd=salDates(addDays(x.to,1),1)[0];if(nd)ev.push({d:nd,txt:`termina el descuento de ${x.n||'planilla'}`})}}));
+  ev.sort((a,b)=>a.d.localeCompare(b.d));
+  const now=salDates(t,2).map(d=>salNetOn(d,t));if(!now.length)return '';
+  const e=ev[0],later=e?salDates(e.d,2).map(d=>salNetOn(d)):[];
+  return `<section class="card span2" aria-labelledby="h-an"><p class="eyebrow" id="h-an">Lo que te llega</p><p><b>Ahora te llegan ${now.map(money).join(' y ')}.</b></p>${e&&later.length?`<p style="margin-top:6px">Desde el ${longDate(e.d)} te llegarán <b>${later.map(money).join(' y ')}</b> (${esc(e.txt)}).</p>`:''}</section>`;
+}
 function salaryCard(){
   const PL=S.clients.filter(c=>isSal(c)&&num(c.fee)>0&&c.status!=='Terminado');
   if(!PL.length){const gross=num(S.set.gross);return `<section class="card span2" aria-labelledby="h-sa"><div class="card-h"><h2 id="h-sa">Mi salario (Panamá)</h2><button class="link" type="button" data-act="salary">${gross?'Cambiar':'Calcular'}</button></div>${gross>0?salaryRows(gross):`<p class="note">Si un cliente te paga un salario, en su ficha elige «Salario» y aquí verás tu salario neto de cada quincena. También puedes calcularlo a mano con «Calcular».</p>`}</section>`}
-  const cols=salCols(nowYM),names=['Quincena del 15','Quincena de fin de mes'],tot=cols[0].net+cols[1].net;
+  const cols=salCols(nowYM),names=['Quincena del 15','Quincena de fin de mes'],tot=cols[0].net+cols[1].net,nx=salNext();
   const col=(c,i)=>`<section class="card" aria-label="${names[i]}"><h2>${names[i]}</h2>${c.n?`<ul class="list"><li class="kv"><span class="k">Salario bruto</span><span class="v">${money(c.gross)}</span></li><li class="kv"><span class="k">Seguro Social (9.75 %)</span><span class="v neg">− ${money(c.ss)}</span></li><li class="kv"><span class="k">Seguro Educativo (1.25 %)</span><span class="v neg">− ${money(c.se)}</span></li>${Object.entries(c.descs).map(([n,m])=>`<li class="kv"><span class="k">${esc(n)}</span><span class="v neg">− ${money(m)}</span></li>`).join('')}${c.comm>0?`<li class="kv"><span class="k">Comisión fija (sin el 11 %)</span><span class="v pos">+ ${money(c.comm)}</span></li>`:''}<li class="kv"><span class="k"><b>Te llegan</b></span><span class="v pos"><b>${money(c.net)}</b></span></li></ul>`:`<p class="note">No te pagan salario en esta quincena.</p>`}</section>`;
-  return `${col(cols[0],0)}${col(cols[1],1)}<section class="card span2" aria-labelledby="h-st"><p class="eyebrow" id="h-st">Total al mes</p><b class="big-n">${money(tot)}</b>
+  return `${nx}${col(cols[0],0)}${col(cols[1],1)}<section class="card span2" aria-labelledby="h-st"><p class="eyebrow" id="h-st">Total al mes</p><b class="big-n">${money(tot)}</b>
    <p class="note">Lo que te llega de salario en ${MESES[+nowYM.slice(5)-1]}: tus dos quincenas. Calculado con tu salario en: ${PL.map(c=>`<button class="link" type="button" data-act="go-client" data-id="${esc(c.name)}">${esc(c.name)}</button>`).join(', ')}. Ahí también agregas la comisión fija y los descuentos de planilla.</p>
    <p class="note" style="margin-top:6px">Las ofrendas, bonos ocasionales y otros ingresos van a «Dinero extra», no a tu salario.</p></section>`;
 }
@@ -1319,31 +1387,27 @@ function vMoney(){
   if(ui.sub==='pay'||ui.sub==='fix')return vPay();
   if(ui.sub==='plan')return vPlan();
   if(ui.sub==='cuenta')return vCuenta();
-  if(ui.sub==='debts')return vDebts();
-  if(ui.sub==='goals')return det('Ahorro y metas','Lo que estás juntando')+`<div class="grid">${emergCard()}${extraCard()}${goalsCard()}${wonCard()}</div>`;
+  if(ui.sub==='debt'&&S.debts.some(x=>x.id===ui.debt))return vDebt(S.debts.find(x=>x.id===ui.debt));
+  if(ui.sub==='debts'||ui.sub==='debt')return vDebts();
+  const di0=debtsInfo();
+  if(ui.sub==='goals')return det('Ahorro y deudas','Lo que juntas y lo que debes')+`<div class="tiles" style="margin:0 0 16px">${tile('Deudas',di0.n?`${plural(di0.n,'deuda','deudas')} · debes ${money(di0.bal)}`:'Sin deudas anotadas','open-sub','debts')}</div><div class="grid">${emergCard()}${extraCard()}${goalsCard()}${wonCard()}</div>`;
   if(ui.sub==='sal')return det('Mi salario','Panamá')+`<div class="grid">${salaryCard()}</div>`;
   if(ui.sub==='year'){
     const year=nowYM.slice(0,4);let yr='';
     for(let i=1;i<=12;i++){const k=`${year}-${pad(i)}`,t=totals(k);if(!t.ingreso&&!t.gasto&&!t.ahorro)continue;
       yr+=`<tr><td><button class="link" type="button" data-act="goto-month" data-id="${k}">${MESES[i-1]}</button></td><td class="pos">${money(t.ingreso)}</td><td class="neg">${money(t.gasto)}</td><td>${money(t.libre)}</td></tr>`}
     return det('Resumen del año '+year,'Mes por mes')+`<div class="grid"><section class="card span2" aria-label="Últimos 6 meses"><h2>Últimos 6 meses</h2>${chartMonths(nowYM)}</section>
-    <section class="card span2" aria-label="Año">${yr?`<div class="scroll-x"><table class="t"><thead><tr><th scope="col">Mes</th><th scope="col">Ingresos</th><th scope="col">Gastos</th><th scope="col">Libre</th></tr></thead><tbody>${yr}</tbody></table></div>`:empty('Todavía no hay movimientos este año.')}</section></div>`;
+    <section class="card span2" aria-label="Año">${yr?`<div class="scroll-x"><table class="t"><thead><tr><th scope="col">Mes</th><th scope="col">Entró</th><th scope="col">Salió</th><th scope="col">Sobró</th></tr></thead><tbody>${yr}</tbody></table></div>`:empty('Todavía no hay movimientos este año.')}</section></div>`;
   }
-  /* resumen */
+  /* resumen: un dato grande + 4 tarjetas */
   const tt=totals(nowYM),cu=cuenta(),ex=pocket('extra'),pi=payInfo(),gi=goalsInfo(),sl=salaryInfo(),di=debtsInfo();
-  const year=nowYM.slice(0,4);let yIn=0,yOut=0;for(let i=1;i<=12;i++){const t=totals(`${year}-${pad(i)}`);yIn+=t.ingreso;yOut+=t.gasto}
   const nMov=S.tx.filter(t=>t.date.startsWith(nowYM)).length,av=cu.pk.avail;
-  return page('Finanzas',MESES[+nowYM.slice(5)-1]+' '+year)+
-  `<div class="grid">
-  ${hero('Lo que tienes hoy del salario',av<0?'− '+money(-av):money(av),`Es lo que ya cobraste menos lo que ya pagaste. Dinero extra aparte: <b>${money(ex.avail)}</b>.`,av<0?'neg':'','open-cuenta')}
-  ${hero('Hoy puedes gastar',money(cu.per),cu.falta>0?`Te faltan ${money(cu.falta)} para cubrir lo que viene.`:`Hasta tu próximo cobro (${shortDate(cu.next)}): ${plural(cu.days,'día','días')}.`,cu.falta>0?'neg':'','open-cuenta')}
-  </div>
-  <div class="tiles">${tile('Por pagar esta quincena',`Pagas ${money(pi.pagas)} · ya pagaste ${money(pi.ya)}${pi.vencidos?` · ${plural(pi.vencidos,'vencido','vencidos')}`:''}`,'open-sub','pay')}
+  return page('Finanzas',MESES[+nowYM.slice(5)-1]+' '+nowYM.slice(0,4))+
+  hero('Hoy puedes gastar',money(cu.per),(cu.falta>0?`Te faltan ${money(cu.falta)} para cubrir lo que viene.`:`Hasta tu próximo cobro (${shortDate(cu.next)}): ${plural(cu.days,'día','días')}.`)+`<br>Tienes hoy del salario <b>${av<0?'− '+money(-av):money(av)}</b> · Dinero extra aparte <b>${money(ex.avail)}</b>.`,cu.falta>0?'neg':'','open-cuenta')+
+  `<div class="tiles">${tile('Por pagar esta quincena',`Pagas ${money(pi.pagas)} · ya pagaste ${money(pi.ya)}${pi.vencidos?` · ${plural(pi.vencidos,'vencido','vencidos')}`:''}`,'open-sub','pay')}
   ${tile('Movimientos',`${plural(nMov,'movimiento','movimientos')} este mes · gastaste ${money(tt.gasto)}`,'open-sub','mov')}
-  ${tile('Deudas',di.n?`${plural(di.n,'deuda','deudas')} · debes ${money(di.bal)}`:'Sin deudas anotadas','open-sub','debts')}
-  ${tile('Ahorro y metas',`Fondo de emergencia ${money(emergInfo().saved)}${gi.n?` · ${plural(gi.n,'meta','metas')}`:''}`,'open-sub','goals')}
-  ${tile('Mi salario',sl.net>0?`Te llegan ${money(sl.net)} al mes`:'Calcula tu salario neto','open-sub','sal')}
-  ${tile('Resumen del año',`${year} · entró ${money(yIn)} · salió ${money(yOut)}`,'open-sub','year')}</div>`;
+  ${tile('Ahorro y deudas',`Fondo de emergencia ${money(emergInfo().saved)}${di.n?` · debes ${money(di.bal)}`:''}${gi.n?` · ${plural(gi.n,'meta','metas')}`:''}`,'open-sub','goals')}
+  ${tile('Mi salario',sl.net>0?`Te llegan ${money(sl.net)} al mes`:'Calcula tu salario neto','open-sub','sal')}</div>`;
 }
 function vMov(){
   const ym=ui.month,[wa,wb]=win(ym,ui.fper),list=S.tx.filter(t=>t.date>=wa&&t.date<=wb).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
@@ -1351,7 +1415,8 @@ function vMov(){
   return det('Movimientos','Todo lo que entra y sale',addBtn('Dinero extra','add-tx','ingreso')+addBtn('Gasto','add-tx','gasto')+addBtn('Ahorro','add-tx','ahorro'))+
   `<div class="mnav" style="margin-bottom:16px"><button class="iconbtn" type="button" data-act="m-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ym)}</b><button class="iconbtn" type="button" data-act="m-next" aria-label="Mes siguiente">${ic('right')}</button></div>
   <div class="chips" role="group" aria-label="Periodo" style="margin-bottom:12px">${[['mes','Todo el mes'],['q1','1.ª quincena (1 al 15)'],['q2','2.ª quincena (16 al fin)']].map(([k,l])=>`<button class="chip" type="button" aria-pressed="${ui.fper===k}" data-act="fper" data-id="${k}">${l}</button>`).join('')}</div>
-  <div class="stats" style="margin-bottom:16px"><div class="stat card"><span>Ingresos</span><b>${money(tt.ingreso)}</b></div><div class="stat card"><span>Gastos</span><b>${money(tt.gasto)}</b></div><div class="stat card"><span>Ahorro</span><b>${money(tt.ahorro)}</b></div><div class="stat card"><span>Disponible</span><b class="${tt.libre<0?'neg':''}">${money(tt.libre)}</b></div></div>
+  <div class="stats" style="margin-bottom:16px"><button class="stat card" type="button" data-act="mvt" data-id="ingreso"><span>Lo que entró</span><b>${money(tt.ingreso)}</b></button><button class="stat card" type="button" data-act="mvt" data-id="gasto"><span>Lo que gastaste</span><b>${money(tt.gasto)}</b></button><button class="stat card" type="button" data-act="mvt" data-id="ahorro"><span>Lo que ahorraste</span><b>${money(tt.ahorro)}</b></button><button class="stat card" type="button" data-act="mvt" data-id="todos"><span>Lo que sobró este mes</span><b class="${tt.libre<0?'neg':''}">${money(tt.libre)}</b></button></div>
+  <p class="note" style="margin:-6px 0 16px">Toca un número para ver los movimientos que lo forman.</p>
   ${(()=>{const H=S.tx.filter(t=>t.type==='gasto'&&t.date.startsWith(ym)&&t.amount<5),hs=H.reduce((a,t)=>a+t.amount,0);return `<p class="note" style="margin:-6px 0 16px">${ym===nowYM?'Este mes':'En '+MESES[+ym.slice(5)-1]}: ${H.length?`${plural(H.length,'gasto','gastos')} de menos de $5 que suman <b>${money(hs)}</b>.`:'ningún gasto de menos de $5.'}</p>`})()}
   <div class="grid">
   <section class="card span2" aria-labelledby="h-mov"><h2 id="h-mov">Movimientos</h2><div class="mvtools"><label class="sr" for="mvq">Buscar un movimiento</label><input id="mvq" type="search" placeholder="Buscar por nombre, categoría o monto" value="${esc(ui.mq)}" autocomplete="off"><div class="chips" role="group" aria-label="Tipo de movimiento">${[['todos','Todos'],['gasto','Gastos'],['ingreso','Ingresos'],['ahorro','Ahorro']].map(([k,l])=>`<button class="chip" type="button" aria-pressed="${ui.mt===k}" data-act="mvt" data-id="${k}">${l}</button>`).join('')}</div></div><div id="mvlist">${movHtml()}</div></section>
@@ -1359,7 +1424,7 @@ function vMov(){
   <section class="card span2" aria-labelledby="h-cap"><div class="card-h"><h2 id="h-cap">Topes por categoría</h2><button class="btn sm" type="button" data-act="cap">${ic('plus')}Tope</button></div>${(()=>{const R=capRows(ym);return R.length?`<ul class="list">${R.map(q=>`<li class="row"><button class="row-main" type="button" data-act="cap" data-id="${esc(q.cat)}"><span class="t">${esc(q.cat)}</span><span class="s">${money(q.spent)} de ${money(q.cap)} · ${Math.round(q.pct)} %</span><span class="pbt" role="meter" aria-label="Tope de ${esc(q.cat)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(q.pct))}"><i style="width:${Math.min(100,q.pct)}%"></i></span></button>${q.pct>=100?pill('Pasaste el tope','bad'):q.pct>=80?pill('Cerca del tope','warn'):''}</li>`).join('')}</ul>`:`<p class="note">Opcional: ponle un máximo al mes a una categoría (por ejemplo Ocio o Suscripciones) y te aviso al llegar al 80 %.</p>`})()}</section>
   ${list.some(t=>t.type==='gasto')?foldCard(`<section class="card bars">${breakdown(list,'gasto')}</section>`,'¿En qué gasté?',money(tt.gasto)):''}
   ${list.some(t=>t.type==='ingreso')?foldCard(`<section class="card bars">${breakdown(list,'ingreso')}</section>`,'¿De dónde entró?',money(tt.ingreso)):''}
-  </div>`;
+  </div><button class="btn ghost" type="button" data-act="open-sub" data-id="year" style="margin-top:16px">Ver el resumen del año</button>`;
 }
 
 function vShop(){
@@ -1378,7 +1443,7 @@ function vShop(){
   if(ui.sub==='favs')return det('Lo que siempre compras','Toca un producto para agregarlo a la lista')+
     `<section class="card" aria-label="Favoritos">${favs.length?`<div class="chips">${favs.map(f=>`<button class="chip" type="button" data-act="shop-fav" data-n="${esc(f.name)}">+ ${esc(f.name)}</button>`).join('')}</div>`:empty(S.favs.length?'Todo lo que siempre compras ya está en tu lista.':'Aquí aparecerán los productos que compres seguido. Se guardan solos al quitar los comprados.')}</section>`;
   return page('Súper',`${pend} por comprar`)+
-  hero('Por comprar',pend,pend===1?'producto en tu lista':'productos en tu lista')+
+  hero('Productos por comprar',pend,pend===1?'producto en tu lista':'productos en tu lista','','open-sub','lista')+
   `<div class="tiles">${tile('Lista del súper',S.shop.length?`${pend} por comprar · ${hechos} comprado${hechos===1?'':'s'}`:'Tu lista está vacía','open-sub','lista')}
   ${tile('Lo que siempre compras',S.favs.length?plural(S.favs.length,'producto guardado','productos guardados'):'Aún no hay','open-sub','favs')}
   ${tile('Registrar gasto del súper','Anota cuánto gastaste hoy','shop-expense')}</div>`;
@@ -1465,7 +1530,7 @@ function applyAutoPays(){
       dues.forEach(due=>{
         const id=`${c.id}-${{bono:'b',comm:'c'}[sm.k]||'p'}${due.replace(/-/g,'')}`;
         if(id.length>64||S.tx.some(x=>x.id===id)||S.del[id]||(paid[due]||0)>0)return;
-        S.tx.push({id,type:'ingreso',amount:sm.fee,cat:c.name,date:due,for:due,desc:sm.k==='bono'?`Bono automático: ${c.name}`:sm.k==='comm'?`Comisión automática: ${c.name}`:`Pago automático: ${c.name}`,auto:true,...(sm.k!=='main'?{stream:sm.k}:{}),...(sm.k==='main'&&isSal(c)?{bruto:grossPay(c)}:{})});n++;
+        S.tx.push({id,type:'ingreso',amount:sm.feeAt?sm.feeAt(due):sm.fee,cat:c.name,date:due,for:due,desc:sm.k==='bono'?`Bono automático: ${c.name}`:sm.k==='comm'?`Comisión automática: ${c.name}`:`Pago automático: ${c.name}`,auto:true,...(sm.k!=='main'?{stream:sm.k}:{}),...(sm.k==='main'&&isSal(c)?{bruto:grossPay(c)}:{})});n++;
       });
     });
   });
@@ -1489,7 +1554,7 @@ function applyRecurring(){
 }
 /* Navegación: cada pantalla de detalle es un paso del historial, así el botón «atrás» del celular también funciona */
 let pendingTab='';
-const navSnap=()=>({t:ui.tab,s:ui.sub,o:ui.open,p:ui.pubcal});
+const navSnap=()=>({t:ui.tab,s:ui.sub,o:ui.open,p:ui.pubcal,d:ui.debt});
 function nav(patch){
   Object.assign(ui,patch);
   try{history.pushState({d:((history.state&&history.state.d)||0)+1,ne:navSnap()},'')}catch(e){}
@@ -1515,7 +1580,7 @@ function applyTab(){
 }
 window.addEventListener('popstate',e=>{
   const s=e.state;closeSheet();
-  if(s&&s.ne){ui.tab=s.ne.t;ui.sub=s.ne.s;ui.open=s.ne.o;ui.pubcal=s.ne.p}
+  if(s&&s.ne){ui.tab=s.ne.t;ui.sub=s.ne.s;ui.open=s.ne.o;ui.pubcal=s.ne.p;ui.debt=s.ne.d||''}
   else{ui.sub='';ui.open='';ui.pubcal=false;if(s&&s.t)ui.tab=s.t}
   if(pendingTab){applyTab();return}
   render(true);
@@ -1661,20 +1726,31 @@ function cobroSheet(cid,txId,forDue){
       ui.month=rec.date.slice(0,7);toast(t?'Pago actualizado':'Cobro registrado')},
     onDelete:t?()=>{remove(S.tx,t.id);toast('Pago eliminado')}:null});
 }
+function quincenas(){
+  const t=today(),out=[];let y=+t.slice(0,4),m=+t.slice(5,7)-1;if(m<1){m=12;y--}
+  for(let i=0;i<16;i++){const ld=lastDay(y,m),sf=y!==+t.slice(0,4)?' '+y:'';
+    out.push([`${y}-${pad(m)}-15`,`Quincena del 15 de ${MESES[m-1]}${sf}`],[`${y}-${pad(m)}-${pad(ld)}`,`Quincena de fin de mes (${ld} de ${MESES[m-1]}${sf})`]);
+    m++;if(m>12){m=1;y++}}
+  return out;
+}
 function descSheet(cid,did){
   const c=S.clients.find(x=>x.id===cid);if(!c)return;
-  const d=(c.descs||[]).find(x=>x.id===did);
-  /* los pagos automáticos de este mes en adelante se ajustan al nuevo neto (solo los que ella no tocó) */
-  const refresh=old=>{const nw=payAmt(c);S.tx.forEach(t=>{if(t.auto===true&&t.type==='ingreso'&&t.cat===c.name&&!t.stream&&t.date>=nowYM+'-01'&&Math.abs(t.amount-old)<0.005)t.amount=nw})};
-  sheet({title:d?'Editar descuento':'Nuevo descuento de planilla',required:'n',data:d?{n:d.n,m:d.m}:{},
-    pre:'<p class="note" style="margin-bottom:14px">Algo que te quitan en cada quincena del salario, además del 11 % de seguros. Escribe cuánto es por quincena.</p>',
-    fields:[{k:'n',l:'¿Qué es?',ph:'Préstamo, seguro'},{k:'m',l:'Monto por quincena',t:'number',ph:'0.00'}],
+  const d=(c.descs||[]).find(x=>x.id===did),QS=quincenas();
+  /* los pagos automáticos de este mes en adelante se ajustan (solo los que ella no tocó) */
+  const snapAmts=()=>{const m={};S.tx.forEach(t=>{if(t.auto===true&&t.type==='ingreso'&&t.cat===c.name&&!t.stream&&t.date>=nowYM+'-01')m[t.id]=payAmtAt(c,t.for||t.date)});return m};
+  const refresh=old=>S.tx.forEach(t=>{if(old[t.id]!=null&&Math.abs(t.amount-old[t.id])<0.005)t.amount=payAmtAt(c,t.for||t.date)});
+  sheet({title:d?'Editar descuento':'Nuevo descuento de planilla',required:'n',data:d?{n:d.n,m:d.m,from:d.from||'',to:d.to||''}:{from:'',to:''},
+    pre:'<p class="note" style="margin-bottom:14px">Algo que te quitan en cada quincena del salario, además del 11 % de seguros. Antes de la quincena de inicio no se resta de tu neto.</p>',
+    fields:[{k:'n',l:'¿Qué es?',ph:'Préstamo, seguro'},{k:'m',l:'Monto por quincena',t:'number',ph:'0.00'},
+      {k:'from',l:'¿Desde qué quincena empieza?',t:'select',o:[['','Ya está en vigor'],...QS]},
+      {k:'to',l:'¿Hasta qué quincena? (opcional)',t:'select',o:[['','Sin fecha de fin'],...QS]}],
     onSave:v=>{
-      if(!(v.m>0)){toast('Pon el monto mensual');return false}
-      const old=payAmt(c);
-      c.descs=[...(c.descs||[]).filter(x=>x.id!==(d&&d.id)),{id:d?d.id:uid(),n:v.n.slice(0,60),m:v.m,q:1}];
-      refresh(old);toast('Salario neto actualizado: '+money(payAmt(c))+' por pago')},
-    onDelete:d?()=>{const old=payAmt(c);c.descs=(c.descs||[]).filter(x=>x.id!==d.id);refresh(old)}:null});
+      if(!(v.m>0)){toast('Pon el monto por quincena');return false}
+      if(v.from&&v.to&&v.to<v.from){toast('La quincena final no puede ser antes de la de inicio');return false}
+      const old=snapAmts();
+      c.descs=[...(c.descs||[]).filter(x=>x.id!==(d&&d.id)),{id:d?d.id:uid(),n:v.n.slice(0,60),m:v.m,q:1,...(v.from?{from:v.from}:{}),...(v.to?{to:v.to}:{})}];
+      refresh(old);toast('Descuento guardado')},
+    onDelete:d?()=>{const old=snapAmts();c.descs=(c.descs||[]).filter(x=>x.id!==d.id);refresh(old)}:null});
 }
 function clientSheet(id){
   const c=S.clients.find(x=>x.id===id);
@@ -1769,7 +1845,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-13.1 dinero real y pagos programados';
+const APP_V='2026-10-13.2 descuentos con fecha, deudas sencillas y pagos variables';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
@@ -2075,6 +2151,9 @@ document.addEventListener('click',e=>{
     case 'open-mov':closeSheet();ui.month=nowYM;nav({tab:'money',sub:'mov'});break;
     case 'add-desc':descSheet(id);break;
     case 'edit-desc':descSheet(el.dataset.cid,id);break;
+    case 'open-debt':nav({sub:'debt',debt:id,dq:'',tab:'money'});break;
+    case 'abono-debt':abonoSheet(id);break;
+    case 'plan-debt':debtPaySheet(id,'plan');break;
     case 'add-debt':debtSheet();break;
     case 'edit-debt':debtSheet(id);break;
     case 'pay-debt':debtPaySheet(id,el.dataset.k);break;
