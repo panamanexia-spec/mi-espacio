@@ -456,7 +456,8 @@ function cleanRec(c,r){
   if(c==='inbox'){o.amount=+o.amount;if(!(o.amount>0&&o.amount<1e7))return null;o.desc=String(o.desc||'').slice(0,80);o.card=String(o.card||'').slice(0,30);o.cat=String(o.cat||'').slice(0,40);if(o.date&&!isD(o.date))o.date=''}
   if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0;o.done=!!o.done;o.final=Number.isFinite(+o.final)?+o.final:0;o.aportes=Number.isInteger(+o.aportes)&&+o.aportes>=0?+o.aportes:0}
   if(c==='bills'){o.amt=Number.isFinite(+o.amt)&&+o.amt>=0&&+o.amt<1e9?+o.amt:0;if(!['15','fin','dia'].includes(o.when))o.when='15';o.day=Number.isInteger(+o.day)&&+o.day>=1&&+o.day<=31?+o.day:1;if(!['quincenal','mensual','bimestral'].includes(o.freq))o.freq='mensual';if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.active!=='no')o.active='si';if(!isD(o.from))o.from=ymd0();if(o.varia!=='si')delete o.varia;if(Number.isInteger(+o.lim)&&+o.lim>=1&&+o.lim<=31)o.lim=+o.lim;else delete o.lim;if(o.split==='si'&&Number.isFinite(+o.part1)&&+o.part1>0&&+o.part1<o.amt)o.part1=+o.part1;else{delete o.split;delete o.part1}if(typeof o.lg!=='string'||!SAFE.test(o.lg))delete o.lg}
-  if(c==='debts'){['bal','rate','pay','init'].forEach(k=>{o[k]=Number.isFinite(+o[k])&&+o[k]>=0&&+o[k]<1e9?+o[k]:0});o.rate=Math.min(o.rate,1000);if(!(o.init>=o.bal))o.init=o.bal;if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.late!=='si')o.late='no';
+  if(c==='debts'){['bal','rate','pay','init'].forEach(k=>{o[k]=Number.isFinite(+o[k])&&+o[k]>=0&&+o[k]<1e9?+o[k]:0});o.rate=Math.min(o.rate,1000);if(!(o.init>=o.bal))o.init=o.bal;if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.late!=='si')o.late='no';if(o.bank!=='si')delete o.bank;if(Number.isFinite(+o.ded)&&+o.ded>0&&+o.ded<1e7)o.ded=+o.ded;else{delete o.ded;delete o.dedFrom}if(o.dedFrom&&!isD(o.dedFrom))delete o.dedFrom;
+    o.adj=Array.isArray(o.adj)?o.adj.slice(-120).map(x=>x&&typeof x==='object'&&isD(x.d)&&Number.isFinite(+x.b)&&+x.b>=0&&+x.b<1e9?{d:x.d,b:+x.b}:null).filter(Boolean):[];if(!o.adj.length)delete o.adj;
     o.pays=Array.isArray(o.pays)?o.pays.slice(0,500).map((p,i)=>p&&typeof p==='object'&&isD(p.d)&&Number.isFinite(+p.a)&&+p.a>0&&+p.a<1e9?{id:typeof p.id==='string'&&SAFE.test(p.id)?p.id:'p'+i,d:p.d,a:+p.a,k:p.k==='extra'?'extra':p.k==='plan'?'plan':'cuota',...(p.x?{x:1}:{}),cap:Number.isFinite(+p.cap)&&+p.cap>=0?+p.cap:0,...(typeof p.tx==='string'&&SAFE.test(p.tx)?{tx:p.tx}:{})}:null).filter(Boolean):[]}
   if(c==='clients'){
     if(!['mensual','quincenal','semanal'].includes(o.freq))delete o.freq;
@@ -1092,9 +1093,9 @@ const debtsInfo=()=>{const A=debtsOpen();return {n:A.length,bal:A.reduce((a,d)=>
 function revertPay(d,p){d.bal=r2(d.bal+(p.cap||0));if(p.tx)remove(S.tx,p.tx);d.pays=d.pays.filter(x=>x.id!==p.id)}
 /* ---- Deudas en lenguaje sencillo ---- */
 function applyPay(d,k,a,date,x){
-  const int=d.bal*d.rate/1200,cap=k==='cuota'?Math.min(d.bal,Math.max(0,a-int)):Math.min(d.bal,a);
+  const int=d.bal*d.rate/1200,cap=d.bank==='si'?0:k==='cuota'?Math.min(d.bal,Math.max(0,a-int)):Math.min(d.bal,a);
   const p={id:uid(),d:date,a,k,cap:r2(cap),...(x?{x:1}:{})};
-  if(k!=='plan'&&!(k==='cuota'&&d.payroll==='si')){const id=uid();S.tx.unshift({id,type:'gasto',amount:a,cat:'Deudas',desc:(k==='extra'?'Abono: ':'Pago: ')+d.name,date,...(x?{src:'extra'}:{})});p.tx=id}
+  if(k==='plan'?d.ded>0:!(k==='cuota'&&d.payroll==='si')){const id=uid();S.tx.unshift({id,type:'gasto',amount:a,cat:'Deudas',desc:(k==='extra'?'Abono: ':'Pago: ')+d.name,date,...(x?{src:'extra'}:{})});p.tx=id}
   d.bal=r2(d.bal-cap);d.pays.unshift(p);d.pays=d.pays.slice(0,500);
   return {int:r2(Math.min(int,a)),cap:p.cap};
 }
@@ -1106,10 +1107,16 @@ function debtSheet(id){
       {k:'late',l:'¿Tiene recargos o atrasos?',t:'select',o:[['no','No'],['si','Sí, tiene recargos o atrasos']]},
       {k:'rate',l:'Tasa de interés anual % (si la sabes)',t:'number',ph:'Ej. 12'},
       {k:'payroll',l:'¿Se paga por descuento de planilla?',t:'select',o:[['no','No, yo la pago'],['si','Sí, me la descuentan del salario']]},
-      {k:'since',l:'¿Desde cuándo la tienes?',t:'date'}],
+      {k:'ded',l:'Descuento en cada quincena (15 y fin de mes)',t:'number',ph:'0.00',show:v=>v.payroll==='si'},
+      {k:'dedFrom',l:'¿Desde qué fecha lo descuentan?',t:'date',show:v=>v.payroll==='si'&&num(v.ded)>0},
+      {k:'bank',l:'¿El saldo lo pone el banco?',t:'select',o:[['no','No, baja con cada pago'],['si','Sí, yo anoto el saldo real que dice el banco']]},
+      {k:'end',l:'¿Cuándo vence? (si lo sabes)',t:'date'},
+      {k:'since',l:'¿Desde cuándo la tienes?',t:'date'},
+      {k:'note',l:'Notas (opcional)',ph:'Ej. tasa + FECI 1 %'}],
     onSave:v=>{
       if(!(v.bal>=0)){toast('Pon el saldo');return false}
       if(S.debts.some(x=>x.id!==(d&&d.id)&&x.name.toLowerCase()===v.name.toLowerCase())){toast('Ya tienes una deuda con ese nombre');return false}
+      if(v.payroll!=='si'||!(v.ded>0)){v.ded='';v.dedFrom=''}else if(!v.dedFrom)v.dedFrom=today();
       upsert(S.debts,{...v,pay:v.pay>0?v.pay:0,rate:Math.min(Math.max(0,v.rate||0),1000),id:d?d.id:uid(),init:d?Math.max(d.init||0,v.bal):v.bal,pays:d?d.pays:[]})},
     onDelete:d?()=>remove(S.debts,d.id):null});
 }
@@ -1120,10 +1127,10 @@ function abonoSheet(id){
     fields:[{k:'a',l:'¿Cuánto abonas?',t:'number',ph:'0.00'},{k:'d',l:'Fecha',t:'date'},{k:'src',l:'¿De dónde salió?',t:'pick',o:SRCS}],
     onSave:v=>{
       if(!(v.a>0)){toast('Pon cuánto abonas');return false}
-      const cap=Math.min(d.bal,v.a),id2=uid(),date=v.d||today();
+      const cap=d.bank==='si'?0:Math.min(d.bal,v.a),id2=uid(),date=v.d||today();
       S.tx.unshift({id:id2,type:'gasto',amount:v.a,cat:'Deudas',desc:'Abono: '+d.name,date,...(v.src==='extra'?{src:'extra'}:{})});
       d.pays.unshift({id:uid(),d:date,a:v.a,k:'extra',cap:r2(cap),tx:id2});d.pays=d.pays.slice(0,500);d.bal=r2(d.bal-cap);
-      rememberSrc(v.src);toast(`Listo: el saldo bajó ${money(cap)}`)}});
+      rememberSrc(v.src);toast(d.bank==='si'?'Listo. Para cambiar el saldo usa «Ajustar saldo real»':`Listo: el saldo bajó ${money(cap)}`)}});
 }
 function debtPaySheet(id,k,pid){
   const d=S.debts.find(x=>x.id===id);if(!d)return;
@@ -1139,6 +1146,37 @@ function debtPaySheet(id,k,pid){
       toast(k==='cuota'?`Listo: ${money(r.int)} fueron intereses y el saldo bajó ${money(r.cap)}`:`Listo: el saldo bajó ${money(r.cap)}`)},
     onDelete:old?()=>{revertPay(d,old);toast('Abono eliminado y saldo devuelto')}:null});
 }
+function adjSheet(id){
+  const d=S.debts.find(x=>x.id===id);if(!d)return;
+  sheet({title:`Ajustar saldo real: ${esc(d.name)}`,data:{b:d.bal,d:today()},
+    pre:'<p class="note" style="margin-bottom:14px">Escribe el saldo que dice el banco y la fecha de ese saldo. Así el saldo real queda al día aunque casi todo el pago sea interés.</p>',
+    fields:[{k:'b',l:'Saldo real según el banco',t:'number',ph:'0.00'},{k:'d',l:'Fecha de ese saldo',t:'date'}],
+    onSave:v=>{
+      if(!(v.b>=0)){toast('Pon el saldo');return false}
+      const date=v.d||today();
+      d.adj=[...(d.adj||[]).filter(x=>x.d!==date),{d:date,b:v.b}].sort((a,b)=>a.d.localeCompare(b.d)).slice(-120);
+      d.bal=d.adj[d.adj.length-1].b;d.init=Math.max(d.init||0,d.bal);toast('Saldo real actualizado')}});
+}
+/* descuento de planilla fijo: cada 15 y fin de mes se anota un pago a la deuda y el gasto en tu salario (ids fijos: no se duplica) */
+function applyDebtDeductions(){
+  let n=0;const t=today();
+  S.debts.forEach(d=>{
+    if(!(d.ded>0)||!d.dedFrom||d.payroll!=='si')return;
+    const to=d.end&&d.end<t?d.end:t;
+    for(let y=+d.dedFrom.slice(0,4),m=+d.dedFrom.slice(5,7);`${y}-${pad(m)}`<=to.slice(0,7);){
+      [15,lastDay(y,m)].forEach(dd=>{
+        const date=`${y}-${pad(m)}-${pad(dd)}`;if(date<d.dedFrom||date>to)return;
+        const id=`${d.id.slice(0,30)}-d${date.replace(/-/g,'')}`;
+        if(d.pays.some(p=>p.id===id)||S.del[id]||S.tx.some(x=>x.id===id))return;
+        const cap=d.bank==='si'?0:r2(Math.min(d.bal,d.ded));
+        S.tx.push({id,type:'gasto',amount:d.ded,cat:'Deudas',desc:'Descuento planilla: '+d.name,date});
+        d.pays.unshift({id,d:date,a:d.ded,k:'plan',cap,tx:id});d.pays=d.pays.slice(0,500);d.bal=r2(d.bal-cap);n++;
+      });
+      m++;if(m>12){m=1;y++}
+    }
+  });
+  if(n){stamp();persist();autoSync()}
+}
 function debtOrder(){
   const A=debtsOpen(),late=A.filter(d=>d.late==='si').sort((a,b)=>a.bal-b.bal),rest=A.filter(d=>d.late!=='si').sort((a,b)=>a.bal-b.bal);
   return [...late.map(d=>({d,why:'Tiene recargos o atrasos: crecen rápido y pueden traerte problemas, conviene pagarla primero.'})),
@@ -1146,22 +1184,24 @@ function debtOrder(){
     ...rest.slice(1).sort((a,b)=>b.rate-a.rate||a.bal-b.bal).map(d=>({d,why:d.rate>0?`Tiene una tasa de ${d.rate} %: mientras más alta, más intereses pagas.`:'No tiene intereses: puede ir al final.'}))];
 }
 function dqHtml(d){
-  const raw=ui.dq===''?(d.pay>0?r2(d.pay/2):0):num(ui.dq),x=num(raw);
+  const raw=ui.dq===''?(d.ded>0?d.ded:d.pay>0?r2(d.pay/2):0):num(ui.dq),x=num(raw);
   if(!(x>0))return '<p class="note">Escribe cuánto abonarías por quincena y te digo cuándo terminas.</p>';
   const s=simDebt(d.bal,d.rate,2*x);
   return s.ok?`<p>Si abonas <b>${money(x)}</b> por quincena, terminas <b>${finLbl(s.m)}</b>.</p><p class="note">Pagarías ${money(s.int)} de intereses. Es una estimación.</p>`:`<p class="note">Con ${money(x)} por quincena no alcanza ni para los intereses. Prueba con un monto más grande.</p>`;
 }
 document.addEventListener('input',e=>{if(e.target.id==='dbq'){ui.dq=e.target.value;const r=$('#dbqres'),d=S.debts.find(z=>z.id===ui.debt);if(r&&d)r.innerHTML=dqHtml(d)}});
 function vDebt(d){
-  const pct=d.init>0?Math.min(100,Math.max(0,(d.init-d.bal)/d.init*100)):0;
+  const paid=d.pays.reduce((a,p)=>a+p.a,0),cap=Math.max(0,d.init-d.bal),pct=d.init>0?Math.min(100,cap/d.init*100):0,last=(d.adj||[]).slice(-1)[0];
   return det(d.name,'Deuda',`<button class="btn sm" type="button" data-act="edit-debt" data-id="${d.id}">Editar</button>`)+
-  `<section class="card hero"><span class="eyebrow">Lo que debes hoy</span><b class="big-n">${money(d.bal)}</b>
+  `<section class="card hero"><span class="lab">${d.bank==='si'?`Saldo real${last?` · según el banco el ${shortDate(last.d)}`:''}`:'Lo que debes hoy'}</span><b class="big-n">${money(d.bal)}</b>
+   <div class="prow" style="margin-top:4px"><span class="note">Total pagado</span><b>${money(paid)}</b></div>
    <div class="pbt" role="meter" aria-label="Avance de ${esc(d.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}" style="margin-top:10px"><i style="width:${pct}%"></i></div>
-   <p class="note" style="margin-top:8px">Llevas pagado ${money(Math.max(0,d.init-d.bal))} de ${money(d.init)}</p>
-   <p class="note" style="margin-top:10px">${d.late==='si'?'<span class="pill k-bad">Con recargos o atrasos</span> ':''}${d.payroll==='si'?'<span class="pill k-info">Por planilla</span> ':''}${d.rate>0?`${d.rate} % anual · `:''}${d.pay>0?`cuota ${money(d.pay)} al mes`:'sin cuota fija'}${d.since?` · desde ${mLabel(d.since.slice(0,7))}`:''}</p></section>
-  <div class="actions" style="margin:16px 0"><button class="btn" type="button" data-act="abono-debt" data-id="${d.id}">Registrar abono</button>${d.payroll==='si'?`<button class="btn ghost" type="button" data-act="plan-debt" data-id="${d.id}">Se descontó de la planilla</button>`:''}</div>
-  <section class="card" aria-labelledby="h-dq"><h2 id="h-dq">¿Cuándo termino?</h2><label class="f"><span>Abono por quincena</span><input id="dbq" type="text" inputmode="decimal" placeholder="${d.pay>0?r2(d.pay/2):'0.00'}" value="${esc(ui.dq)}" autocomplete="off"></label><div id="dbqres" aria-live="polite" style="margin-top:10px">${dqHtml(d)}</div></section>
-  ${d.pays.length?`<section class="card" aria-labelledby="h-ab" style="margin-top:16px"><h2 id="h-ab">Abonos</h2><ul class="list">${d.pays.slice(0,20).map(p=>`<li class="row"><button class="row-main" type="button" data-act="edit-dpay" data-id="${d.id}" data-pid="${esc(p.id)}"><span class="t">${money(p.a)} · ${p.k==='plan'?'descuento de planilla':p.k==='extra'?'abono':'cuota'}</span><span class="s">${longDate(p.d)} · bajó ${money(p.cap)}</span></button></li>`).join('')}</ul></section>`:''}
+   <p class="note" style="margin-top:8px">${d.bank==='si'?`Capital pagado ${money(cap)} de ${money(d.init)}. El resto de lo que pagas son intereses y seguros.`:`Llevas pagado ${money(cap)} de ${money(d.init)}`}</p>
+   <p class="note" style="margin-top:10px">${d.late==='si'?'<span class="pill k-bad">Con recargos o atrasos</span> ':''}${d.payroll==='si'?'<span class="pill k-info">Por planilla</span> ':''}${d.rate>0?`${d.rate} % anual · `:''}${d.pay>0?`cuota ${money(d.pay)} al mes`:'sin cuota fija'}${d.ded>0?` · descuento ${money(d.ded)} cada quincena`:''}${d.end?` · vence ${mLabel(d.end.slice(0,7))}`:''}${d.since?` · desde ${mLabel(d.since.slice(0,7))}`:''}${d.note?` · ${esc(d.note)}`:''}</p></section>
+  <div class="actions" style="margin:16px 0"><button class="btn" type="button" data-act="adj-debt" data-id="${d.id}">Ajustar saldo real</button><button class="btn ghost" type="button" data-act="abono-debt" data-id="${d.id}">Registrar abono</button>${d.payroll==='si'&&!(d.ded>0)?`<button class="btn ghost" type="button" data-act="plan-debt" data-id="${d.id}">Se descontó de la planilla</button>`:''}</div>
+  <section class="card" aria-labelledby="h-dq"><h2 id="h-dq">¿Cuándo termino?</h2><label class="f"><span>Abono por quincena</span><input id="dbq" type="text" inputmode="decimal" placeholder="${d.ded>0?d.ded:d.pay>0?r2(d.pay/2):'0.00'}" value="${esc(ui.dq)}" autocomplete="off"></label><div id="dbqres" aria-live="polite" style="margin-top:10px">${dqHtml(d)}</div></section>
+  ${(d.adj||[]).length?`<section class="card" style="margin-top:16px"><h2>Saldos del banco</h2><ul class="list">${d.adj.slice().reverse().slice(0,12).map(a=>`<li class="kv"><span class="k">${longDate(a.d)}</span><span class="v">${money(a.b)}</span></li>`).join('')}</ul></section>`:''}
+  ${d.pays.length?`<section class="card" aria-labelledby="h-ab" style="margin-top:16px"><h2 id="h-ab">Pagos</h2><ul class="list">${d.pays.slice(0,20).map(p=>`<li class="row"><button class="row-main" type="button" data-act="edit-dpay" data-id="${d.id}" data-pid="${esc(p.id)}"><span class="t">${money(p.a)} · ${p.k==='plan'?'descuento de planilla':p.k==='extra'?'abono':'cuota'}</span><span class="s">${longDate(p.d)}${p.cap>0?` · bajó ${money(p.cap)}`:''}</span></button></li>`).join('')}</ul></section>`:''}
   <p class="note" style="margin-top:14px">Los cálculos son una estimación con los datos que escribiste; no es asesoría financiera.</p>`;
 }
 function vDebts(){
@@ -1594,7 +1634,7 @@ window.addEventListener('popstate',e=>{
 });
 try{history.replaceState({t:ui.tab},'')}catch(e){}
 function render(focus){
-  const y=scrollY;syncProj();applyRecurring();applyAutoPays();ui.cel.push(...checkGoals());document.body.dataset.tab=ui.tab;
+  const y=scrollY;syncProj();applyRecurring();applyAutoPays();applyDebtDeductions();ui.cel.push(...checkGoals());document.body.dataset.tab=ui.tab;
   $('#main').innerHTML=TABS.find(t=>t[0]===ui.tab)[3]();
   const nb=alerts().filter(a=>a.lvl>=1).length;
   const btn=t=>`<button type="button" data-act="goto-tab" data-id="${t[0]}" ${t[0]===ui.tab?'aria-current="page"':''}>${ic(t[2])}<span>${t[1]}</span>${t[0]==='home'&&nb?`<i class="badge" aria-label="${nb} alertas">${nb}</i>`:''}</button>`;
@@ -1852,7 +1892,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-13.3 rediseño ciruela';
+const APP_V='2026-10-15.1 préstamo con saldo real y descuento automático';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
@@ -2165,6 +2205,7 @@ document.addEventListener('click',e=>{
     case 'edit-desc':descSheet(el.dataset.cid,id);break;
     case 'open-debt':nav({sub:'debt',debt:id,dq:'',tab:'money'});break;
     case 'abono-debt':abonoSheet(id);break;
+    case 'adj-debt':adjSheet(id);break;
     case 'plan-debt':debtPaySheet(id,'plan');break;
     case 'add-debt':debtSheet();break;
     case 'edit-debt':debtSheet(id);break;
