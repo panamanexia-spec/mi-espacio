@@ -475,7 +475,7 @@ function cleanRec(c,r){
     if(+o.bonus>0)o.bonus=+o.bonus;else delete o.bonus;
     if(!['mensual','quincenal','semanal'].includes(o.bonusFreq))delete o.bonusFreq;
     if(!o.payFrom)delete o.payFrom;
-    if(!['seguro','variable'].includes(o.stab))delete o.stab;if(o.bolsillo!=='salario')delete o.bolsillo;if(o.quick!=='si')delete o.quick;if(!o.payTo)delete o.payTo;
+    if(!['seguro','variable'].includes(o.stab))delete o.stab;if(o.bolsillo!=='salario')delete o.bolsillo;if(o.quick!=='si')delete o.quick;if(!o.payTo)delete o.payTo;if(o.feeOv&&typeof o.feeOv==='object'&&!Array.isArray(o.feeOv)){const f={};Object.entries(o.feeOv).slice(0,24).forEach(([k,v])=>{if(isD(k)&&Number.isFinite(+v)&&+v>0&&+v<1e7)f[k]=+v});if(Object.keys(f).length)o.feeOv=f;else delete o.feeOv}else delete o.feeOv;
     if(Number.isFinite(+o.comm)&&+o.comm>0&&+o.comm<1e7){o.comm=+o.comm;if(!['15','fin'].includes(o.commWhen))o.commWhen='fin'}else{delete o.comm;delete o.commWhen}
     if(Array.isArray(o.descs))o.descs=o.descs.slice(0,20).map((x,i)=>x&&typeof x==='object'&&Number.isFinite(+x.m)&&+x.m>0&&+x.m<1e7?{id:typeof x.id==='string'&&SAFE.test(x.id)?x.id:'d'+i,n:String(x.n==null||typeof x.n==='object'?'':x.n).slice(0,60),m:x.q?+x.m:Math.round(+x.m/2*100)/100,q:1,...(isD(x.from)?{from:x.from}:{}),...(isD(x.to)?{to:x.to}:{})}:null).filter(Boolean);else delete o.descs;
   }
@@ -668,7 +668,7 @@ const grossPay=c=>isSal(c)?r2(num(c.fee)/perMonth(c)):num(c.fee);
 const descsOf=(c,d)=>{d=d||today();return isSal(c)&&Array.isArray(c.descs)?c.descs.filter(x=>(!x.from||d>=x.from)&&(!x.to||d<=x.to)):[]};
 const descMonth=(c,d)=>descsOf(c,d).reduce((a,x)=>a+num(x.m),0)*2; /* cada descuento se escribe por quincena y puede tener fecha de inicio y de fin */
 /* salario neto real por pago = bruto − 11 % − otros descuentos de planilla (repartidos entre los pagos del mes) */
-const payAmtAt=(c,d)=>isSal(c)?Math.max(0,r2(grossPay(c)*(1-PLAN)-descMonth(c,d)/perMonth(c))):num(c.fee);
+const payAmtAt=(c,d)=>c.feeOv&&d&&num(c.feeOv[d])>0?num(c.feeOv[d]):isSal(c)?Math.max(0,r2(grossPay(c)*(1-PLAN)-descMonth(c,d)/perMonth(c))):num(c.fee);
 const payAmt=c=>payAmtAt(c,today());
 const bonusOn=c=>isSal(c)&&c.bonusOn==='si'&&num(c.bonus)>0;
 const bonusFreq=c=>c.bonusFreq||'mensual';
@@ -855,7 +855,7 @@ function salCols(ym,all){
     if(sm.k!=='main'&&sm.k!=='comm')return;
     dueDates(sm.o,!isSal(c)&&c.payFrom&&c.payFrom>`${ym}-01`?c.payFrom:`${ym}-01`,`${ym}-${pad(ld)}`).forEach(d=>{
       const col=cols[+d.slice(8)<=15?0:1];col.n++;
-      if(!isSal(c)){col.otros+=sm.fee;col.net+=sm.fee}
+      if(!isSal(c)){const f=sm.feeAt?sm.feeAt(d):sm.fee;col.otros+=f;col.net+=f}
       else if(sm.k==='main'){const g=grossPay(c),pm=perMonth(c);col.gross+=g;col.ss+=g*.0975;col.se+=g*.0125;descsOf(c,d).forEach(x=>{const k=x.n||'Descuento';col.descs[k]=(col.descs[k]||0)+num(x.m)*2/pm});col.net+=payAmtAt(c,d)}
       else{col.comm+=sm.fee;col.net+=sm.fee}
     });
@@ -1971,7 +1971,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-16.3 quincenas del 15 al 30';
+const APP_V='2026-10-16.4 monto distinto en una fecha';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
