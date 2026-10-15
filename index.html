@@ -453,7 +453,7 @@ function cleanRec(c,r){
   if('time' in o&&o.time!==''&&!isT(o.time))o.time='';
   if('u' in o&&!Number.isFinite(o.u))delete o.u;
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
-  if(c==='inbox'){o.amount=+o.amount;if(!(o.amount>0&&o.amount<1e7))return null;o.desc=String(o.desc||'').slice(0,80);o.card=String(o.card||'').slice(0,30);o.cat=String(o.cat||'').slice(0,40);if(o.date&&!isD(o.date))o.date=''}
+  if(c==='inbox'){o.type=o.type==='ingreso'?'ingreso':'gasto';o.amount=+o.amount;if(!(o.amount>0&&o.amount<1e7))return null;o.desc=String(o.desc||'').slice(0,80);o.card=String(o.card||'').slice(0,30);o.cat=String(o.cat||'').slice(0,40);if(o.date&&!isD(o.date))o.date=''}
   if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0;o.done=!!o.done;o.final=Number.isFinite(+o.final)?+o.final:0;o.aportes=Number.isInteger(+o.aportes)&&+o.aportes>=0?+o.aportes:0}
   if(c==='bills'){o.amt=Number.isFinite(+o.amt)&&+o.amt>=0&&+o.amt<1e9?+o.amt:0;if(!['15','fin','dia'].includes(o.when))o.when='15';o.day=Number.isInteger(+o.day)&&+o.day>=1&&+o.day<=31?+o.day:1;if(!['quincenal','mensual','bimestral'].includes(o.freq))o.freq='mensual';if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.active!=='no')o.active='si';if(!isD(o.from))o.from=ymd0();if(o.varia!=='si')delete o.varia;if(Number.isInteger(+o.lim)&&+o.lim>=1&&+o.lim<=31)o.lim=+o.lim;else delete o.lim;if(o.split==='si'&&Number.isFinite(+o.part1)&&+o.part1>0&&+o.part1<o.amt)o.part1=+o.part1;else{delete o.split;delete o.part1}if(typeof o.lg!=='string'||!SAFE.test(o.lg))delete o.lg}
   if(c==='debts'){['bal','rate','pay','init'].forEach(k=>{o[k]=Number.isFinite(+o[k])&&+o[k]>=0&&+o[k]<1e9?+o[k]:0});o.rate=Math.min(o.rate,1000);if(!(o.init>=o.bal))o.init=o.bal;if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.late!=='si')o.late='no';if(o.bank!=='si')delete o.bank;if(Number.isFinite(+o.ded)&&+o.ded>0&&+o.ded<1e7)o.ded=+o.ded;else{delete o.ded;delete o.dedFrom}if(o.dedFrom&&!isD(o.dedFrom))delete o.dedFrom;
@@ -856,7 +856,7 @@ function vHome(){
   const items=itemsOn(t),nAv=alerts().length+(SY.token?0:1),cu=cuenta(),due=billItems(addDays(t,-60),t).filter(i=>!i.paid);
   const spend=hero('Hoy puedes gastar',money(cu.per),cu.falta>0?`Te faltan ${money(cu.falta)} para cubrir lo que viene`:`Hasta tu próximo cobro (${shortDate(cu.next)}): ${plural(cu.days,'día','días')}`,cu.falta>0?'neg':'','open-cuenta');
   const hoy=blk('Hoy',(items.length||due.length)?`<ul class="list">${due.map(billRow).join('')}${items.map(itemRow).join('')}</ul>`:empty('Día libre, sin pendientes.'),'goto-tab','agenda');
-  const inbox=S.inbox.length?blk(`Por confirmar (${S.inbox.length})`,`<ul class="list">${S.inbox.slice(0,6).map(i=>`<li class="row"><button class="row-main" type="button" data-act="inbox" data-id="${esc(i.id)}"><span class="t">${esc(i.desc||'Pago con Apple Pay')}</span><span class="s">${[i.date?shortDate(i.date):'',i.card?esc(i.card):''].filter(Boolean).join(' · ')}</span></button><span class="amt">${money(i.amount)}</span></li>`).join('')}</ul>`):'';
+  const inbox=S.inbox.length?blk(`Por confirmar (${S.inbox.length})`,`<ul class="list">${S.inbox.slice(0,6).map(i=>`<li class="row"><button class="row-main" type="button" data-act="inbox" data-id="${esc(i.id)}"><span class="t">${esc(i.desc||(i.type==='ingreso'?'Ingreso':'Pago con Apple Pay'))}</span><span class="s">${[i.type==='ingreso'?'Ingreso':'',i.date?shortDate(i.date):'',i.card?esc(i.card):''].filter(Boolean).join(' · ')}</span></button><span class="amt ${i.type==='ingreso'?'pos':''}">${i.type==='ingreso'?'+':''}${money(i.amount)}</span></li>`).join('')}</ul>`):'';
   return page(`${hi}${S.set.name?', '+S.set.name:''}`,longDate(t))+`<div class="stack">${spend}${hoy}${inbox}${nAv?masList([['Avisos',plural(nAv,'aviso','avisos'),'open-sub','avisos']]):''}</div>`;
 }
 
@@ -1514,8 +1514,18 @@ function quickSheet(){
 /* gastos que vienen de Apple Pay (Atajos) llegan a una bandeja y se confirman con un toque */
 function inboxSheet(id){
   const it=S.inbox.find(x=>x.id===id);if(!it)return;
+  if(it.type==='ingreso'){
+    sheet({title:'Confirmar ingreso',required:'amount',data:{amount:it.amount,cat:TXCATS.ingreso.includes(it.cat)?it.cat:TXCATS.ingreso[0],desc:it.desc||'',date:it.date||today()},
+      pre:'<p class="note" style="margin-bottom:14px">Llegó desde tu Atajo. Es dinero extra: va al bolsillo «Dinero extra».</p>',
+      fields:[{k:'amount',l:'Monto',t:'number'},{k:'cat',l:'¿De qué es?',t:'pick',o:TXCATS.ingreso},{k:'desc',l:'Nota'},{k:'date',l:'Fecha',t:'date'}],
+      onSave:v=>{if(!(v.amount>0)){toast('Pon el monto');return false}
+        S.tx.unshift({id:uid(),type:'ingreso',amount:v.amount,cat:v.cat||TXCATS.ingreso[0],desc:v.desc,date:v.date||today()});
+        remove(S.inbox,id);ui.month=(v.date||today()).slice(0,7);toast('Ingreso guardado')},
+      onDelete:()=>{remove(S.inbox,id);toast('Descartado')}});
+    return;
+  }
   sheet({title:'Confirmar gasto',required:'amount',data:{amount:it.amount,cat:it.cat||merchCat(it.desc)||lastCat()||'',desc:it.desc||'',date:it.date||today(),src:lastSrc()},
-    pre:`<p class="note" style="margin-bottom:14px">Llegó desde Apple Pay${it.card?' ('+esc(it.card)+')':''}. Elige en qué fue y guárdalo.</p>`,
+    pre:`<p class="note" style="margin-bottom:14px">Llegó ${it.card?'desde Apple Pay ('+esc(it.card)+')':'desde tu Atajo'}. Elige en qué fue y guárdalo.</p>`,
     fields:[{k:'amount',l:'Monto',t:'number'},{k:'cat',l:'¿En qué fue?',t:'pick',o:TXCATS.gasto},{k:'src',l:'¿De dónde salió?',t:'pick',o:SRCS},{k:'desc',l:'Comercio o nota'},{k:'date',l:'Fecha',t:'date'}],
     onSave:v=>{if(!(v.amount>0)){toast('Pon el monto');return false}
       if(!v.cat){toast('Elige en qué fue');return false}
@@ -1537,8 +1547,16 @@ async function pullInbox(){
       const g=await fetchT(ghUrl(dir+'/'+f.name)+'?ref='+encodeURIComponent(br),{headers:ghHead(),cache:'no-store'});
       if(g.status===200){
         let j=null;try{j=JSON.parse(unb64((await g.json()).content))}catch(e){}
-        const rec=j&&typeof j==='object'?cleanRec('inbox',{id,amount:parseAmt(j.monto??j.amount),desc:j.comercio??j.desc,card:j.tarjeta??j.card,date:j.fecha??j.date}):null;
-        if(rec){rec.cat=merchCat(rec.desc);S.inbox.unshift(rec);n++}
+        if(j&&typeof j==='object'){
+          const tp=/^ing/i.test(String(j.tipo??j.type??''))?'ingreso':'gasto',amount=parseAmt(j.monto??j.amount),desc=String(j.comercio??j.desc??'').slice(0,80),dt=String(j.fecha??j.date??''),catIn=String(j.categoria??j.cat??'').trim();
+          if(/^s[ií]$/i.test(String(j.directo??''))&&amount>0&&amount<1e7){
+            /* el Atajo ya eligió la categoría: se anota directo, sin pasar por «Por confirmar» */
+            if(!S.tx.some(x=>x.id===id)){const t=cleanRec('tx',{id,type:tp,amount,cat:TXCATS[tp].includes(catIn)?catIn:(tp==='gasto'?'Otros':TXCATS.ingreso[0]),desc,date:isD(dt)?dt:today(),...(tp==='gasto'&&String(j.bolsillo??'')==='extra'?{src:'extra'}:{})});if(t){S.tx.unshift(t);n++}}
+          }else{
+            const rec=cleanRec('inbox',{id,type:tp,amount,desc,card:j.tarjeta??j.card,date:dt});
+            if(rec){rec.cat=tp==='gasto'?(TXCATS.gasto.includes(catIn)?catIn:merchCat(rec.desc)):(TXCATS.ingreso.includes(catIn)?catIn:'');S.inbox.unshift(rec);n++}
+          }
+        }
       }
     }
     await fetchT(ghUrl(dir+'/'+f.name),{method:'DELETE',headers:ghHead(),body:JSON.stringify({message:'bandeja: leído',sha:f.sha,branch:br})}).catch(()=>{});
@@ -1892,7 +1910,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-15.1 préstamo con saldo real y descuento automático';
+const APP_V='2026-10-15.2 atajos de gasto e ingreso';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
