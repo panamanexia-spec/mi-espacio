@@ -815,7 +815,14 @@ function billItems(from,to){
   }));
   return out.sort((a,b)=>a.date.localeCompare(b.date)||a.b.name.localeCompare(b.b.name));
 }
-const qWindow=t=>{const ym=t.slice(0,7),ld=lastDay(+ym.slice(0,4),+ym.slice(5,7));return +t.slice(8)<=15?[ym+'-01',ym+'-15']:[ym+'-16',`${ym}-${pad(ld)}`]};
+/* tu quincena empieza el día que te pagan: del 15 al penúltimo día del mes, y del último día del mes al 14 */
+const qWindow=t=>{
+  let y=+t.slice(0,4),m=+t.slice(5,7);const d=+t.slice(8),ld=lastDay(y,m);
+  if(d>=15&&d<ld)return [`${y}-${pad(m)}-15`,`${y}-${pad(m)}-${pad(ld-1)}`];
+  if(d>=ld){const n=m===12?[y+1,1]:[y,m+1];return [`${y}-${pad(m)}-${pad(ld)}`,`${n[0]}-${pad(n[1])}-14`]}
+  const p=m===1?[y-1,12]:[y,m-1];return [`${p[0]}-${pad(p[1])}-${pad(lastDay(p[0],p[1]))}`,`${y}-${pad(m)}-14`];
+};
+const qLabel=(a,b)=>{const f=x=>`${+x.slice(8)} de ${MESES[+x.slice(5,7)-1]}`;return a.slice(5,7)===b.slice(5,7)?`Del ${+a.slice(8)} al ${f(b)}`:`Del ${f(a)} al ${f(b)}`};
 const billsMonthly=()=>S.bills.filter(b=>b.active!=='no'&&b.payroll!=='si').reduce((a,b)=>a+b.amt*({quincenal:2,mensual:1,bimestral:.5,unico:0}[b.freq]||0)*(b.to&&b.to<today()?0:1),0);
 function payInfo(){
   const t=today(),[qa,qb]=qWindow(t),items=billItems(addDays(t,-60),qb).filter(i=>i.date>=qa||!i.paid);
@@ -1384,7 +1391,7 @@ function billCheckSheet(bid,d){
 const billRow=i=>`<li class="row ${i.paid?'done':''}${i.st==='vencido'?' late':''}"><button class="chk" type="button" role="checkbox" aria-checked="${i.paid}" aria-label="${i.paid?'Quitar el check de':'Marcar como pagado'}: ${esc(i.b.name)}" data-act="bill-check" data-id="${esc(i.b.id)}" data-d="${i.date}">${i.paid?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(i.b.id)}"><span class="t">${esc(i.b.name)}</span><span class="s">${i.paid?`Pagado el ${shortDate(i.tx.date)}`:`Pago el ${shortDate(i.date)}${i.lim?` · límite ${shortDate(i.lim)}`:''}${i.b.parts==='si'&&i.tot>0?` · llevas ${money(i.tot)}, faltan ${money(i.rest)}`:i.ap<i.b.amt?` · aparta ${money(i.ap)}`:''}`}</span>${i.b.note&&!i.paid?`<span class="s">${esc(i.b.note)}</span>`:''}</button>${i.st==='vencido'?pill('Vencido','bad'):''}<span class="amt">${i.paid||i.b.varia!=='si'?'':'≈ '}${money(i.b.parts==='si'?(i.paid?i.tot:i.rest):i.tx?i.tx.amount:i.b.amt)}</span></li>`;
 function vPay(){
   const pi=payInfo();
-  return det('Por pagar esta quincena',perLabel(nowYM,+today().slice(8)<=15?'q1':'q2'),addBtn('Pago','add-bill'))+
+  return det('Por pagar esta quincena',qLabel(...qWindow(today())),addBtn('Pago','add-bill'))+
   `<section class="card" aria-label="Esta quincena"><b class="big-s">Me queda esta quincena: ${(()=>{const q=qLeft();return q.left<0?'− '+money(-q.left):money(q.left)})()}</b><p class="note" style="margin:4px 0 8px">Entró ${money(qLeft().inc)} · ya pagaste ${money(qLeft().out)} · te falta pagar ${money(pi.pagas-pi.ya)}</p>
    <p class="note" style="margin-bottom:12px">Un pago sin check solo está apartado: todavía no es gasto. Al darle check anotas lo que pagaste de verdad.</p>
    ${pi.items.length?`<ul class="list">${pi.items.slice().sort((a,b)=>a.paid-b.paid).map(billRow).join('')}</ul>`:empty('No tienes pagos para esta quincena. Toca «Pago» para programar uno.')}
@@ -1392,14 +1399,14 @@ function vPay(){
   <section class="card" aria-labelledby="h-tp" style="margin-top:16px"><h2 id="h-tp">Pagos que se repiten</h2>${(()=>{const R=S.bills.filter(b=>b.freq!=='unico'&&!(b.to&&b.to<today())).sort((a,b)=>b.amt-a.amt);return R.length?`<ul class="list">${R.map(b=>`<li class="row"><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(b.id)}"><span class="t">${esc(b.name)}</span><span class="s">${FREQT[b.freq]} · ${billWhen(b)}${b.lim?` · límite el ${b.lim}`:''}${splitOk(b)?' · dividido en 2 quincenas':''}${b.varia==='si'?' · monto variable':''}${b.payroll==='si'?' · por planilla':''}${b.active==='no'?' · en pausa':''}</span></button><span class="amt">${b.varia==='si'?'≈ ':''}${money(b.amt)}</span></li>`).join('')}</ul>`:empty('Aquí van tus pagos que se repiten, como luz o internet. Toca «Pago» para agregar el primero.')})()}</section>${(()=>{const U=S.bills.filter(b=>b.freq==='unico').sort((a,b)=>a.once.localeCompare(b.once)||a.name.localeCompare(b.name));return U.length?foldCard(`<section class="card"><ul class="list">${U.map(b=>`<li class="row"><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(b.id)}"><span class="t">${esc(b.name)}</span><span class="s">${FREQT[b.freq]} · ${billWhen(b)}${b.lim?` · límite el ${b.lim}`:''}${splitOk(b)?' · dividido en 2 quincenas':''}${b.varia==='si'?' · monto variable':''}${b.payroll==='si'?' · por planilla':''}${b.active==='no'?' · en pausa':''}</span></button><span class="amt">${b.varia==='si'?'≈ ':''}${money(b.amt)}</span></li>`).join('')}</ul></section>`,'Pagos de una sola vez',String(U.length)):''})()}`;
 }
 function vPlan(){
-  const ym=ui.pm,ld=lastDay(+ym.slice(0,4),+ym.slice(5,7)),cols=salCols(ym,true),its=billItems(`${ym}-01`,`${ym}-${pad(ld)}`),lbl=['Pago del 15','Pago de fin de mes'];
-  const rowsFor=i=>{const R=[];its.forEach(x=>{if(!x.paid&&splitOk(x.b)){R.push({x,i:0,amt:x.b.part1,part:' (parte 1)'});R.push({x,i:1,amt:r2(x.b.amt-x.b.part1),part:' (parte 2)'})}else R.push({x,i:+x.date.slice(8)<=15?0:1,amt:x.b.parts==='si'?x.b.amt:x.tx?x.tx.amount:x.b.amt,part:''})});return R.filter(q=>q.i===i)};
+  const ym=ui.pm,ld=lastDay(+ym.slice(0,4),+ym.slice(5,7)),cols=salCols(ym,true),nx=shiftM(ym,1),W=[[`${ym}-15`,`${ym}-${pad(ld-1)}`],[`${ym}-${pad(ld)}`,`${nx}-14`]],its=billItems(`${ym}-15`,`${nx}-14`),lbl=['Quincena del 15','Quincena de fin de mes'];
+  const rowsFor=i=>{const R=[];its.forEach(x=>{if(!x.paid&&splitOk(x.b)){R.push({x,i:0,amt:x.b.part1,part:' (parte 1)'});R.push({x,i:1,amt:r2(x.b.amt-x.b.part1),part:' (parte 2)'})}else R.push({x,i:x.date>=W[1][0]?1:0,amt:x.b.parts==='si'?x.b.amt:x.tx?x.tx.amount:x.b.amt,part:''})});return R.filter(q=>q.i===i)};
   const col=i=>{
-    const L=rowsFor(i),cd=i===0?`${ym}-15`:`${ym}-${pad(ld)}`,[wa,wb]=i===0?[`${ym}-01`,`${ym}-15`]:[`${ym}-16`,`${ym}-${pad(ld)}`];
+    const L=rowsFor(i),cd=W[i][0],[wa,wb]=W[i];
     const DD=S.debts.filter(d=>d.ded>0&&d.payroll==='si'&&(!d.dedFrom||d.dedFrom<=cd)),ddTx=new Set(S.debts.flatMap(d=>d.pays.map(p=>p.tx)).filter(Boolean));
     const EX=S.tx.filter(x=>((x.type==='gasto'&&x.src!=='fondo')||x.type==='ahorro')&&!x.bill&&!ddTx.has(x.id)&&x.date>=wa&&x.date<=wb).sort((a,b)=>a.date.localeCompare(b.date));
     const pay=r2(L.filter(q=>q.x.b.fund!=='si').reduce((a,q)=>a+q.amt,0)+DD.reduce((a,d)=>a+d.ded,0)+EX.reduce((a,x)=>a+x.amount,0)),entra=cols[i].net,libre=r2(entra-pay);
-    return `<section class="card" aria-label="${lbl[i]}"><h2>${lbl[i]}</h2><ul class="list"><li class="kv"><span class="k">Entra (neto de esa quincena)</span><span class="v pos">${money(entra)}</span></li>
+    return `<section class="card" aria-label="${lbl[i]}"><h2>${lbl[i]}</h2><p class="note" style="margin:-6px 0 8px">${qLabel(W[i][0],W[i][1])}</p><ul class="list"><li class="kv"><span class="k">Entra (neto de esa quincena)</span><span class="v pos">${money(entra)}</span></li>
     ${DD.map(d=>`<li class="kv"><span class="k">Descuento de planilla: ${esc(d.name)}</span><span class="v neg">− ${money(d.ded)}</span></li>`).join('')}${EX.map(x=>`<li class="kv"><span class="k">✓ ${esc(x.desc||x.cat)} <span class="note">${shortDate(x.date)}</span></span><span class="v neg">− ${money(x.amount)}</span></li>`).join('')}
     ${L.map(q=>`<li class="kv"><span class="k">${q.x.paid?'✓ ':''}${esc(q.x.b.name)}${q.part} <span class="note">${shortDate(q.x.date)}${q.x.b.fund==='si'?' · del fondo':''}</span></span><span class="v ${q.x.b.fund==='si'?'note':'neg'}">${q.x.b.fund==='si'?'':'− '}${q.x.b.varia==='si'&&!q.x.paid?'≈ ':''}${money(q.amt)}</span></li>`).join('')||(DD.length||EX.length?'':`<li class="kv"><span class="k note">Sin pagos en esta quincena</span><span class="v"></span></li>`)}
     <li class="kv"><span class="k">Se paga</span><span class="v">${money(pay)}</span></li>
@@ -1407,7 +1414,7 @@ function vPlan(){
     ${libre<0?`<p class="note neg" style="margin-top:8px">Te faltan ${money(-libre)}.</p>`:''}</section>`};
   return det('Mi plan de quincenas','Lo que entra, lo que se paga y lo que queda libre')+
   `<div class="mnav" style="margin-bottom:16px"><button class="iconbtn" type="button" data-act="pm-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ym)}</b><button class="iconbtn" type="button" data-act="pm-next" aria-label="Mes siguiente">${ic('right')}</button></div>
-  <div class="grid">${col(0)}${col(1)}</div><p class="note" style="margin-top:14px">Cada columna junta lo que vence en esa quincena (del 1 al 15, o del 16 a fin de mes) y el neto de tu salario que llega en ella. Un pago dividido aparece en las dos columnas, una parte en cada una. Los pagos por planilla no aparecen porque ya están descontados.</p>`;
+  <div class="grid">${col(0)}${col(1)}</div><p class="note" style="margin-top:14px">Cada columna es lo que te dura cada pago: el que te llega el 15 te dura hasta el penúltimo día del mes, y el de fin de mes te dura hasta el 14. Junta lo que vence en esos días y lo que te llega. Un pago dividido aparece en las dos columnas, una parte en cada una. Los pagos por planilla no aparecen porque ya están descontados.</p>`;
 }
 function vCuenta(){
   const c=cuenta(),p=c.pk,row=(k,v,cls='',note='')=>`<li class="kv"><span class="k">${k}${note?`<span class="note" style="display:block">${note}</span>`:''}</span><span class="v ${cls}">${v}</span></li>`;
@@ -1964,7 +1971,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-16.2 plan más sencillo';
+const APP_V='2026-10-16.3 quincenas del 15 al 30';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
