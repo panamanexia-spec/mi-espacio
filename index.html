@@ -456,7 +456,7 @@ function cleanRec(c,r){
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
   if(c==='inbox'){o.type=o.type==='ingreso'?'ingreso':'gasto';o.amount=+o.amount;if(!(o.amount>0&&o.amount<1e7))return null;o.desc=String(o.desc||'').slice(0,80);o.card=String(o.card||'').slice(0,30);o.cat=String(o.cat||'').slice(0,40);if(o.date&&!isD(o.date))o.date=''}
   if(c==='goals'){o.target=Number.isFinite(+o.target)&&+o.target>0?+o.target:0;o.done=!!o.done;o.final=Number.isFinite(+o.final)?+o.final:0;o.aportes=Number.isInteger(+o.aportes)&&+o.aportes>=0?+o.aportes:0}
-  if(c==='bills'){o.amt=Number.isFinite(+o.amt)&&+o.amt>=0&&+o.amt<1e9?+o.amt:0;if(!['15','fin','dia'].includes(o.when))o.when='15';o.day=Number.isInteger(+o.day)&&+o.day>=1&&+o.day<=31?+o.day:1;if(!['quincenal','mensual','bimestral','unico'].includes(o.freq))o.freq='mensual';if(o.freq==='unico'&&!isD(o.once))o.freq='mensual';if(o.freq!=='unico'){delete o.once;delete o.until}else if(!isD(o.until))delete o.until;if(!isD(o.to))delete o.to;if(o.kind!=='ahorro')delete o.kind;if(o.fund!=='si')delete o.fund;if(!o.goal)delete o.goal;if(typeof o.debt!=='string'||!SAFE.test(o.debt))delete o.debt;if(!o.note)delete o.note;if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.active!=='no')o.active='si';if(!isD(o.from))o.from=ymd0();if(o.varia!=='si')delete o.varia;if(Number.isInteger(+o.lim)&&+o.lim>=1&&+o.lim<=31)o.lim=+o.lim;else delete o.lim;if(o.split==='si'&&Number.isFinite(+o.part1)&&+o.part1>0&&+o.part1<o.amt)o.part1=+o.part1;else{delete o.split;delete o.part1}if(typeof o.lg!=='string'||!SAFE.test(o.lg))delete o.lg}
+  if(c==='bills'){o.amt=Number.isFinite(+o.amt)&&+o.amt>=0&&+o.amt<1e9?+o.amt:0;if(!['15','fin','dia'].includes(o.when))o.when='15';o.day=Number.isInteger(+o.day)&&+o.day>=1&&+o.day<=31?+o.day:1;if(!['quincenal','mensual','bimestral','unico'].includes(o.freq))o.freq='mensual';if(o.freq==='unico'&&!isD(o.once))o.freq='mensual';if(o.freq!=='unico'){delete o.once;delete o.until}else if(!isD(o.until))delete o.until;if(!isD(o.to))delete o.to;if(o.kind!=='ahorro')delete o.kind;if(o.fund!=='si')delete o.fund;if(o.parts!=='si'||o.freq!=='unico')delete o.parts;if(!o.goal)delete o.goal;if(typeof o.debt!=='string'||!SAFE.test(o.debt))delete o.debt;if(!o.note)delete o.note;if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.active!=='no')o.active='si';if(!isD(o.from))o.from=ymd0();if(o.varia!=='si')delete o.varia;if(Number.isInteger(+o.lim)&&+o.lim>=1&&+o.lim<=31)o.lim=+o.lim;else delete o.lim;if(o.split==='si'&&Number.isFinite(+o.part1)&&+o.part1>0&&+o.part1<o.amt)o.part1=+o.part1;else{delete o.split;delete o.part1}if(typeof o.lg!=='string'||!SAFE.test(o.lg))delete o.lg}
   if(c==='debts'){['bal','rate','pay','init'].forEach(k=>{o[k]=Number.isFinite(+o[k])&&+o[k]>=0&&+o[k]<1e9?+o[k]:0});o.rate=Math.min(o.rate,1000);if(!(o.init>=o.bal))o.init=o.bal;if(!['si','no'].includes(o.payroll))o.payroll='no';if(o.late!=='si')o.late='no';if(o.bank!=='si')delete o.bank;if(Number.isFinite(+o.ded)&&+o.ded>0&&+o.ded<1e7)o.ded=+o.ded;else{delete o.ded;delete o.dedFrom}if(o.dedFrom&&!isD(o.dedFrom))delete o.dedFrom;
     o.adj=Array.isArray(o.adj)?o.adj.slice(-120).map(x=>x&&typeof x==='object'&&isD(x.d)&&Number.isFinite(+x.b)&&+x.b>=0&&+x.b<1e9?{d:x.d,b:+x.b}:null).filter(Boolean):[];if(!o.adj.length)delete o.adj;
     o.pays=Array.isArray(o.pays)?o.pays.slice(0,500).map((p,i)=>p&&typeof p==='object'&&isD(p.d)&&Number.isFinite(+p.a)&&+p.a>0&&+p.a<1e9?{id:typeof p.id==='string'&&SAFE.test(p.id)?p.id:'p'+i,d:p.d,a:+p.a,k:p.k==='extra'?'extra':p.k==='plan'?'plan':'cuota',...(p.x?{x:1}:{}),cap:Number.isFinite(+p.cap)&&+p.cap>=0?+p.cap:0,...(typeof p.tx==='string'&&SAFE.test(p.tx)?{tx:p.tx}:{})}:null).filter(Boolean):[]}
@@ -809,8 +809,9 @@ const splitOk=b=>b.split==='si'&&b.part1>0&&b.part1<b.amt;
 function billItems(from,to){
   const t=today(),out=[];
   S.bills.filter(b=>b.active!=='no'&&b.payroll!=='si').forEach(b=>billDates(b,from,to).forEach(d=>{
-    const tx=billPaid(b,d),lim=billLimit(b,d),end=lim||d;
-    out.push({b,date:d,lim,tx,paid:!!tx,ap:splitOk(b)&&d>t?b.part1:b.amt,st:tx?'pagado':end<t?'vencido':d<t?'toca':d===t?'hoy':'proximo'});
+    const pt=b.parts==='si'?S.tx.filter(x=>x.bill===b.id&&x.for===d):[],tot=r2(pt.reduce((a,x)=>a+x.amount,0));
+    const tx=b.parts==='si'?(tot>=b.amt-0.005?pt[0]:null):billPaid(b,d),lim=billLimit(b,d),end=lim||d;
+    out.push({b,date:d,lim,tx,paid:!!tx,tot,rest:b.parts==='si'?Math.max(0,r2(b.amt-tot)):b.amt,ap:b.parts==='si'?Math.max(0,r2(b.amt-tot)):splitOk(b)&&d>t?b.part1:b.amt,st:tx?'pagado':end<t?'vencido':d<t?'toca':d===t?'hoy':'proximo'});
   }));
   return out.sort((a,b)=>a.date.localeCompare(b.date)||a.b.name.localeCompare(b.b.name));
 }
@@ -1329,9 +1330,9 @@ function billSheet(id){
   sheet({title:b?'Editar pago programado':'Nuevo pago programado',required:'name',data:b?{...b,day:b.when==='dia'?b.day:'',lim:b.lim||'',part1:b.part1||'',split:b.split||'no',varia:b.varia||'no',once:b.once||today(),until:b.until||'',to:b.to||'',dest:dest0,goal:b.goal||goalNames()[0],debt:b.debt||'',note:b.note||''}:{when:'15',day:'',freq:'mensual',payroll:'no',active:'si',cat:TXCATS.gasto[0],varia:'no',split:'no',lim:'',part1:'',once:today(),until:'',to:'',dest:'gasto',goal:goalNames()[0],debt:'',note:''},
     pre:'<p class="note" style="margin-bottom:14px">Un pago programado solo aparta el dinero. Se vuelve gasto cuando le das el check.</p>',
     fields:[{k:'name',l:'¿Qué pagas?',ph:'Luz, internet, carro'},{k:'varia',l:'¿El monto es fijo o cambia?',t:'select',o:[['no','Es fijo'],['si','Cambia cada vez (pongo un estimado)']]},{k:'amt',l:'Monto',t:'number',ph:'0.00',lab:v=>v.varia==='si'?'Monto estimado (se aparta este)':'Monto'},{k:'cat',l:'Categoría',t:'select',o:TXCATS.gasto},
-      {k:'dest',l:'¿A dónde va este dinero?',t:'select',o:[['gasto','Es un gasto'],['ahorro','Es ahorro (va a una meta)'],['fondo','Es un gasto que sale de mi fondo']]},
+      {k:'dest',l:'¿Qué clase de pago es?',t:'select',o:[['gasto','Un gasto normal'],['ahorro','Dinero que aparto para una meta'],['fondo','Un gasto que pago con lo que ya tengo guardado en la meta']]},
       {k:'goal',l:'¿A qué meta?',t:'select',o:goalNames(),show:v=>v.dest==='ahorro'||v.dest==='fondo'},
-      {k:'debt',l:'¿Es el pago de una deuda?',t:'select',o:[['','No'],...S.debts.map(d=>[d.id,d.name])],show:v=>v.dest!=='ahorro'&&S.debts.length>0},
+      {k:'debt',l:'¿Con este pago bajas una deuda?',t:'select',o:[['','No'],...S.debts.map(d=>[d.id,'Sí: '+d.name])],show:v=>v.dest!=='ahorro'&&S.debts.length>0},
       {k:'freq',l:'¿Cada cuánto?',t:'select',o:[['unico','Una sola vez'],['quincenal','Cada quincena (15 y fin de mes)'],['mensual','Cada mes'],['bimestral','Cada 2 meses']]},
       {k:'once',l:'¿Qué día se paga?',t:'date',show:v=>v.freq==='unico'},
       {k:'until',l:'Pagar antes de (opcional)',t:'date',show:v=>v.freq==='unico'},
@@ -1361,25 +1362,26 @@ function billSheet(id){
 }
 function billCheckSheet(bid,d){
   const b=S.bills.find(x=>x.id===bid);if(!b||!isD(d))return;
-  const tx=billPaid(b,d);
+  const pts=b.parts==='si'?S.tx.filter(x=>x.bill===b.id&&x.for===d).sort((a,c)=>a.id.localeCompare(c.id)):[],ptot=r2(pts.reduce((a,x)=>a+x.amount,0));
+  const tx=b.parts==='si'?(ptot>=b.amt-0.005?pts[pts.length-1]:null):billPaid(b,d);
   if(tx){
     sheet({title:'Quitar el check',noSave:true,fields:[],pre:`<p class="note" style="margin-bottom:14px">Si quitas el check, se borra ${tx.type==='ahorro'?'el ahorro':'el gasto'} de ${money(tx.amount)} del ${longDate(tx.date)}${S.debts.some(x=>x.pays.some(p=>p.tx===tx.id))?' y el saldo de la deuda vuelve a subir':''}, y el pago vuelve a quedar apartado.</p>`,
       extra:[{label:'Quitar el check',fn:()=>{const dbt=S.debts.find(x=>x.pays.some(p=>p.tx===tx.id));if(dbt)revertPay(dbt,dbt.pays.find(p=>p.tx===tx.id));else remove(S.tx,tx.id);save();closeSheet();render();toast('Check quitado: se borró el movimiento')}}]});
     return;
   }
   const ah=b.kind==='ahorro',fd=b.fund==='si',dbt=!ah&&b.debt?S.debts.find(x=>x.id===b.debt):null;
-  sheet({title:`${ah?'Apartar':'Pagar'}: ${esc(b.name)}`,required:'amount',data:{amount:b.amt,date:today(),src:lastSrc()},
-    pre:`<p class="note" style="margin-bottom:14px">Pago del ${longDate(d)}.${b.varia==='si'?` Este pago cambia cada vez: se apartó el estimado (${money(b.amt)}), escribe el monto real.`:' Si pagaste un poco más o menos, cambia el monto.'}${fd?' Sale de tu fondo: no baja lo que tienes del salario.':''}${dbt?` Baja tu deuda «${esc(dbt.name)}».`:''}</p>`,
+  sheet({title:`${ah?'Apartar':'Pagar'}: ${esc(b.name)}`,required:'amount',data:{amount:b.parts==='si'?r2(b.amt-ptot):b.amt,date:today(),src:lastSrc()},
+    pre:`<p class="note" style="margin-bottom:14px">Pago del ${longDate(d)}.${b.parts==='si'?` Vas pagando por partes: llevas ${money(ptot)} de ${money(b.amt)}. Escribe lo que pagas ahora.`:''}${b.varia==='si'?` Este pago cambia cada vez: se apartó el estimado (${money(b.amt)}), escribe el monto real.`:' Si pagaste un poco más o menos, cambia el monto.'}${fd?' Sale de tu fondo: no baja lo que tienes del salario.':''}${dbt?` Baja tu deuda «${esc(dbt.name)}».`:''}</p>`,
     fields:[{k:'amount',l:ah?'Monto apartado':b.varia==='si'?'Monto real pagado':'Monto pagado',t:'number',ph:'0.00'},{k:'date',l:'Fecha',t:'date'},...(fd?[]:[{k:'src',l:'¿De dónde salió?',t:'pick',o:SRCS}])],
     onSave:v=>{
       if(!(v.amount>0)){toast('Pon el monto');return false}
-      const id=billTxId(b,d);delete S.del[id];
+      const id=b.parts==='si'?billTxId(b,d)+'-p'+(pts.length+1):billTxId(b,d);delete S.del[id];
       const rec={id,type:ah?'ahorro':'gasto',amount:v.amount,cat:ah?(b.goal||'Ahorro'):dbt?'Deudas':b.cat,desc:b.name,date:v.date||today(),for:d,bill:b.id,...(fd?{src:'fondo',...(b.goal?{goal:b.goal}:{})}:v.src==='extra'?{src:'extra'}:{})};
       const i=S.tx.findIndex(x=>x.id===id);if(i>=0)S.tx[i]={...S.tx[i],...rec};else S.tx.unshift(rec);
       if(dbt&&!dbt.pays.some(p=>p.tx===id)){const cap=dbt.bank==='si'?0:Math.min(dbt.bal,v.amount);dbt.pays.unshift({id:('bp-'+id).slice(0,64),d:rec.date,a:v.amount,k:'extra',cap:r2(cap),tx:id});dbt.pays=dbt.pays.slice(0,500);dbt.bal=r2(dbt.bal-cap)}
-      if(!fd)rememberSrc(v.src);ui.month=rec.date.slice(0,7);toast(ah?'Listo: ya quedó apartado':'Listo: ya es un gasto')}});
+      if(!fd)rememberSrc(v.src);ui.month=rec.date.slice(0,7);toast(ah?'Listo: ya quedó apartado':b.parts==='si'&&ptot+v.amount<b.amt-0.005?`Listo. Faltan ${money(r2(b.amt-ptot-v.amount))}`:'Listo: ya es un gasto')}});
 }
-const billRow=i=>`<li class="row ${i.paid?'done':''}${i.st==='vencido'?' late':''}"><button class="chk" type="button" role="checkbox" aria-checked="${i.paid}" aria-label="${i.paid?'Quitar el check de':'Marcar como pagado'}: ${esc(i.b.name)}" data-act="bill-check" data-id="${esc(i.b.id)}" data-d="${i.date}">${i.paid?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(i.b.id)}"><span class="t">${esc(i.b.name)}</span><span class="s">${i.paid?`Pagado el ${shortDate(i.tx.date)}`:`Pago el ${shortDate(i.date)}${i.lim?` · límite ${shortDate(i.lim)}`:''}${i.ap<i.b.amt?` · aparta ${money(i.ap)}`:''}`}</span>${i.b.note&&!i.paid?`<span class="s">${esc(i.b.note)}</span>`:''}</button>${i.st==='vencido'?pill('Vencido','bad'):''}<span class="amt">${i.paid||i.b.varia!=='si'?'':'≈ '}${money(i.tx?i.tx.amount:i.b.amt)}</span></li>`;
+const billRow=i=>`<li class="row ${i.paid?'done':''}${i.st==='vencido'?' late':''}"><button class="chk" type="button" role="checkbox" aria-checked="${i.paid}" aria-label="${i.paid?'Quitar el check de':'Marcar como pagado'}: ${esc(i.b.name)}" data-act="bill-check" data-id="${esc(i.b.id)}" data-d="${i.date}">${i.paid?ic('check'):''}</button><button class="row-main" type="button" data-act="edit-bill" data-id="${esc(i.b.id)}"><span class="t">${esc(i.b.name)}</span><span class="s">${i.paid?`Pagado el ${shortDate(i.tx.date)}`:`Pago el ${shortDate(i.date)}${i.lim?` · límite ${shortDate(i.lim)}`:''}${i.b.parts==='si'&&i.tot>0?` · llevas ${money(i.tot)}, faltan ${money(i.rest)}`:i.ap<i.b.amt?` · aparta ${money(i.ap)}`:''}`}</span>${i.b.note&&!i.paid?`<span class="s">${esc(i.b.note)}</span>`:''}</button>${i.st==='vencido'?pill('Vencido','bad'):''}<span class="amt">${i.paid||i.b.varia!=='si'?'':'≈ '}${money(i.b.parts==='si'?(i.paid?i.tot:i.rest):i.tx?i.tx.amount:i.b.amt)}</span></li>`;
 function vPay(){
   const pi=payInfo();
   return det('Por pagar esta quincena',perLabel(nowYM,+today().slice(8)<=15?'q1':'q2'),addBtn('Pago','add-bill'))+
@@ -1391,7 +1393,7 @@ function vPay(){
 }
 function vPlan(){
   const ym=ui.pm,ld=lastDay(+ym.slice(0,4),+ym.slice(5,7)),cols=salCols(ym,true),its=billItems(`${ym}-01`,`${ym}-${pad(ld)}`),lbl=['Pago del 15','Pago de fin de mes'];
-  const rowsFor=i=>{const R=[];its.forEach(x=>{if(!x.paid&&splitOk(x.b)){R.push({x,i:0,amt:x.b.part1,part:' (parte 1)'});R.push({x,i:1,amt:r2(x.b.amt-x.b.part1),part:' (parte 2)'})}else R.push({x,i:+x.date.slice(8)<=15?0:1,amt:x.tx?x.tx.amount:x.b.amt,part:''})});return R.filter(q=>q.i===i)};
+  const rowsFor=i=>{const R=[];its.forEach(x=>{if(!x.paid&&splitOk(x.b)){R.push({x,i:0,amt:x.b.part1,part:' (parte 1)'});R.push({x,i:1,amt:r2(x.b.amt-x.b.part1),part:' (parte 2)'})}else R.push({x,i:+x.date.slice(8)<=15?0:1,amt:x.b.parts==='si'?x.b.amt:x.tx?x.tx.amount:x.b.amt,part:''})});return R.filter(q=>q.i===i)};
   const col=i=>{
     const L=rowsFor(i),cd=i===0?`${ym}-15`:`${ym}-${pad(ld)}`,[wa,wb]=i===0?[`${ym}-01`,`${ym}-15`]:[`${ym}-16`,`${ym}-${pad(ld)}`];
     const DD=S.debts.filter(d=>d.ded>0&&d.payroll==='si'&&(!d.dedFrom||d.dedFrom<=cd)),ddTx=new Set(S.debts.flatMap(d=>d.pays.map(p=>p.tx)).filter(Boolean));
@@ -1962,7 +1964,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-16.1 plan de quincenas';
+const APP_V='2026-10-16.2 plan más sencillo';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
