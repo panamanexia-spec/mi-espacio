@@ -450,7 +450,7 @@ function cleanRec(c,r){
   if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.id!=='string'||!SAFE.test(r.id))return null;
   const o={...r};
   TEXTF.forEach(k=>{if(k in o&&typeof o[k]!=='string')o[k]=o[k]==null||typeof o[k]==='object'?'':String(o[k])});
-  ['date','due','payFrom','for','created','doneOn','since','end','once','to','payTo','until'].forEach(k=>{if(k in o&&o[k]!==''&&!isD(o[k]))o[k]=''});
+  ['date','due','payFrom','for','created','doneOn','since','end','once','to','payTo','until','qk'].forEach(k=>{if(k in o&&o[k]!==''&&!isD(o[k]))o[k]=''});
   if('time' in o&&o.time!==''&&!isT(o.time))o.time='';
   if('u' in o&&!Number.isFinite(o.u))delete o.u;
   if(c==='events'){if(!isD(o.date))return null;if(!['ninguna','diaria','semanal','mensual','anual'].includes(o.repeat))o.repeat='ninguna';if(!o.doneOn||typeof o.doneOn!=='object'||Array.isArray(o.doneOn))o.doneOn={}}
@@ -475,11 +475,11 @@ function cleanRec(c,r){
     if(+o.bonus>0)o.bonus=+o.bonus;else delete o.bonus;
     if(!['mensual','quincenal','semanal'].includes(o.bonusFreq))delete o.bonusFreq;
     if(!o.payFrom)delete o.payFrom;
-    if(!['seguro','variable'].includes(o.stab))delete o.stab;if(o.bolsillo!=='salario')delete o.bolsillo;if(o.quick!=='si')delete o.quick;if(!o.payTo)delete o.payTo;if(o.feeOv&&typeof o.feeOv==='object'&&!Array.isArray(o.feeOv)){const f={};Object.entries(o.feeOv).slice(0,24).forEach(([k,v])=>{if(isD(k)&&Number.isFinite(+v)&&+v>0&&+v<1e7)f[k]=+v});if(Object.keys(f).length)o.feeOv=f;else delete o.feeOv}else delete o.feeOv;
+    if(!['seguro','variable'].includes(o.stab))delete o.stab;if(o.bolsillo!=='salario')delete o.bolsillo;if(o.quick!=='si')delete o.quick;if(!o.payTo)delete o.payTo;if(o.inc&&typeof o.inc==='object'&&!Array.isArray(o.inc)){const m={};Object.entries(o.inc).slice(0,160).forEach(([k,v])=>{if(/^([bc]:)?\d{4}-\d{2}-\d{2}$/.test(k)&&v&&typeof v==='object')m[k]=v.x?{x:1,d:isD(v.d)?v.d:ymd0()}:{d:isD(v.d)?v.d:ymd0(),n:String(v.n==null||typeof v.n==='object'?'':v.n).slice(0,200),a:Number.isFinite(+v.a)&&+v.a>=0&&+v.a<1e7?+v.a:0,l:String(v.l==null||typeof v.l==='object'?'':v.l).slice(0,80)}});if(Object.keys(m).length)o.inc=m;else delete o.inc}else delete o.inc;if(o.feeOv&&typeof o.feeOv==='object'&&!Array.isArray(o.feeOv)){const f={};Object.entries(o.feeOv).slice(0,24).forEach(([k,v])=>{if(isD(k)&&Number.isFinite(+v)&&+v>0&&+v<1e7)f[k]=+v});if(Object.keys(f).length)o.feeOv=f;else delete o.feeOv}else delete o.feeOv;
     if(Number.isFinite(+o.comm)&&+o.comm>0&&+o.comm<1e7){o.comm=+o.comm;if(!['15','fin'].includes(o.commWhen))o.commWhen='fin'}else{delete o.comm;delete o.commWhen}
     if(Array.isArray(o.descs))o.descs=o.descs.slice(0,20).map((x,i)=>x&&typeof x==='object'&&Number.isFinite(+x.m)&&+x.m>0&&+x.m<1e7?{id:typeof x.id==='string'&&SAFE.test(x.id)?x.id:'d'+i,n:String(x.n==null||typeof x.n==='object'?'':x.n).slice(0,60),m:x.q?+x.m:Math.round(+x.m/2*100)/100,q:1,...(isD(x.from)?{from:x.from}:{}),...(isD(x.to)?{to:x.to}:{})}:null).filter(Boolean);else delete o.descs;
   }
-  if(c==='tx'){if(o.xtra){o.xtra=true;o.src='extra'}else delete o.xtra;if(o.src!=='extra'&&o.src!=='fondo')delete o.src;if(!Number.isFinite(+o.hrs)||+o.hrs<=0)delete o.hrs;if(!o.goal)delete o.goal;if(!o.dest)delete o.dest;if(typeof o.bill!=='string'||!SAFE.test(o.bill))delete o.bill;if(!['bono','comm'].includes(o.stream))delete o.stream;if('auto' in o)o.auto=!!o.auto;if(!Number.isFinite(+o.bruto)||+o.bruto<=0)delete o.bruto;if(!['mensual','quincenal','bimestral'].includes(o.repeat))o.repeat='';if(o.for==='')delete o.for;if(typeof o.from!=='string'||!SAFE.test(o.from))delete o.from;o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
+  if(c==='tx'){if(o.xtra){o.xtra=true;o.src='extra'}else delete o.xtra;if(o.src!=='extra'&&o.src!=='fondo')delete o.src;if(!Number.isFinite(+o.hrs)||+o.hrs<=0)delete o.hrs;if(!o.goal)delete o.goal;if(!o.dest)delete o.dest;if(!o.qk)delete o.qk;if(typeof o.bill!=='string'||!SAFE.test(o.bill))delete o.bill;if(!['bono','comm'].includes(o.stream))delete o.stream;if('auto' in o)o.auto=!!o.auto;if(!Number.isFinite(+o.bruto)||+o.bruto<=0)delete o.bruto;if(!['mensual','quincenal','bimestral'].includes(o.repeat))o.repeat='';if(o.for==='')delete o.for;if(typeof o.from!=='string'||!SAFE.test(o.from))delete o.from;o.amount=Number.isFinite(+o.amount)?+o.amount:0;if(!['ingreso','gasto','ahorro'].includes(o.type))o.type='gasto';if(!isD(o.date))o.date=ymd0()}
   if(c==='shop'||c==='tasks')o.done=!!o.done;
   if(c==='clients'&&!['brand','info','warn','bad','accent'].includes(o.kind))delete o.kind;
   if(c==='ideas')o.fav=!!o.fav;
@@ -592,7 +592,7 @@ const ui={tab:'home',sub:'',debt:'',dq:'',pm:nowYM,dx:'',dxd:'',cal:nowYM,sel:to
 function syncProj(){
   PROJ.length=0;S.clients.forEach(c=>{if(c.name&&c.name!=='Personal'&&!PROJ.includes(c.name))PROJ.push(c.name)});
   ECATS.length=0;ECATS.push('Personal',...PROJ,'Finanzas','Salud','Casa','Otros');
-  TXCATS.ingreso=['Dinero extra','Regalo','Venta','Otros ingresos'];
+  TXCATS.ingreso=['Identidad Prestada','Horas extra','Depósito','Transferencia / Yappy','Reembolso','Regalo','Otro','Dinero extra'];
   TXCATS.ahorro=['Ahorro','Emergencia','Metas',...S.goals.map(g=>g.name).filter(n=>n&&!['Ahorro','Emergencia','Metas'].includes(n))];
   let changed=false;
   S.clients.forEach(c=>{if(!KINDS.includes(c.kind)){c.kind=nextKind();changed=true}});
@@ -708,8 +708,8 @@ function periods(c,sk='main'){
   const past=dueDates(o,from,t),fut=dueDates(o,addDays(t,1),addDays(t,45)).slice(0,2);
   const all=[...past.slice(-8),...fut],paidBy=paidMap(c,sk,dueDates(o,addDays(from,-20),addDays(t,60)),from);
   return all.map(due=>{const f=sm.feeAt?sm.feeAt(due):fee,paid=paidBy[due]||0,falta=Math.max(0,f-paid);
-    const st=paid>=f-0.005?'pagado':due<t?'vencido':due===t?'hoy':'proximo';
-    return {due,paid,falta,st,s:sk,fee:f,label:sm.pre+dueLabel(o,due)}});
+    const key=encFor({s:sk,due}),st=paid>=f-0.005?'pagado':c.inc&&c.inc[key]?'incobrable':due<t?'vencido':due===t?'hoy':'proximo';
+    return {due,paid,falta:st==='incobrable'?0:falta,st,s:sk,fee:f,label:sm.pre+dueLabel(o,due),key}});
 }
 function cobro(c){
   const P=[...periods(c,'main'),...periods(c,'comm'),...periods(c,'bono')].sort((a,b)=>a.due.localeCompare(b.due));
@@ -831,7 +831,7 @@ function payInfo(){
 }
 /* «Me queda esta quincena» = lo que entró en la quincena − lo que ya pagaste (pagos con check, gastos y ahorro; lo que sale del fondo no cuenta) */
 function qLeft(){
-  const t=today(),[a,b]=qWindow(t),L=S.tx.filter(x=>x.date>=a&&x.date<=b),sum=f=>L.filter(f).reduce((q,x)=>q+x.amount,0);
+  const t=today(),[a,b]=qWindow(t),L=S.tx.filter(x=>x.qk?x.qk===a:x.date>=a&&x.date<=b),sum=f=>L.filter(f).reduce((q,x)=>q+x.amount,0);
   const inc=sum(x=>x.type==='ingreso'),out=sum(x=>(x.type==='gasto'&&x.src!=='fondo')||x.type==='ahorro');
   return {a,b,inc:r2(inc),out:r2(out),left:r2(inc-out)};
 }
@@ -934,10 +934,28 @@ function vWorkMain(){
   ${blk('Lo último que pasó',inc.length?`<ul class="list">${inc.map(txRow).join('')}</ul>`:empty('Aún no hay pagos de clientes.'),'mov-t','ingreso')}
   ${masList([['Clientes',S.clients.length?plural(S.clients.length,'cliente','clientes'):'','open-sub','clients'],['Cobros',cob.length?plural(cob.length,'por cobrar','por cobrar'):'','open-sub','cobros'],['Calendario de publicaciones',por?`${por} por salir`:'','open-pubcal',''],['Ideas generales','','open-sub','ideas']])}</div>`;
 }
+/* cobros que ya no se van a cobrar: se archivan (se pueden reactivar) o se borran para siempre */
+const incRows=cs=>cs.flatMap(c=>Object.entries(c.inc||{}).filter(([k,v])=>!v.x).map(([k,v])=>({c,k,v}))).sort((a,b)=>b.v.d.localeCompare(a.v.d));
+const incFold=cs=>{const R=incRows(cs);return R.length?foldCard(`<section class="card"><ul class="list">${R.map(({c,k,v})=>`<li class="row"><span class="row-main"><span class="t">${cs.length>1?esc(c.name)+' · ':''}${esc(v.l||k)}</span><span class="s">${money(v.a)} · archivado el ${shortDate(v.d)}${v.n?' · '+esc(v.n):''}</span></span><button class="btn ghost sm" type="button" data-act="inc-undo" data-id="${esc(c.id)}" data-for="${esc(k)}">Reactivar</button></li>`).join('')}</ul></section>`,'Archivados / Incobrables',`${R.length} · ${money(R.reduce((a,x)=>a+x.v.a,0))}`):''};
+function cobOpcSheet(cid,enc){
+  const c=S.clients.find(x=>x.id===cid);if(!c)return;const q=cobro(c).P.find(x=>encFor(x)===enc);if(!q)return;
+  sheet({title:esc(q.label),noSave:true,fields:[],pre:`<p class="note" style="margin-bottom:14px">Falta cobrar ${money(q.falta)}. ¿Qué pasó con este cobro?</p>`,
+    extra:[{label:'Ya lo cobré',fn:()=>{closeSheet();cobroSheet(cid,null,enc)}},{label:'Ya no lo voy a cobrar (incobrable)',fn:()=>{closeSheet();incSheet(cid,enc)}},{label:'Borrar para siempre',fn:()=>{closeSheet();incDelSheet(cid,enc)}}]});
+}
+function incSheet(cid,enc){
+  const c=S.clients.find(x=>x.id===cid);if(!c)return;const q=cobro(c).P.find(x=>encFor(x)===enc);if(!q)return;
+  sheet({title:'Incobrable',pre:`<p class="note" style="margin-bottom:14px">${esc(q.label)} · ${money(q.falta)}. Sale de lo que te deben y del plan, pero queda guardado en «Archivados / Incobrables». Si algún día te pagan, lo reactivas.</p>`,fields:[{k:'n',l:'Nota (opcional)',ph:'Ej. ya no me va a pagar'}],
+    onSave:v=>{c.inc={...(c.inc||{}),[enc]:{d:today(),n:v.n||'',a:q.falta,l:q.label}};toast('Archivado como incobrable')}});
+}
+function incDelSheet(cid,enc){
+  const c=S.clients.find(x=>x.id===cid);if(!c)return;const q=cobro(c).P.find(x=>encFor(x)===enc);if(!q)return;
+  sheet({title:'Borrar para siempre',noSave:true,fields:[],pre:`<p class="note" style="margin-bottom:14px">Vas a borrar «${esc(q.label)}» (${money(q.falta)}) del todo. <b>No se puede recuperar.</b> Si solo no lo vas a cobrar, mejor márcalo como incobrable: así queda guardado.</p>`,
+    extra:[{label:'Sí, borrar para siempre',fn:()=>{c.inc={...(c.inc||{}),[enc]:{x:1,d:today()}};save();closeSheet();render();toast('Borrado')}}]});
+}
 function vCobros(){
   const t=today(),cob=cobList();
   return det('Cobros','Lo que toca cobrar')+`<section class="card" aria-label="Cobros">${cob.length?`<ul class="list">${cob.map(({c,k})=>{const o=k.overdue[0],q=o||k.next;
-    return `<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${o?(o.st==='hoy'?'Hoy toca cobrar ':'Vencido del '+shortDate(o.due)+' · falta ')+money(k.pend):'Próximo cobro: '+q.label+' ('+when(q.due)+')'}</span></button>${o?`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(o)}">Cobrar</button>`:pill(money(k.fee),'info')}</li>`}).join('')}</ul>`:empty('No hay cobros pendientes ni cercanos.')}</section>`;
+    return `<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${o?(o.st==='hoy'?'Hoy toca cobrar ':'Vencido del '+shortDate(o.due)+' · falta ')+money(k.pend):'Próximo cobro: '+q.label+' ('+when(q.due)+')'}</span></button>${o?`<button class="btn sm" type="button" data-act="cob-opc" data-id="${c.id}" data-for="${encFor(o)}">Cobrar</button>`:pill(money(k.fee),'info')}</li>`}).join('')}</ul>`:empty('No hay cobros pendientes ni cercanos.')}</section>${incFold(S.clients)}`;
 }
 function vIdeas(){
   const gen=S.ideas.filter(i=>i.project==='General');
@@ -992,8 +1010,8 @@ function vClient(c){
   const freqTxt=!ck.fee?'':c.freq==='semanal'?`Pago semanal: ${wdList(c).map(n=>WDAYS[n]).join(' y ')}`:c.freq==='quincenal'?'Pago quincenal: los 15 y el último día del mes':`Pago mensual: el día ${c.payDay||1}`;
   const planTxt=(isSal(c)?`Salario bruto mensual ${money(num(c.fee))} − 11 % de seguros (${money(num(c.fee)*PLAN)})${descMonth(c)>0?` − otros descuentos (${money(descMonth(c))})`:''} = ${money(Math.max(0,num(c.fee)*(1-PLAN)-descMonth(c)))} netos al mes; ${money(ck.fee)} netos en cada pago.${num(c.comm)>0?` Más ${money(num(c.comm))} de comisión fija en la quincena ${c.commWhen==='15'?'del 15':'de fin de mes'}, sin el 11 %.`:''}`:`${tipoTxt}: ${money(ck.fee)} cada vez, sin descuentos.`)+(bonusOn(c)?` Bono ocasional (va a Dinero extra): ${money(num(c.bonus))} ${{semanal:'cada semana',quincenal:'cada quincena',mensual:'cada mes'}[bonusFreq(c)]}, sin descuento.`:'')+(c.auto==='si'?' Se suma solo a tus ingresos en cada fecha de pago; si algún pago no llegó, edítalo o bórralo abajo.':'');
   const mine=S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,10);
-  const pagosHtml=((ck.fee||bonusOn(c))?`<p class="note" style="margin-bottom:4px">${freqTxt}.</p><p class="note" style="margin-bottom:8px">${planTxt}</p><ul class="list">${ck.P.slice().reverse().map(q=>`<li class="row"><button class="row-main" type="button" ${q.st==='pagado'?'disabled':`data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}"`}><span class="t">${esc(q.label)}</span><span class="s">${q.paid?`Recibido ${money(q.paid)} de ${money(ck.fee)}`:`Monto ${money(ck.fee)}`}</span></button>${pill(st[q.st][0],st[q.st][1])}${q.st==='pagado'?'':`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}">Cobrar</button>`}</li>`).join('')}</ul>`
-    :`<p class="note" style="margin-bottom:8px">Toca «Ajustar» y elige si es salario, ofrenda u otro, cuánto es y cada cuánto, para llevar el control de sus pagos.</p>`)+
+  const pagosHtml=((ck.fee||bonusOn(c))?`<p class="note" style="margin-bottom:4px">${freqTxt}.</p><p class="note" style="margin-bottom:8px">${planTxt}</p><ul class="list">${ck.P.slice().reverse().filter(q=>q.st!=='incobrable').map(q=>`<li class="row"><button class="row-main" type="button" ${q.st==='pagado'?'disabled':`data-act="cob-opc" data-id="${c.id}" data-for="${encFor(q)}"`}><span class="t">${esc(q.label)}</span><span class="s">${q.paid?`Recibido ${money(q.paid)} de ${money(ck.fee)}`:`Monto ${money(ck.fee)}`}</span></button>${pill(st[q.st][0],st[q.st][1])}${q.st==='pagado'?'':`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}">Cobrar</button>`}</li>`).join('')}</ul>`
+    :`<p class="note" style="margin-bottom:8px">Toca «Ajustar» y elige si es salario, ofrenda u otro, cuánto es y cada cuánto, para llevar el control de sus pagos.</p>`)+incFold([c])+
     (mine.length?`<h3 class="gh" style="font-family:var(--f-body)">Pagos recibidos</h3><ul class="list">${mine.map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-tx" data-id="${x.id}"><span class="t">${money(x.amount)}${x.bruto?' netos':''}</span><span class="s">${x.bruto?'Bruto '+money(x.bruto)+' · ':''}${longDate(x.date)}${x.for?' · pago del '+shortDate(x.for):''}${x.stream==='bono'?' · bono':''}</span></button><button class="link" type="button" data-act="edit-tx" data-id="${x.id}" aria-label="Editar o borrar este pago">Editar</button></li>`).join('')}</ul>`:'');
   const sec=(id,title,btn,body)=>`<section class="card cs" aria-labelledby="${id}"><div class="card-h"><h2 id="${id}">${title}</h2>${btn}</div>${body}</section>`;
   return `<button class="link back" type="button" data-act="back">${ic('left')}Atrás</button>`+
@@ -1515,7 +1533,7 @@ function vMoney(){
 function vMov(){
   const ym=ui.month,[wa,wb]=win(ym,ui.fper),list=S.tx.filter(t=>t.date>=wa&&t.date<=wb).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
   const tt=(()=>{const r={ingreso:0,gasto:0,ahorro:0};list.forEach(t=>r[t.type]+=t.amount);r.libre=r.ingreso-r.gasto-r.ahorro;return r})(),bs=budgetState();
-  return det('Movimientos','Todo lo que entra y sale',addBtn('Dinero extra','add-tx','ingreso')+addBtn('Gasto','add-tx','gasto')+addBtn('Ahorro','add-tx','ahorro'))+
+  return det('Movimientos','Todo lo que entra y sale',addBtn('Ingreso','add-ing')+addBtn('Gasto','add-tx','gasto')+addBtn('Ahorro','add-tx','ahorro'))+
   `<div class="mnav" style="margin-bottom:16px"><button class="iconbtn" type="button" data-act="m-prev" aria-label="Mes anterior">${ic('left')}</button><b>${mLabel(ym)}</b><button class="iconbtn" type="button" data-act="m-next" aria-label="Mes siguiente">${ic('right')}</button></div>
   <div class="chips" role="group" aria-label="Periodo" style="margin-bottom:12px">${[['mes','Todo el mes'],['q1','1.ª quincena (1 al 15)'],['q2','2.ª quincena (16 al fin)']].map(([k,l])=>`<button class="chip" type="button" aria-pressed="${ui.fper===k}" data-act="fper" data-id="${k}">${l}</button>`).join('')}</div>
   <div class="stats" style="margin-bottom:16px"><button class="stat card" type="button" data-act="mvt" data-id="ingreso"><span>Lo que entró</span><b>${money(tt.ingreso)}</b></button><button class="stat card" type="button" data-act="mvt" data-id="gasto"><span>Lo que gastaste</span><b>${money(tt.gasto)}</b></button><button class="stat card" type="button" data-act="mvt" data-id="ahorro"><span>Lo que ahorraste</span><b>${money(tt.ahorro)}</b></button><button class="stat card" type="button" data-act="mvt" data-id="todos"><span>Lo que sobró este mes</span><b class="${tt.libre<0?'neg':''}">${money(tt.libre)}</b></button></div>
@@ -1561,7 +1579,7 @@ const merchKey=x=>norm(x).replace(/[^a-z0-9 ]/g,'').trim().slice(0,40);
 const merchMap=()=>{try{return JSON.parse(localStorage.getItem('miespacio.merch')||'{}')}catch(e){return {}}};
 const merchCat=d=>{const m=merchMap()[merchKey(d)];return m&&TXCATS.gasto.includes(m)?m:''};
 function fabMenu(){
-  sheet({title:'¿Qué quieres agregar?',noSave:true,fields:[],pre:`<div class="fabmenu"><button class="btn" type="button" data-act="fab-gasto">${ic('plus')}Un gasto</button><button class="btn ghost" type="button" data-act="fab-ev">${ic('calendar')}Un evento</button><button class="btn ghost" type="button" data-act="fab-task">${ic('check')}Una tarea</button>${S.clients.filter(c=>c.quick==='si'&&c.status!=='Terminado').map(c=>`<button class="btn ghost" type="button" data-act="fab-cobro" data-id="${esc(c.id)}">${ic('plus')}Cobro de ${esc(c.name)}</button>`).join('')}<button class="btn ghost" type="button" data-act="fab-horas">${ic('plus')}Horas extra (esposo)</button></div>`});
+  sheet({title:'¿Qué quieres agregar?',noSave:true,fields:[],pre:`<div class="fabmenu"><button class="btn" type="button" data-act="fab-gasto">${ic('plus')}Un gasto</button><button class="btn ghost" type="button" data-act="fab-ing">${ic('plus')}Un ingreso</button><button class="btn ghost" type="button" data-act="fab-ev">${ic('calendar')}Un evento</button><button class="btn ghost" type="button" data-act="fab-task">${ic('check')}Una tarea</button>${S.clients.filter(c=>c.quick==='si'&&c.status!=='Terminado').map(c=>`<button class="btn ghost" type="button" data-act="fab-cobro" data-id="${esc(c.id)}">${ic('plus')}Cobro de ${esc(c.name)}</button>`).join('')}<button class="btn ghost" type="button" data-act="fab-horas">${ic('plus')}Horas extra (esposo)</button></div>`});
 }
 function quickSheet(){
   const def=TXCATS.gasto.includes(lastCat())?lastCat():TXCATS.gasto[0];
@@ -1576,11 +1594,11 @@ function quickSheet(){
 function inboxSheet(id){
   const it=S.inbox.find(x=>x.id===id);if(!it)return;
   if(it.type==='ingreso'){
-    sheet({title:'Confirmar ingreso',required:'amount',data:{amount:it.amount,cat:TXCATS.ingreso.includes(it.cat)?it.cat:TXCATS.ingreso[0],desc:it.desc||'',date:it.date||today()},
+    sheet({title:'Confirmar ingreso',required:'amount',data:{amount:it.amount,cat:TXCATS.ingreso.includes(it.cat)?it.cat:'Dinero extra',desc:it.desc||'',date:it.date||today()},
       pre:'<p class="note" style="margin-bottom:14px">Llegó desde tu Atajo. Es dinero extra: va al bolsillo «Dinero extra».</p>',
       fields:[{k:'amount',l:'Monto',t:'number'},{k:'cat',l:'¿De qué es?',t:'pick',o:TXCATS.ingreso},{k:'desc',l:'Nota'},{k:'date',l:'Fecha',t:'date'}],
       onSave:v=>{if(!(v.amount>0)){toast('Pon el monto');return false}
-        S.tx.unshift({id:uid(),type:'ingreso',amount:v.amount,cat:v.cat||TXCATS.ingreso[0],desc:v.desc,date:v.date||today()});
+        S.tx.unshift({id:uid(),type:'ingreso',amount:v.amount,cat:v.cat||'Dinero extra',desc:v.desc,date:v.date||today()});
         remove(S.inbox,id);ui.month=(v.date||today()).slice(0,7);toast('Ingreso guardado')},
       onDelete:()=>{remove(S.inbox,id);toast('Descartado')}});
     return;
@@ -1612,7 +1630,7 @@ async function pullInbox(){
           const tp=/^ing/i.test(String(j.tipo??j.type??''))?'ingreso':'gasto',amount=parseAmt(j.monto??j.amount),desc=String(j.comercio??j.desc??'').slice(0,80),dt=String(j.fecha??j.date??''),catIn=String(j.categoria??j.cat??'').trim();
           if(/^s[ií]$/i.test(String(j.directo??''))&&amount>0&&amount<1e7){
             /* el Atajo ya eligió la categoría: se anota directo, sin pasar por «Por confirmar» */
-            if(!S.tx.some(x=>x.id===id)){const t=cleanRec('tx',{id,type:tp,amount,cat:TXCATS[tp].includes(catIn)?catIn:(tp==='gasto'?'Otros':TXCATS.ingreso[0]),desc,date:isD(dt)?dt:today(),...(tp==='gasto'&&String(j.bolsillo??'')==='extra'?{src:'extra'}:{})});if(t){S.tx.unshift(t);n++}}
+            if(!S.tx.some(x=>x.id===id)){const t=cleanRec('tx',{id,type:tp,amount,cat:TXCATS[tp].includes(catIn)?catIn:(tp==='gasto'?'Otros':'Dinero extra'),desc,date:isD(dt)?dt:today(),...(tp==='gasto'&&String(j.bolsillo??'')==='extra'?{src:'extra'}:{})});if(t){S.tx.unshift(t);n++}}
           }else{
             const rec=cleanRec('inbox',{id,type:tp,amount,desc,card:j.tarjeta??j.card,date:dt});
             if(rec){rec.cat=tp==='gasto'?(TXCATS.gasto.includes(catIn)?catIn:merchCat(rec.desc)):(TXCATS.ingreso.includes(catIn)?catIn:'');S.inbox.unshift(rec);n++}
@@ -1655,7 +1673,7 @@ function applyAutoPays(){
       const dues=dueDates(sm.o,from,t).slice(-26),paid=paidMap(c,sm.k,dueDates(sm.o,addDays(from,-20),addDays(t,60)),from);
       dues.forEach(due=>{
         const id=`${c.id}-${{bono:'b',comm:'c'}[sm.k]||'p'}${due.replace(/-/g,'')}`;
-        if(id.length>64||S.tx.some(x=>x.id===id)||S.del[id]||(paid[due]||0)>0)return;
+        if(id.length>64||S.tx.some(x=>x.id===id)||S.del[id]||(paid[due]||0)>0||(c.inc&&c.inc[({bono:'b:',comm:'c:'}[sm.k]||'')+due]))return;
         S.tx.push({id,type:'ingreso',amount:sm.feeAt?sm.feeAt(due):sm.fee,cat:c.name,date:due,for:due,desc:sm.k==='bono'?`Bono automático: ${c.name}`:sm.k==='comm'?`Comisión automática: ${c.name}`:`Pago automático: ${c.name}`,auto:true,...(sm.k!=='main'?{stream:sm.k}:{}),...(sm.k==='main'&&isSal(c)?{bruto:grossPay(c)}:{})});n++;
       });
     });
@@ -1835,7 +1853,7 @@ function cobroSheet(cid,txId,forDue){
   const c=S.clients.find(x=>x.id===cid);if(!c)return;
   const t=txId?S.tx.find(x=>x.id===txId):null,k=cobro(c);
   const lab={pagado:'ya pagado',vencido:'falta',hoy:'toca hoy',proximo:'próximo'};
-  const opts=[...k.P.map(q=>[encFor(q),`${q.label}: ${lab[q.st]}${q.st==='pagado'?'':' '+money(q.falta)}`]),['','Pago extra (no es de un periodo)']];
+  const opts=[...k.P.filter(q=>q.st!=='incobrable').map(q=>[encFor(q),`${q.label}: ${lab[q.st]}${q.st==='pagado'?'':' '+money(q.falta)}`]),['','Pago extra (no es de un periodo)']];
   const def=t?(t.for?({bono:'b:',comm:'c:'}[t.stream]||'')+t.for:''):(forDue||(k.overdue[0]&&encFor(k.overdue[0]))||(k.next&&encFor(k.next))||'');
   const q=k.P.find(x=>encFor(x)===def),isBono=q&&q.s!=='main';
   sheet({title:t?'Editar pago':`Cobro a ${c.name}`,required:'amount',
@@ -1851,6 +1869,28 @@ function cobroSheet(cid,txId,forDue){
       if(t){const n={...t,...rec};if(!rec.for)delete n.for;if(!bn)delete n.stream;if(!(k.plan&&!bn))delete n.bruto;S.tx[S.tx.indexOf(t)]=n}else S.tx.unshift({id:uid(),...rec});
       ui.month=rec.date.slice(0,7);toast(t?'Pago actualizado':'Cobro registrado')},
     onDelete:t?()=>{remove(S.tx,t.id);toast('Pago eliminado')}:null});
+}
+/* un ingreso cualquiera: tipo, quincena a la que cuenta y destino (quincena actual o un fondo) */
+function ingSheet(id){
+  const t=id?S.tx.find(x=>x.id===id):null,QS=quincenas(),fid=t?t.id.slice(0,60)+'-f':'',f0=t?S.tx.find(x=>x.id===fid):null;
+  const cats=!t||TXCATS.ingreso.includes(t.cat)?TXCATS.ingreso:[...TXCATS.ingreso,t.cat];
+  const dests=[['','Quincena actual'],...S.goals.filter(g=>!g.done).map(g=>[g.name,'Fondo: '+g.name]),['Emergencia','Fondo de emergencia']];
+  if(f0&&!dests.some(d=>d[0]===f0.cat))dests.push([f0.cat,'Fondo: '+f0.cat]);
+  const qo=t&&t.qk&&!QS.some(q=>q[0]===t.qk)?[[t.qk,'Quincena que empieza el '+longDate(t.qk)]]:[];
+  sheet({title:t?'Editar ingreso':'Agregar ingreso',required:'amount',data:t?{amount:t.amount,date:t.date,cat:t.cat,desc:t.desc||'',qk:t.qk||'',dest:f0?f0.cat:''}:{amount:'',date:today(),cat:cats[0],desc:'',qk:'',dest:''},
+    fields:[{k:'amount',l:'Monto (USD)',t:'number',ph:'0.00'},{k:'date',l:'Fecha',t:'date'},{k:'cat',l:'Tipo',t:'select',o:cats},{k:'desc',l:'Descripción corta (opcional)',ph:'Ej. Reembolso tarjeta'},
+      {k:'qk',l:'¿A qué quincena cuenta?',t:'select',o:[['','Según la fecha (automático)'],...qo,...QS]},
+      {k:'dest',l:'¿A dónde va?',t:'select',o:dests}],
+    setup(f){if(!t)f.elements.cat.addEventListener('change',()=>{if(f.elements.cat.value==='Horas extra'&&!f.elements.dest.value&&defGoal())f.elements.dest.value=defGoal()})},
+    onSave:v=>{
+      if(!(v.amount>0)){toast('Pon el monto');return false}
+      const tid=t?t.id:uid(),date=v.date||today(),qk=v.qk&&v.qk!==qWindow(date)[0]?v.qk:'',fid2=tid.slice(0,60)+'-f';
+      const rec={id:tid,type:'ingreso',amount:v.amount,cat:v.cat,desc:v.desc||'',date,...(qk?{qk}:{})};
+      if(t){const n={...t,...rec};if(!qk)delete n.qk;S.tx[S.tx.indexOf(t)]=n}else S.tx.unshift(rec);
+      const f=S.tx.find(x=>x.id===fid2);
+      if(v.dest){delete S.del[fid2];const fr={id:fid2,type:'ahorro',amount:v.amount,cat:v.dest,desc:'Ingreso al fondo',date,src:'extra',...(qk?{qk}:{})};if(f){const n={...f,...fr};if(!qk)delete n.qk;S.tx[S.tx.indexOf(f)]=n}else S.tx.unshift(fr)}else if(f)remove(S.tx,fid2);
+      ui.month=date.slice(0,7);toast(v.dest?'Listo: entró y se fue al fondo':'Ingreso guardado')},
+    onDelete:t?()=>{remove(S.tx,t.id);remove(S.tx,t.id.slice(0,60)+'-f')}:null});
 }
 function quincenas(){
   const t=today(),out=[];let y=+t.slice(0,4),m=+t.slice(5,7)-1;if(m<1){m=12;y--}
@@ -1971,7 +2011,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-16.4 monto distinto en una fecha';
+const APP_V='2026-10-19.1 ingresos e incobrables';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
@@ -2239,7 +2279,11 @@ document.addEventListener('click',e=>{
     case 'm-next':ui.month=shiftM(ui.month,1);render();break;
     case 'goto-month':nav({month:id,sub:'mov'});break;
     case 'add-tx':txSheet(null,id);break;
-    case 'edit-tx':{const t=S.tx.find(x=>x.id===id),c=t&&t.type==='ingreso'&&S.clients.find(x=>x.name===t.cat);c?cobroSheet(c.id,t.id):txSheet(id);break}
+    case 'add-ing':ingSheet();break;
+    case 'fab-ing':closeSheet();ingSheet();break;
+    case 'cob-opc':cobOpcSheet(id,el.dataset.for||'');break;
+    case 'inc-undo':{const c=S.clients.find(x=>x.id===id);if(c&&c.inc){const n={...c.inc};delete n[el.dataset.for];if(Object.keys(n).length)c.inc=n;else delete c.inc;save();render();toast('Reactivado: vuelve a salir como por cobrar')}break}
+    case 'edit-tx':{const t=S.tx.find(x=>x.id===id),c=t&&t.type==='ingreso'&&S.clients.find(x=>x.name===t.cat);c?cobroSheet(c.id,t.id):t&&t.type==='ingreso'?(t.cat==='Horas extra'?horasSheet(id):ingSheet(id)):txSheet(id);break}
     case 'quick':fabMenu();break;
     case 'fab-gasto':closeSheet();quickSheet();break;
     case 'fab-ev':closeSheet();evSheet(null,today());break;
