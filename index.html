@@ -475,7 +475,7 @@ function cleanRec(c,r){
     if(+o.bonus>0)o.bonus=+o.bonus;else delete o.bonus;
     if(!['mensual','quincenal','semanal'].includes(o.bonusFreq))delete o.bonusFreq;
     if(!o.payFrom)delete o.payFrom;
-    if(!['seguro','variable'].includes(o.stab))delete o.stab;if(o.bolsillo!=='salario')delete o.bolsillo;if(o.quick!=='si')delete o.quick;if(!o.payTo)delete o.payTo;if(o.inc&&typeof o.inc==='object'&&!Array.isArray(o.inc)){const m={};Object.entries(o.inc).slice(0,160).forEach(([k,v])=>{if(/^([bc]:)?\d{4}-\d{2}-\d{2}$/.test(k)&&v&&typeof v==='object')m[k]=v.x?{x:1,d:isD(v.d)?v.d:ymd0()}:{d:isD(v.d)?v.d:ymd0(),n:String(v.n==null||typeof v.n==='object'?'':v.n).slice(0,200),a:Number.isFinite(+v.a)&&+v.a>=0&&+v.a<1e7?+v.a:0,l:String(v.l==null||typeof v.l==='object'?'':v.l).slice(0,80)}});if(Object.keys(m).length)o.inc=m;else delete o.inc}else delete o.inc;if(o.feeOv&&typeof o.feeOv==='object'&&!Array.isArray(o.feeOv)){const f={};Object.entries(o.feeOv).slice(0,24).forEach(([k,v])=>{if(isD(k)&&Number.isFinite(+v)&&+v>0&&+v<1e7)f[k]=+v});if(Object.keys(f).length)o.feeOv=f;else delete o.feeOv}else delete o.feeOv;
+    if(!['seguro','variable'].includes(o.stab))delete o.stab;if(o.bolsillo!=='salario')delete o.bolsillo;if(o.manual!=='si'||o.tipo==='salario')delete o.manual;if(o.quick!=='si')delete o.quick;if(!o.payTo)delete o.payTo;if(o.inc&&typeof o.inc==='object'&&!Array.isArray(o.inc)){const m={};Object.entries(o.inc).slice(0,160).forEach(([k,v])=>{if(/^([bc]:)?\d{4}-\d{2}-\d{2}$/.test(k)&&v&&typeof v==='object')m[k]=v.x?{x:1,d:isD(v.d)?v.d:ymd0()}:{d:isD(v.d)?v.d:ymd0(),n:String(v.n==null||typeof v.n==='object'?'':v.n).slice(0,200),a:Number.isFinite(+v.a)&&+v.a>=0&&+v.a<1e7?+v.a:0,l:String(v.l==null||typeof v.l==='object'?'':v.l).slice(0,80)}});if(Object.keys(m).length)o.inc=m;else delete o.inc}else delete o.inc;if(o.feeOv&&typeof o.feeOv==='object'&&!Array.isArray(o.feeOv)){const f={};Object.entries(o.feeOv).slice(0,24).forEach(([k,v])=>{if(isD(k)&&Number.isFinite(+v)&&+v>0&&+v<1e7)f[k]=+v});if(Object.keys(f).length)o.feeOv=f;else delete o.feeOv}else delete o.feeOv;
     if(Number.isFinite(+o.comm)&&+o.comm>0&&+o.comm<1e7){o.comm=+o.comm;if(!['15','fin'].includes(o.commWhen))o.commWhen='fin'}else{delete o.comm;delete o.commWhen}
     if(Array.isArray(o.descs))o.descs=o.descs.slice(0,20).map((x,i)=>x&&typeof x==='object'&&Number.isFinite(+x.m)&&+x.m>0&&+x.m<1e7?{id:typeof x.id==='string'&&SAFE.test(x.id)?x.id:'d'+i,n:String(x.n==null||typeof x.n==='object'?'':x.n).slice(0,60),m:x.q?+x.m:Math.round(+x.m/2*100)/100,q:1,...(isD(x.from)?{from:x.from}:{}),...(isD(x.to)?{to:x.to}:{})}:null).filter(Boolean);else delete o.descs;
   }
@@ -674,7 +674,7 @@ const bonusOn=c=>isSal(c)&&c.bonusOn==='si'&&num(c.bonus)>0;
 const bonusFreq=c=>c.bonusFreq||'mensual';
 const bonusMonth=c=>bonusOn(c)?num(c.bonus)*perMonthF(bonusFreq(c),c):0;
 /* cada cliente puede tener dos fuentes de pago: la principal y el bono o comisión (sin descuento) */
-function streams(c){const o=[];if(isSal(c)?grossPay(c)>0:payAmt(c)>0)o.push({k:'main',fee:payAmt(c),feeAt:d=>payAmtAt(c,d),o:c,pre:''});if(isSal(c)&&num(c.comm)>0)o.push({k:'comm',fee:num(c.comm),o:{...c,freq:'mensual',payDay:c.commWhen==='15'?15:31},pre:'Comisión · '});if(bonusOn(c))o.push({k:'bono',fee:num(c.bonus),o:{...c,freq:bonusFreq(c),payDay:c.freq==='mensual'?c.payDay:31},pre:'Bono · '});return o}
+function streams(c){const o=[];if(c.manual==='si')return o;if(isSal(c)?grossPay(c)>0:payAmt(c)>0)o.push({k:'main',fee:payAmt(c),feeAt:d=>payAmtAt(c,d),o:c,pre:''});if(isSal(c)&&num(c.comm)>0)o.push({k:'comm',fee:num(c.comm),o:{...c,freq:'mensual',payDay:c.commWhen==='15'?15:31},pre:'Comisión · '});if(bonusOn(c))o.push({k:'bono',fee:num(c.bonus),o:{...c,freq:bonusFreq(c),payDay:c.freq==='mensual'?c.payDay:31},pre:'Bono · '});return o}
 const encFor=q=>({bono:'b:',comm:'c:'}[q.s]||'')+q.due;
 /* fechas de pago entre dos fechas: semanal (uno o varios días de la semana), quincenal (15 y fin de mes) o mensual (un día del mes) */
 function dueDates(c,from,to){
@@ -1010,7 +1010,7 @@ function vClient(c){
   const freqTxt=!ck.fee?'':c.freq==='semanal'?`Pago semanal: ${wdList(c).map(n=>WDAYS[n]).join(' y ')}`:c.freq==='quincenal'?'Pago quincenal: los 15 y el último día del mes':`Pago mensual: el día ${c.payDay||1}`;
   const planTxt=(isSal(c)?`Salario bruto mensual ${money(num(c.fee))} − 11 % de seguros (${money(num(c.fee)*PLAN)})${descMonth(c)>0?` − otros descuentos (${money(descMonth(c))})`:''} = ${money(Math.max(0,num(c.fee)*(1-PLAN)-descMonth(c)))} netos al mes; ${money(ck.fee)} netos en cada pago.${num(c.comm)>0?` Más ${money(num(c.comm))} de comisión fija en la quincena ${c.commWhen==='15'?'del 15':'de fin de mes'}, sin el 11 %.`:''}`:`${tipoTxt}: ${money(ck.fee)} cada vez, sin descuentos.`)+(bonusOn(c)?` Bono ocasional (va a Dinero extra): ${money(num(c.bonus))} ${{semanal:'cada semana',quincenal:'cada quincena',mensual:'cada mes'}[bonusFreq(c)]}, sin descuento.`:'')+(c.auto==='si'?' Se suma solo a tus ingresos en cada fecha de pago; si algún pago no llegó, edítalo o bórralo abajo.':'');
   const mine=S.tx.filter(x=>x.type==='ingreso'&&x.cat===c.name).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,10);
-  const pagosHtml=((ck.fee||bonusOn(c))?`<p class="note" style="margin-bottom:4px">${freqTxt}.</p><p class="note" style="margin-bottom:8px">${planTxt}</p><ul class="list">${ck.P.slice().reverse().filter(q=>q.st!=='incobrable').map(q=>`<li class="row"><button class="row-main" type="button" ${q.st==='pagado'?'disabled':`data-act="cob-opc" data-id="${c.id}" data-for="${encFor(q)}"`}><span class="t">${esc(q.label)}</span><span class="s">${q.paid?`Recibido ${money(q.paid)} de ${money(ck.fee)}`:`Monto ${money(ck.fee)}`}</span></button>${pill(st[q.st][0],st[q.st][1])}${q.st==='pagado'?'':`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}">Cobrar</button>`}</li>`).join('')}</ul>`
+  const pagosHtml=(c.manual==='si'?`<p class="note" style="margin-bottom:8px">No tiene cobro fijo: no se suma a ninguna cuenta ni plan hasta que lo registres. Usa «Registrar cobro» cuando te paguen.</p>`:(ck.fee||bonusOn(c))?`<p class="note" style="margin-bottom:4px">${freqTxt}.</p><p class="note" style="margin-bottom:8px">${planTxt}</p><ul class="list">${ck.P.slice().reverse().filter(q=>q.st!=='incobrable').map(q=>`<li class="row"><button class="row-main" type="button" ${q.st==='pagado'?'disabled':`data-act="cob-opc" data-id="${c.id}" data-for="${encFor(q)}"`}><span class="t">${esc(q.label)}</span><span class="s">${q.paid?`Recibido ${money(q.paid)} de ${money(ck.fee)}`:`Monto ${money(ck.fee)}`}</span></button>${pill(st[q.st][0],st[q.st][1])}${q.st==='pagado'?'':`<button class="btn sm" type="button" data-act="pay-client" data-id="${c.id}" data-for="${encFor(q)}">Cobrar</button>`}</li>`).join('')}</ul>`
     :`<p class="note" style="margin-bottom:8px">Toca «Ajustar» y elige si es salario, ofrenda u otro, cuánto es y cada cuánto, para llevar el control de sus pagos.</p>`)+incFold([c])+
     (mine.length?`<h3 class="gh" style="font-family:var(--f-body)">Pagos recibidos</h3><ul class="list">${mine.map(x=>`<li class="row"><button class="row-main" type="button" data-act="edit-tx" data-id="${x.id}"><span class="t">${money(x.amount)}${x.bruto?' netos':''}</span><span class="s">${x.bruto?'Bruto '+money(x.bruto)+' · ':''}${longDate(x.date)}${x.for?' · pago del '+shortDate(x.for):''}${x.stream==='bono'?' · bono':''}</span></button><button class="link" type="button" data-act="edit-tx" data-id="${x.id}" aria-label="Editar o borrar este pago">Editar</button></li>`).join('')}</ul>`:'');
   const sec=(id,title,btn,body)=>`<section class="card cs" aria-labelledby="${id}"><div class="card-h"><h2 id="${id}">${title}</h2>${btn}</div>${body}</section>`;
@@ -1858,7 +1858,7 @@ function cobroSheet(cid,txId,forDue){
   const q=k.P.find(x=>encFor(x)===def),isBono=q&&q.s!=='main';
   sheet({title:t?'Editar pago':`Cobro a ${c.name}`,required:'amount',
     pre:k.plan&&!isBono?`<p class="note" style="margin-bottom:14px">Salario: bruto ${money(k.gross)} menos 11 % de seguros (Seguro Social 9.75 % + Educativo 1.25 %)${k.descPay>0?` y ${money(k.descPay)} de otros descuentos de planilla`:''} = <b>${money(k.fee)} netos</b>. Anota lo que realmente te depositaron.</p>`:'',
-    data:t?{amount:t.amount,date:t.date,for:def,desc:t.desc||''}:{amount:q&&q.falta>0?q.falta:k.fee||'',date:today(),for:def,desc:''},
+    data:t?{amount:t.amount,date:t.date,for:def,desc:t.desc||''}:{amount:c.manual==='si'?'':q&&q.falta>0?q.falta:k.fee||'',date:today(),for:def,desc:''},
     fields:[{k:'amount',l:k.plan?'Monto neto recibido':'Monto recibido',t:'number',ph:'0.00'},{k:'date',l:'Fecha en que te pagaron',t:'date'},{k:'for',l:'¿A qué pago corresponde?',t:'select',o:opts},{k:'desc',l:'Nota (opcional)'}],
     onSave:v=>{if(!(v.amount>0)){toast('Pon el monto recibido');return false}
       const pf=String(v.for).slice(0,2),sk=pf==='b:'?'bono':pf==='c:'?'comm':'main',bn=sk!=='main',fd=bn?String(v.for).slice(2):v.for;
@@ -1922,16 +1922,17 @@ function clientSheet(id){
   const c=S.clients.find(x=>x.id===id);
   const FQ=[['semanal','Cada semana'],['quincenal','Cada quincena (15 y fin de mes)'],['mensual','Cada mes']];
   sheet({title:c?'Editar cliente':'Nuevo cliente',required:'name',
-    data:c?{...c,tipo:c.tipo||'salario',freq:c.freq||'quincenal',payWeekdays:c.payWeekdays||'5',bonusOn:c.bonusOn||'no',bonusFreq:c.bonusFreq||'mensual',auto:c.auto||(num(c.fee)>0?'no':'si')}
-      :{status:'Activo',kind:nextKind(),tipo:'salario',freq:'quincenal',payWeekdays:'5',bonusOn:'no',bonusFreq:'mensual',auto:'si',payFrom:today()},
+    data:c?{...c,tipo:c.tipo||'salario',freq:c.freq||'quincenal',payWeekdays:c.payWeekdays||'5',bonusOn:c.bonusOn||'no',bonusFreq:c.bonusFreq||'mensual',auto:c.auto||(num(c.fee)>0?'no':'si'),manual:c.manual||'no'}
+      :{status:'Activo',kind:nextKind(),tipo:'salario',freq:'quincenal',payWeekdays:'5',bonusOn:'no',bonusFreq:'mensual',auto:'si',manual:'no',payFrom:today()},
     moreFrom:13,
     fields:[{k:'name',l:'Nombre del cliente'},{k:'status',l:'Estado',t:'select',o:STATUS},
       {k:'tipo',l:'¿Qué tipo de ingreso es?',t:'select',o:[['salario','Salario'],['ofrenda','Ofrenda'],['otro','Otro']]},
       {k:'otroTxt',l:'¿De qué es este ingreso?',ph:'Ej. venta, ayuda, clases',show:v=>v.tipo==='otro'},
-      {k:'fee',l:'Salario bruto mensual',t:'number',ph:'0.00',lab:v=>v.tipo==='salario'?'Salario bruto mensual':'¿Cuánto es cada vez?'},
-      {k:'freq',l:'¿Cada cuánto te pagan?',t:'select',o:FQ,lab:v=>v.tipo==='salario'?'¿Cada cuánto te pagan?':'¿Cada cuánto es?'},
-      {k:'payWeekdays',l:'¿Qué días de la semana?',t:'days',show:v=>v.freq==='semanal'},
-      {k:'payDay',l:'¿Qué día del mes?',t:'number',ph:'Ej. 15',show:v=>v.freq==='mensual'},
+      {k:'manual',l:'¿Te paga con un monto y una fecha fijos?',t:'select',o:[['no','Sí, es fijo'],['si','No: solo cuenta cuando yo lo registro']],show:v=>v.tipo!=='salario'},
+      {k:'fee',l:'Salario bruto mensual',t:'number',ph:'0.00',lab:v=>v.tipo==='salario'?'Salario bruto mensual':'¿Cuánto es cada vez?',show:v=>v.manual!=='si'||v.tipo==='salario'},
+      {k:'freq',l:'¿Cada cuánto te pagan?',t:'select',o:FQ,lab:v=>v.tipo==='salario'?'¿Cada cuánto te pagan?':'¿Cada cuánto es?',show:v=>v.manual!=='si'||v.tipo==='salario'},
+      {k:'payWeekdays',l:'¿Qué días de la semana?',t:'days',show:v=>v.freq==='semanal'&&(v.manual!=='si'||v.tipo==='salario')},
+      {k:'payDay',l:'¿Qué día del mes?',t:'number',ph:'Ej. 15',show:v=>v.freq==='mensual'&&(v.manual!=='si'||v.tipo==='salario')},
       {k:'comm',l:'Comisión fija (no lleva el 11 %)',t:'number',ph:'0.00',show:v=>v.tipo==='salario'},
       {k:'commWhen',l:'¿En qué quincena llega la comisión?',t:'select',o:[['15','En la quincena del 15'],['fin','En la quincena de fin de mes']],show:v=>v.tipo==='salario'&&num(v.comm)>0},
       {k:'bonusOn',l:'¿Tienes un bono ocasional? (va a Dinero extra)',t:'select',o:[['no','No'],['si','Sí']],show:v=>v.tipo==='salario'},
@@ -2011,7 +2012,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-19.1 ingresos e incobrables';
+const APP_V='2026-10-19.2 cliente sin cobro fijo';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
