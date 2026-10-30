@@ -926,16 +926,18 @@ function vWork(){
   if(ui.sub==='ideas')return vIdeas();
   return vWorkMain();
 }
-const cobList=()=>{const t=today();return S.clients.filter(c=>c.status==='Activo'&&(payAmt(c)>0||bonusOn(c))).map(c=>({c,k:cobro(c)})).filter(x=>x.k.overdue.length||(x.k.next&&diffDays(t,x.k.next.due)<=3))};
+/* Trabajo solo muestra clientes de verdad: los archivados (arch:'si', p. ej. esposo y décimos) siguen sumando en Finanzas */
+const wClients=()=>S.clients.filter(c=>c.arch!=='si');
+const cobList=()=>{const t=today();return wClients().filter(c=>c.status==='Activo'&&(payAmt(c)>0||bonusOn(c))).map(c=>({c,k:cobro(c)})).filter(x=>x.k.overdue.length||(x.k.next&&diffDays(t,x.k.next.due)<=3))};
 function vWorkMain(){
-  const act=S.clients.filter(c=>c.status==='Activo').length,all=S.tasks.filter(x=>!x.done).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9')),cob=cobList(),inc=lastTx(3,t=>t.type==='ingreso'&&S.clients.some(c=>c.name===t.cat)),por=S.posts.filter(x=>x.status!=='Publicado').length;
+  const act=wClients().filter(c=>c.status==='Activo').length,all=S.tasks.filter(x=>!x.done).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9')),cob=cobList(),inc=lastTx(3,t=>t.type==='ingreso'&&wClients().some(c=>c.name===t.cat)),por=S.posts.filter(x=>x.status!=='Publicado').length;
   const cobRow=({c,k})=>{const o=k.overdue[0],q=o||k.next;return `<li class="row"><span class="dot k-${KIND[c.name]||'mute'}" aria-hidden="true">${esc((c.name||'?')[0].toUpperCase())}</span><button class="row-main" type="button" data-act="go-client" data-id="${esc(c.name)}"><span class="t">${esc(c.name)}</span><span class="s">${o?(o.st==='hoy'?'Hoy toca cobrar ':'Falta cobrar ')+money(k.pend):'Próximo cobro: '+q.label}</span></button></li>`};
   const todo=all.slice(0,4).map(taskRow).join('')+cob.slice(0,2).map(cobRow).join('');
   return page('Trabajo','Mis clientes')+`<div class="stack">
   ${hero('Tareas por hacer',all.length,plural(act,'cliente activo','clientes activos'),'','open-sub','clients')}
   ${blk('Lo que tengo que hacer',todo?`<ul class="list">${todo}</ul>`:empty('Nada pendiente por ahora.'),'open-sub','clients')}
   ${blk('Lo último que pasó',inc.length?`<ul class="list">${inc.map(txRow).join('')}</ul>`:empty('Aún no hay pagos de clientes.'),'mov-t','ingreso')}
-  ${masList([['Clientes',S.clients.length?plural(S.clients.length,'cliente','clientes'):'','open-sub','clients'],['Cobros',cob.length?plural(cob.length,'por cobrar','por cobrar'):'','open-sub','cobros'],['Calendario de publicaciones',por?`${por} por salir`:'','open-pubcal',''],['Ideas generales','','open-sub','ideas']])}</div>`;
+  ${masList([['Clientes',wClients().length?plural(wClients().length,'cliente','clientes'):'','open-sub','clients'],['Cobros',cob.length?plural(cob.length,'por cobrar','por cobrar'):'','open-sub','cobros'],['Calendario de publicaciones',por?`${por} por salir`:'','open-pubcal',''],['Ideas generales','','open-sub','ideas']])}</div>`;
 }
 /* cobros que ya no se van a cobrar: se archivan (se pueden reactivar) o se borran para siempre */
 const incRows=cs=>cs.flatMap(c=>Object.entries(c.inc||{}).filter(([k,v])=>!v.x).map(([k,v])=>({c,k,v}))).sort((a,b)=>b.v.d.localeCompare(a.v.d));
@@ -983,7 +985,7 @@ function vPubCal(){
    ${sin?`<p class="note" style="margin-top:10px">${sin} publicación${sin===1?'':'es'} sin fecha por programar.</p>`:''}</section></div>`;
 }
 function vClients(){
-  const cards=S.clients.map(c=>{
+  const cards=wClients().map(c=>{
     const n=S.tasks.filter(x=>x.project===c.name&&!x.done).length,po=S.posts.filter(x=>x.project===c.name&&x.status!=='Publicado').length;
     const nx=importantDates(c.name,30)[0];
     const bits=[`${n} tarea${n===1?'':'s'}`,po+(po===1?' publicación':' publicaciones')+' por salir'];
@@ -991,7 +993,7 @@ function vClients(){
       <span class="row-main"><span class="t">${esc(c.name)}</span><span class="s">${bits.join(' · ')}</span>${nx?`<span class="s">Próxima fecha: ${esc(nx.title)}, ${when(nx.d)}</span>`:''}</span>${pill(c.status||'Activo',SKIND_CLIENT[c.status]||'ok')}${ic('right')}</button></li>`}).join('');
   return det('Clientes','Mis clientes')+
    `<button class="btn big" type="button" data-act="add-client">${ic('plus')}Agregar cliente</button>`+
-   (S.clients.length?`<ul class="list clist" aria-label="Clientes" style="margin-top:16px">${cards}</ul><p class="note" style="margin-top:14px">Toca un cliente para ver todo lo suyo: datos, tareas, publicaciones e ideas.</p>`
+   (wClients().length?`<ul class="list clist" aria-label="Clientes" style="margin-top:16px">${cards}</ul><p class="note" style="margin-top:14px">Toca un cliente para ver todo lo suyo: datos, tareas, publicaciones e ideas.</p>`
      :`<div class="card" style="margin-top:16px">${empty('Todavía no tienes clientes. Toca «Agregar cliente» para empezar.')}</div>`);
 }
 function vClient(c){
@@ -2028,7 +2030,7 @@ function postSheet(id,date){
       upsert(S.posts,{...v,id:p?p.id:uid(),imgs})},
     onDelete:p?()=>{(p.imgs||[]).forEach(delImg);remove(S.posts,p.id)}:null});
 }
-const APP_V='2026-10-30.1 sin Súper, facturas con foto';
+const APP_V='2026-10-30.2 solo Nexia en Trabajo';
 function settingsSheet(){
   sheet({title:'Ajustes',pre:`<p class="note" style="margin-bottom:14px">Versión de la app: ${APP_V}. El saldo inicial es lo que tenías en cada bolsillo el día que empiezas a llevar la cuenta; solo se cuenta lo cobrado y pagado desde esa fecha.</p>`,data:{...S.set,theme:localStorage.getItem('miespacio.theme')||'dark',every:String(SY.every===undefined?60:SY.every)},
     fields:[{k:'name',l:'Tu nombre',ph:'Para saludarte'},{k:'budget',l:'Tope de gasto del mes (opcional, solo para avisarte)',t:'number',ph:'0.00'},
@@ -2185,7 +2187,7 @@ function openSearch(){
         const q=norm(input.value.trim());
         if(q.length<2){box.innerHTML='<p class="note">Escribe al menos 2 letras.</p>';return}
         const R=[],add=(tipo,title,sub,act,id)=>{if(norm(title+' '+sub).includes(q))R.push({tipo,title,sub:sub||'',act,id})};
-        S.clients.forEach(c=>add('Cliente',c.name,[c.contact,c.instagram,c.web,c.notes].filter(Boolean).join(' '),'go-client',c.name));
+        wClients().forEach(c=>add('Cliente',c.name,[c.contact,c.instagram,c.web,c.notes].filter(Boolean).join(' '),'go-client',c.name));
         S.tasks.forEach(t=>add('Tarea',t.title,t.project,'edit-task',t.id));
         S.posts.forEach(x=>add('Publicación',x.title,[x.project,x.caption,x.tags].filter(Boolean).join(' '),'edit-post',x.id));
         S.events.forEach(e=>add('Evento',e.title,[e.date,e.note].filter(Boolean).join(' '),'edit-ev',e.id));
